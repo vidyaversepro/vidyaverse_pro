@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student ID Card</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 20px; background: #f0f2f5; }
+        .id-card {
+            width: 2.125in;
+            height: 3.375in;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            text-align: center;
+            padding: 10px 5px;
+            height: 60px;
+        }
+        .school-name { font-size: 10px; font-weight: bold; margin: 0; text-transform: uppercase; }
+        .photo-container {
+            width: 80px;
+            height: 80px;
+            margin: -30px auto 10px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background: #e2e8f0;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .photo { width: 100%; height: 100%; object-fit: cover; }
+        .details { text-align: center; padding: 0 15px; }
+        .student-name { font-size: 14px; font-weight: bold; margin: 0 0 5px; color: #1e293b; }
+        .info-row { display: flex; justify-content: space-between; font-size: 9px; margin-bottom: 3px; color: #475569; }
+        .info-label { font-weight: 600; }
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: #f8fafc;
+            padding: 8px 0;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        .qr-placeholder { width: 40px; height: 40px; background: #e2e8f0; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <div class="id-card">
+        <div class="header">
+            <p class="school-name">{{institution.name}}</p>
+        </div>
+        <div class="photo-container">
+            <img class="photo" src="{{student.profilePictureUrl}}" alt="Student Photo">
+        </div>
+        <div class="details">
+            <p class="student-name">{{student.name}}</p>
+            <div class="info-row"><span class="info-label">ID No:</span> <span>{{idCard.idCardNumber}}</span></div>
+            <div class="info-row"><span class="info-label">Class:</span> <span>{{student.section.class.name}} {{student.section.name}}</span></div>
+            <div class="info-row"><span class="info-label">DOB:</span> <span>{{student.dateOfBirth}}</span></div>
+            <div class="info-row"><span class="info-label">Blood Grp:</span> <span>{{student.bloodGroup}}</span></div>
+        </div>
+        <div class="footer">
+            <img src="{{qrCode}}" alt="QR Code" style="width: 40px; height: 40px;" />
+        </div>
+    </div>
+</body>
+</html>

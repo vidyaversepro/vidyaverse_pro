@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Academic Marksheet</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 40px; background: white; }
+        .marksheet {
+            border: 2px solid #1e293b;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; }
+        .school-name { font-size: 28px; font-weight: bold; color: #0f172a; margin: 0 0 5px; text-transform: uppercase; }
+        .doc-title { font-size: 20px; color: #3b82f6; font-weight: 600; margin: 10px 0 0; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .student-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; }
+        .info-row { display: flex; margin-bottom: 8px; }
+        .info-label { width: 140px; font-weight: 600; color: #64748b; font-size: 14px; }
+        .info-value { font-weight: 600; color: #0f172a; font-size: 15px; flex: 1; border-bottom: 1px dotted #cbd5e1; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; }
+        th { background: #f1f5f9; color: #475569; font-weight: 600; font-size: 13px; text-transform: uppercase; }
+        td { color: #1e293b; font-size: 14px; }
+        .subject-col { text-align: left; font-weight: 600; }
+        
+        .summary-box {
+            display: flex;
+            justify-content: space-between;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 40px;
+        }
+        .summary-item { text-align: center; flex: 1; border-right: 1px solid #e2e8f0; }
+        .summary-item:last-child { border-right: none; }
+        .summary-val { font-size: 24px; font-weight: bold; color: #0f172a; margin-bottom: 5px; }
+        .summary-lbl { font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; }
+        
+        .footer { display: flex; justify-content: space-between; padding: 0 20px; margin-top: 60px; }
+        .sign { text-align: center; width: 200px; }
+        .sign-line { border-top: 1px solid #0f172a; margin-top: 40px; padding-top: 10px; font-weight: 600; color: #334155; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="marksheet">
+        <div class="header">
+            <h1 class="school-name">{{institution.name}}</h1>
+            <h3 class="doc-title">Statement of Marks</h3>
+            <p style="margin: 5px 0 0; color: #64748b;">Academic Year: {{marksheet.academicYear}}</p>
+        </div>
+        
+        <div class="student-info">
+            <div>
+                <div class="info-row"><span class="info-label">Student Name:</span> <span class="info-value">{{student.name}}</span></div>
+                <div class="info-row"><span class="info-label">Class & Section:</span> <span class="info-value">{{student.section.class.name}} {{student.section.name}}</span></div>
+                <div class="info-row"><span class="info-label">Roll No:</span> <span class="info-value">{{student.id}}</span></div>
+            </div>
+            <div>
+                <div class="info-row"><span class="info-label">Marksheet No:</span> <span class="info-value">{{marksheet.marksheetNumber}}</span></div>
+                <div class="info-row"><span class="info-label">Date of Issue:</span> <span class="info-value">{{marksheet.issueDate}}</span></div>
+            </div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th class="subject-col">Subject</th>
+                    <th>Max Marks</th>
+                    <th>Marks Obtained</th>
+                    <th>Grade</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each marksheet.subjects}}
+                <tr>
+                    <td class="subject-col">{{this.subject.name}}</td>
+                    <td>{{this.maxMarks}}</td>
+                    <td><strong>{{this.obtainedMarks}}</strong></td>
+                    <td><strong>{{this.grade}}</strong></td>
+                    <td>{{this.gradePoints}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th class="subject-col">Total</th>
+                    <th>{{marksheet.totalMaxMarks}}</th>
+                    <th>{{marksheet.totalObtainedMarks}}</th>
+                    <th>-</th>
+                    <th>-</th>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div class="summary-box">
+            <div class="summary-item">
+                <div class="summary-val">{{marksheet.percentage}}%</div>
+                <div class="summary-lbl">Percentage</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-val">{{marksheet.cgpa}}</div>
+                <div class="summary-lbl">CGPA</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-val">{{marksheet.rank}}</div>
+                <div class="summary-lbl">Class Rank</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-val">PASS</div>
+                <div class="summary-lbl">Result</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="sign">
+                <div class="sign-line">Class Teacher</div>
+            </div>
+            <div class="sign">
+                <div class="sign-line">Principal / Head</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

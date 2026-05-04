@@ -1,0 +1,52 @@
+{
+  "name": "vidyaverse-pro",
+  "version": "1.0.0",
+  "description": "Comprehensive Educational Management Platform",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
+    "dev:all": "pnpm run dev",
+    "dev:backend": "npx kill-port 3002 && cd backend && npx tsx src/index.ts",
+    "dev:frontend": "cd frontend && npx vite",
+    "build": "pnpm -r build",
+    "build:all": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "lint:all": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "test:all": "pnpm -r test",
+    "type-check": "pnpm -r type-check",
+    "type-check:all": "pnpm -r type-check",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "db:push": "pnpm --filter backend db:push",
+    "db:migrate": "pnpm --filter backend db:migrate",
+    "db:seed": "pnpm --filter backend db:seed",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "backend/src/**/*.ts": [
+      "eslint --fix"
+    ],
+    "frontend/src/**/*.{ts,tsx}": [
+      "eslint --fix"
+    ]
+  },
+  "keywords": [
+    "education",
+    "saas",
+    "management",
+    "school"
+  ],
+  "author": "Vidyaverse",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "husky": "^9.1.7",
+    "kill-port": "^2.0.1",
+    "lint-staged": "^16.3.2"
+  }
+}

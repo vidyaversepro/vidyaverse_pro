@@ -1,0 +1,25 @@
+﻿src/pages/auth/AdminSignupPage.tsx(1,20): error TS6133: 'useEffect' is declared but its value is never read.
+src/pages/auth/LoginPage.tsx(2,10): error TS6133: 'Link' is declared but its value is never read.
+src/pages/certificates/CertificatesPage.tsx(6,5): error TS6133: 'Filter' is declared but its value is never read.
+src/pages/certificates/CertificatesPage.tsx(41,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/pages/dashboard/InstitutionModal.tsx(90,47): error TS2339: Property 'academicYear' does not exist on type 'Institution'.
+src/pages/dashboard/InstitutionOnboardingPage.tsx(4,29): error TS6133: 'CardDescription' is declared but its value is never read.
+src/pages/dashboard/InstitutionsPage.tsx(64,1): error TS6133: 'Input' is declared but its value is never read.
+src/pages/group-photos/components/FaceMappingModal.tsx(141,117): error TS2339: Property 'admissionNo' does not exist on type 'Student'.
+src/pages/id-cards/PrintBatchPage.tsx(1,1): error TS6133: 'useState' is declared but its value is never read.
+src/pages/students/ApprovalQueuePage.tsx(9,26): error TS2307: Cannot find module '@/components/ui/skeleton' or its corresponding type declarations.
+src/pages/students/ApprovalQueuePage.tsx(36,14): error TS2741: Property 'breadcrumb' is missing in type '{ title: string; description: string; action: Element; }' but required in type 'PageHeaderProps'.
+src/pages/students/StudentsPage.tsx(42,5): error TS6133: 'UserX' is declared but its value is never read.
+src/pages/students/StudentsPage.tsx(167,25): error TS2322: Type '({ key: string; label: string; type: "text"; placeholder: string; } | { key: string; label: string; type: "select"; options: { value: string; label: string; }[]; })[]' is not assignable to type 'ReactNode'.
+  Type '({ key: string; label: string; type: "text"; placeholder: string; } | { key: string; label: string; type: "select"; options: { value: string; label: string; }[]; })[]' is not assignable to type 'Iterable<ReactNode>'.
+    The types returned by '[Symbol.iterator]().next(...)' are incompatible between these types.
+      Type 'IteratorResult<{ key: string; label: string; type: "text"; placeholder: string; } | { key: string; label: string; type: "select"; options: { value: string; label: string; }[]; }, undefined>' is not assignable to type 'IteratorResult<ReactNode, any>'.
+        Type 'IteratorYieldResult<{ key: string; label: string; type: "text"; placeholder: string; } | { key: string; label: string; type: "select"; options: { value: string; label: string; }[]; }>' is not assignable to type 'IteratorResult<ReactNode, any>'.
+          Type 'IteratorYieldResult<{ key: string; label: string; type: "text"; placeholder: string; } | { key: string; label: string; type: "select"; options: { value: string; label: string; }[]; }>' is not assignable to type 'IteratorYieldResult<ReactNode>'.
+            Type '{ key: string; label: string; type: "text"; placeholder: string; } | { key: string; label: string; type: "select"; options: { value: string; label: string; }[]; }' is not assignable to type 'ReactNode'.
+              Object literal may only specify known properties, and 'label' does not exist in type 'ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal'.
+src/pages/students/StudentsPage.tsx(212,21): error TS2739: Type 'ReactElement<any, any>' is missing the following properties from type '{ label: string; onClick: () => void; }': label, onClick
+src/pages/templates/TemplatesPage.tsx(18,5): error TS6133: 'MoreVertical' is declared but its value is never read.
+src/pages/templates/TemplatesPage.tsx(59,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.

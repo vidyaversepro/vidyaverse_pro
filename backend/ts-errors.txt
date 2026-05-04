@@ -1,0 +1,270 @@
+src/modules/analytics/analytics.routes.ts(109,70): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/analytics/analytics.routes.ts(121,69): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/analytics/analytics.routes.ts(133,70): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/analytics/analytics.routes.ts(145,72): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/analytics/analytics.routes.ts(157,67): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/analytics/analytics.routes.ts(169,72): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(18,67): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(29,21): error TS2339: Property 'type' does not exist on type 'unknown'.
+src/modules/approvals/approval.routes.ts(30,67): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(40,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/approvals/approval.routes.ts(42,21): error TS2339: Property 'isActive' does not exist on type 'unknown'.
+src/modules/approvals/approval.routes.ts(43,71): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(57,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/approvals/approval.routes.ts(59,73): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(70,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/approvals/approval.routes.ts(72,30): error TS18047: 'request.userRole' is possibly 'null'.
+src/modules/approvals/approval.routes.ts(74,63): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(84,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/approvals/approval.routes.ts(86,74): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(96,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/approvals/approval.routes.ts(98,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/approvals/approval.routes.ts(100,77): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(110,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/approvals/approval.routes.ts(112,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/approvals/approval.routes.ts(113,30): error TS18047: 'request.userRole' is possibly 'null'.
+src/modules/approvals/approval.routes.ts(115,79): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(125,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/approvals/approval.routes.ts(127,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/approvals/approval.routes.ts(128,77): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/approvals/approval.routes.ts(142,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/approvals/approval.routes.ts(143,66): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(4,1): error TS6192: All imports in import declaration are unused.
+src/modules/attendance/attendance.routes.ts(17,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/attendance/attendance.routes.ts(19,67): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(31,65): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(41,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/attendance/attendance.routes.ts(43,68): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(53,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/attendance/attendance.routes.ts(55,70): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(65,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/attendance/attendance.routes.ts(67,66): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(81,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/attendance/attendance.routes.ts(83,68): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(94,31): error TS18047: 'request.user' is possibly 'null'.
+src/modules/attendance/attendance.routes.ts(94,44): error TS2339: Property 'studentId' does not exist on type '{ userId: string; email: string; type: string; globalRole?: string | undefined; }'.
+src/modules/attendance/attendance.routes.ts(99,80): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(109,21): error TS2339: Property 'recordId' does not exist on type 'unknown'.
+src/modules/attendance/attendance.routes.ts(112,75): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(125,21): error TS2339: Property 'studentId' does not exist on type 'unknown'.
+src/modules/attendance/attendance.routes.ts(127,21): error TS2339: Property 'startDate' does not exist on type 'unknown'.
+src/modules/attendance/attendance.routes.ts(127,32): error TS2339: Property 'endDate' does not exist on type 'unknown'.
+src/modules/attendance/attendance.routes.ts(128,84): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(140,69): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/attendance/attendance.routes.ts(151,21): error TS2339: Property 'date' does not exist on type 'unknown'.
+src/modules/attendance/attendance.routes.ts(152,65): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/auth/auth.routes.ts(3,29): error TS2307: Cannot find module './auth.service.js' or its corresponding type declarations.
+src/modules/auth/auth.routes.ts(4,237): error TS2307: Cannot find module '../../schemas/auth.schema.js' or its corresponding type declarations.
+src/modules/auth/auth.routes.ts(5,35): error TS2307: Cannot find module './invitation.service.js' or its corresponding type declarations.
+src/modules/auth/auth.routes.ts(52,53): error TS18047: 'request.user' is possibly 'null'.
+src/modules/auth/auth.routes.ts(58,56): error TS18047: 'request.user' is possibly 'null'.
+src/modules/auth/auth.routes.ts(64,57): error TS18047: 'request.user' is possibly 'null'.
+src/modules/certificates/certificate.routes.ts(5,21): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/certificates/certificate.routes.ts(11,1): error TS6192: All imports in import declaration are unused.
+src/modules/certificates/certificate.routes.ts(18,21): error TS2339: Property 'certificateNo' does not exist on type 'unknown'.
+src/modules/certificates/certificate.routes.ts(34,65): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/certificates/certificate.routes.ts(49,72): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/certificates/certificate.routes.ts(64,63): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/certificates/certificate.routes.ts(78,25): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/certificates/certificate.routes.ts(80,75): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/certificates/certificate.routes.ts(93,25): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/certificates/certificate.routes.ts(95,75): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/group-photos/group-photo.routes.ts(1,1): error TS6133: 'FastifyPluginAsync' is declared but its value is never read.
+src/modules/group-photos/group-photo.routes.ts(5,21): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(11,34): error TS6133: 'groupPhotoQuerySchema' is declared but its value is never read.
+src/modules/group-photos/group-photo.routes.ts(11,57): error TS6133: 'extractFacesSchema' is declared but its value is never read.
+src/modules/group-photos/group-photo.routes.ts(11,77): error TS6133: 'matchStudentsSchema' is declared but its value is never read.
+src/modules/group-photos/group-photo.routes.ts(11,98): error TS6133: 'faceExtractionUpdateSchema' is declared but its value is never read.
+src/modules/group-photos/group-photo.routes.ts(12,33): error TS7006: Parameter 'fastify' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(20,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(20,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(33,21): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
+  No index signature with a parameter of type 'string' was found on type '{}'.
+src/modules/group-photos/group-photo.routes.ts(36,21): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
+  No index signature with a parameter of type 'string' was found on type '{}'.
+src/modules/group-photos/group-photo.routes.ts(59,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(75,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(90,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(105,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(105,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(121,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(137,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/group-photos/group-photo.routes.ts(153,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(1,1): error TS6133: 'FastifyPluginAsync' is declared but its value is never read.
+src/modules/hall-tickets/hall-ticket.routes.ts(5,21): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(11,1): error TS6192: All imports in import declaration are unused.
+src/modules/hall-tickets/hall-ticket.routes.ts(12,33): error TS7006: Parameter 'fastify' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(23,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(23,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(38,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(53,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(68,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(84,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(99,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(99,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(117,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(117,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(132,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(147,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(163,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/hall-tickets/hall-ticket.routes.ts(178,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(1,1): error TS6133: 'FastifyPluginAsync' is declared but its value is never read.
+src/modules/id-cards/id-card.routes.ts(5,21): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(11,1): error TS6192: All imports in import declaration are unused.
+src/modules/id-cards/id-card.routes.ts(12,29): error TS7006: Parameter 'fastify' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(20,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(20,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(35,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(35,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(50,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(66,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(81,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(96,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/id-cards/id-card.routes.ts(96,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/jobs/jobs.routes.ts(1,30): error TS6133: 'FastifyRequest' is declared but its value is never read.
+src/modules/jobs/jobs.routes.ts(18,67): error TS2345: Argument of type 'unknown' is not assignable to parameter of type '{ page: number; limit: number; status?: "failed" | "processing" | "completed" | "queued" | undefined; jobType?: string | undefined; }'.
+src/modules/jobs/jobs.routes.ts(30,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/library-cards/library-card.routes.ts(1,1): error TS6133: 'FastifyPluginAsync' is declared but its value is never read.
+src/modules/library-cards/library-card.routes.ts(5,21): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(11,1): error TS6192: All imports in import declaration are unused.
+src/modules/library-cards/library-card.routes.ts(12,34): error TS7006: Parameter 'fastify' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(19,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(19,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(31,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(43,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(55,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(67,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(79,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(91,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(91,34): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(93,59): error TS2339: Property 'recordTransaction' does not exist on type '{ generate(institutionId: string, data: { studentId: string; maxBooks: number; templateId?: string | undefined; validFrom?: string | undefined; validUntil?: string | undefined; }): Promise<...>; ... 5 more ...; generateCardNumber(institutionId: string): Promise<...>; }'.
+src/modules/library-cards/library-card.routes.ts(102,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/library-cards/library-card.routes.ts(105,59): error TS2339: Property 'returnBook' does not exist on type '{ generate(institutionId: string, data: { studentId: string; maxBooks: number; templateId?: string | undefined; validFrom?: string | undefined; validUntil?: string | undefined; }): Promise<...>; ... 5 more ...; generateCardNumber(institutionId: string): Promise<...>; }'.
+src/modules/marksheets/marksheet.routes.ts(5,21): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/marksheets/marksheet.routes.ts(11,1): error TS6192: All imports in import declaration are unused.
+src/modules/marksheets/marksheet.routes.ts(26,78): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/marksheets/marksheet.routes.ts(40,78): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/marksheets/marksheet.routes.ts(58,62): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/marksheets/marksheet.routes.ts(73,70): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/marksheets/marksheet.routes.ts(91,66): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/marksheets/marksheet.routes.ts(106,68): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/marksheets/marksheet.routes.ts(121,59): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/marksheets/marksheet.routes.ts(135,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/marksheets/marksheet.routes.ts(137,69): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/marksheets/marksheet.routes.ts(150,21): error TS2339: Property 'examScheduleId' does not exist on type 'unknown'.
+src/modules/notifications/notification.routes.ts(4,1): error TS6192: All imports in import declaration are unused.
+src/modules/notifications/notification.routes.ts(18,64): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/notifications/notification.routes.ts(30,68): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/notifications/notification.routes.ts(45,62): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/notifications/notification.routes.ts(57,66): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/notifications/notification.routes.ts(72,71): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/notifications/notification.routes.ts(81,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/notifications/notification.routes.ts(82,21): error TS2339: Property 'unreadOnly' does not exist on type 'unknown'.
+src/modules/notifications/notification.routes.ts(82,33): error TS2339: Property 'page' does not exist on type 'unknown'.
+src/modules/notifications/notification.routes.ts(82,39): error TS2339: Property 'limit' does not exist on type 'unknown'.
+src/modules/notifications/notification.routes.ts(96,21): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/notifications/notification.routes.ts(97,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/notifications/notification.routes.ts(107,28): error TS18047: 'request.user' is possibly 'null'.
+src/modules/notifications/notification.routes.ts(123,71): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/notifications/notification.routes.ts(134,21): error TS2339: Property 'type' does not exist on type 'unknown'.
+src/modules/notifications/notification.routes.ts(135,71): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/notifications/notification.routes.ts(150,73): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(5,21): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/portfolios/portfolio.routes.ts(11,1): error TS6192: All imports in import declaration are unused.
+src/modules/portfolios/portfolio.routes.ts(16,21): error TS2339: Property 'slug' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(32,68): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(44,63): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(54,25): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(56,73): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(66,25): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(69,72): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(79,25): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(81,54): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(91,25): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(93,73): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(103,25): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(105,75): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(117,77): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(132,73): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(142,25): error TS2339: Property 'sectionId' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(145,84): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(155,25): error TS2339: Property 'sectionId' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(157,68): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/portfolios/portfolio.routes.ts(167,25): error TS2339: Property 'id' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(169,25): error TS2339: Property 'sectionIds' does not exist on type 'unknown'.
+src/modules/portfolios/portfolio.routes.ts(170,81): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/modules/templates/template.service.ts(13,32): error TS2345: Argument of type 'Window' is not assignable to parameter of type 'WindowLike'.
+  Type 'Window' is missing the following properties from type 'Pick<typeof globalThis, "DocumentFragment" | "HTMLTemplateElement" | "Node" | "Element" | "NodeFilter" | "NamedNodeMap" | "HTMLFormElement" | "DOMParser">': DocumentFragment, HTMLTemplateElement, Node, Element, and 4 more.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(1,1): error TS6133: 'FastifyPluginAsync' is declared but its value is never read.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(5,21): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(11,1): error TS6192: All imports in import declaration are unused.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(12,42): error TS7006: Parameter 'fastify' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(15,25): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(22,29): error TS7006: Parameter 'protectedFastify' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(29,29): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(29,38): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(41,29): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(53,29): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(65,29): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(77,29): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/modules/transfer-certificates/transfer-certificate.routes.ts(89,29): error TS7006: Parameter 'request' implicitly has an 'any' type.

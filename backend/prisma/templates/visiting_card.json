@@ -1,0 +1,65 @@
+{
+  "canvasConfig": {
+    "widthMm": 85.6,
+    "heightMm": 54,
+    "scale": 1,
+    "bgColor": "#ffffff"
+  },
+  "elements": [
+    {
+      "id": "el_1",
+      "type": "text",
+      "x": 20,
+      "y": 20,
+      "width": 200,
+      "height": 40,
+      "text": "{{name}}",
+      "fontSize": 24,
+      "fontWeight": "bold",
+      "fill": "#333333"
+    },
+    {
+      "id": "el_2",
+      "type": "text",
+      "x": 20,
+      "y": 60,
+      "width": 200,
+      "height": 20,
+      "text": "{{designation}}",
+      "fontSize": 14,
+      "fill": "#666666"
+    },
+    {
+      "id": "el_3",
+      "type": "text",
+      "x": 20,
+      "y": 120,
+      "width": 200,
+      "height": 20,
+      "text": "{{phone}} | {{email}}",
+      "fontSize": 12,
+      "fill": "#444444"
+    },
+    {
+      "id": "el_4",
+      "type": "text",
+      "x": 20,
+      "y": 150,
+      "width": 200,
+      "height": 20,
+      "text": "{{institution.name}}",
+      "fontSize": 12,
+      "fontWeight": "bold",
+      "fill": "#2c3e50"
+    },
+    {
+      "id": "el_5",
+      "type": "image",
+      "x": 230,
+      "y": 20,
+      "width": 70,
+      "height": 70,
+      "src": "{{qrCodeData}}"
+    }
+  ]
+}

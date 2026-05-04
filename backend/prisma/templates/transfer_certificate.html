@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transfer Certificate</title>
+    <style>
+        body { font-family: 'Times New Roman', serif; margin: 0; padding: 40px; background: white; }
+        .tc-document {
+            border: 2px solid #1e293b;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 120px;
+            color: rgba(226, 232, 240, 0.4);
+            font-weight: bold;
+            z-index: 0;
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+        .content { position: relative; z-index: 1; }
+        .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 20px; margin-bottom: 30px; }
+        .school-name { font-size: 32px; font-weight: bold; color: #0f172a; margin: 0 0 10px; text-transform: uppercase; }
+        .school-address { font-size: 14px; color: #334155; margin: 0 0 15px; }
+        .doc-title { font-size: 24px; color: #0f172a; font-weight: bold; margin: 10px 0 0; text-transform: uppercase; letter-spacing: 2px; text-decoration: underline; }
+        
+        .meta-info { display: flex; justify-content: space-between; margin-bottom: 40px; font-weight: bold; font-size: 14px; }
+        
+        .tc-row { display: flex; margin-bottom: 12px; font-size: 16px; line-height: 1.5; }
+        .tc-num { width: 40px; font-weight: bold; }
+        .tc-label { width: 400px; }
+        .tc-value { flex: 1; font-weight: bold; border-bottom: 1px dotted #64748b; padding-left: 10px; }
+        
+        .footer { display: flex; justify-content: space-between; margin-top: 80px; }
+        .sign { text-align: center; width: 220px; }
+        .sign-line { border-top: 1px solid #0f172a; margin-top: 50px; padding-top: 10px; font-weight: bold; font-size: 16px; }
+        .sign-desc { font-size: 12px; font-style: italic; color: #475569; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="tc-document">
+        <div class="watermark">{{institution.name}}</div>
+        
+        <div class="content">
+            <div class="header">
+                <h1 class="school-name">{{institution.name}}</h1>
+                <p class="school-address">{{institution.address}}<br>Email: {{institution.contactEmail}} | Phone: {{institution.contactPhone}}</p>
+                <h2 class="doc-title">Transfer Certificate</h2>
+            </div>
+            
+            <div class="meta-info">
+                <div>TC No: {{tc.certificateNumber}}</div>
+                <div>Date of Issue: {{tc.issueDate}}</div>
+            </div>
+            
+            <div class="tc-body">
+                <div class="tc-row">
+                    <div class="tc-num">1.</div>
+                    <div class="tc-label">Name of Pupil</div>
+                    <div class="tc-value">{{student.name}}</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">2.</div>
+                    <div class="tc-label">Admission Number</div>
+                    <div class="tc-value">{{student.id}}</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">3.</div>
+                    <div class="tc-label">Date of Birth</div>
+                    <div class="tc-value">{{student.dateOfBirth}}</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">4.</div>
+                    <div class="tc-label">Class in which the pupil last studied</div>
+                    <div class="tc-value">{{student.section.class.name}} (Section {{student.section.name}})</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">5.</div>
+                    <div class="tc-label">Whether failed, if so once/twice in the same class</div>
+                    <div class="tc-value">No</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">6.</div>
+                    <div class="tc-label">Whether qualified for promotion to the higher class</div>
+                    <div class="tc-value">Yes</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">7.</div>
+                    <div class="tc-label">Month up to which school dues paid</div>
+                    <div class="tc-value">{{tc.feesPaidUntil}}</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">8.</div>
+                    <div class="tc-label">Total No. of working days</div>
+                    <div class="tc-value">{{tc.totalWorkingDays}}</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">9.</div>
+                    <div class="tc-label">Total No. of working days present</div>
+                    <div class="tc-value">{{tc.daysPresent}}</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">10.</div>
+                    <div class="tc-label">General Conduct</div>
+                    <div class="tc-value">{{tc.conduct}}</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">11.</div>
+                    <div class="tc-label">Reason for leaving the school</div>
+                    <div class="tc-value">{{tc.reasonForLeaving}}</div>
+                </div>
+                <div class="tc-row">
+                    <div class="tc-num">12.</div>
+                    <div class="tc-label">Any other remarks</div>
+                    <div class="tc-value">{{tc.remarks}}</div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <div class="sign">
+                    <div class="sign-line">Checked By</div>
+                    <div class="sign-desc">(State full name and designation)</div>
+                </div>
+                <div class="sign">
+                    <div class="sign-line">Principal Signature</div>
+                    <div class="sign-desc">(With school seal)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
