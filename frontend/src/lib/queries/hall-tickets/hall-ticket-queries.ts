@@ -119,47 +119,86 @@ export const useAddExamSubject = () => {
 };
 
 export const useGenerateHallTicket = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async ({ institutionId, data }: { institutionId: string; data: { studentId: string; examScheduleId: string; templateId?: string } }) => {
             const response = await api.post('/hall-tickets/generate', data, {
                 headers: { 'x-institution-id': institutionId },
-                responseType: 'blob', // Important for receiving binary data
             });
-            
-            // Create a blob URL and trigger download
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `HallTicket_${data.studentId}.pdf`);
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode?.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            
             return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['hall-tickets'] });
         },
     });
 };
 
 export const useBulkGenerateHallTickets = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async ({ institutionId, data }: { institutionId: string; data: { studentIds: string[]; examScheduleId: string; templateId?: string } }) => {
             const response = await api.post('/hall-tickets/generate/bulk', data, {
                 headers: { 'x-institution-id': institutionId },
-                responseType: 'blob', // Expected a ZIP file
             });
-            
-            // Create a blob URL and trigger download
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/zip' }));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `HallTickets_Bulk.zip`);
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode?.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            
             return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['hall-tickets'] });
+        },
+    });
+};
+
+export interface HallTicket {
+    id: string;
+    institutionId: string;
+    studentId: string;
+    examScheduleId: string;
+    hallTicketNumber: string;
+    status: 'generated' | 'sent';
+    pdfUrl?: string;
+    student?: {
+        id: string;
+        name: string;
+        admissionNumber?: string;
+        photoUrl?: string;
+        section?: {
+            name: string;
+            class: { name: string };
+        };
+    };
+    examSchedule?: {
+        examName: string;
+        examType: string;
+        academicYear?: string;
+    };
+    createdAt: string;
+    updatedAt: string;
+}
+
+export const useHallTickets = (params?: Record<string, any>) => {
+    return useQuery({
+        queryKey: ['hall-tickets', params],
+        queryFn: async () => {
+            const response = await api.get<{ success: boolean; data: HallTicket[]; pagination: any }>('/hall-tickets', { params });
+            return {
+                data: response.data.data,
+                meta: response.data.pagination
+            };
+        },
+    });
+};
+
+export const useIssueHallTicket = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, institutionId }: { id: string; institutionId: string }) => {
+            const response = await api.post(`/hall-tickets/${id}/issue`, {}, {
+                headers: { 'x-institution-id': institutionId },
+            });
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['hall-tickets'] });
         },
     });
 };

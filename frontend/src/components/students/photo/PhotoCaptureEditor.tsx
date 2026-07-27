@@ -20,7 +20,6 @@ const FACING_MODE_USER = "user";
 const FACING_MODE_ENVIRONMENT = "environment";
 
 export function PhotoCaptureEditor({
-    studentId,
     currentPhotoUrl,
     mode,
     onSave,
@@ -100,7 +99,7 @@ export function PhotoCaptureEditor({
         loadModel();
 
         // Init OpenCV worker
-        workerRef.current = new Worker(new URL('../../lib/photoProcessor.worker.ts', import.meta.url), { type: 'module' });
+        workerRef.current = new Worker(new URL('../../../lib/photoProcessor.worker.ts', import.meta.url), { type: 'module' });
         workerRef.current.onmessage = (e) => {
             if (e.data.status === 'ERROR') {
                 console.error('Worker error:', e.data.error);

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OAuth Callback (test)</title>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, sans-serif; padding: 2rem; background: #0f172a; color: #e2e8f0; }
+    .card { max-width: 760px; margin: 2rem auto; background: #1e293b; border-radius: 12px; padding: 1.5rem; }
+    h1 { font-size: 1.15rem; }
+    code { background: #0f172a; padding: 2px 6px; border-radius: 4px; word-break: break-all; }
+    .row { margin: .5rem 0; }
+    .ok { color: #4ade80; } .err { color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>OAuth Callback — federation test harness</h1>
+    <p>This static page is the registered <code>redirect_uri</code>. It only displays the
+       authorization <code>code</code>/<code>state</code> the IdP returned, so the test can read them.</p>
+    <div class="row">Status: <span id="status">parsing…</span></div>
+    <div class="row">code: <code id="code">—</code></div>
+    <div class="row">state: <code id="state">—</code></div>
+    <div class="row">error: <code id="error">—</code></div>
+    <!-- machine-readable marker the browser driver greps for -->
+    <pre id="oidc-result" data-code="" data-state="" data-error="" style="display:none"></pre>
+  </div>
+  <script>
+    var p = new URLSearchParams(location.search);
+    var code = p.get('code') || '';
+    var state = p.get('state') || '';
+    var error = p.get('error') || '';
+    document.getElementById('code').textContent = code || '—';
+    document.getElementById('state').textContent = state || '—';
+    document.getElementById('error').textContent = error || '—';
+    var st = document.getElementById('status');
+    if (code) { st.textContent = 'AUTH CODE RECEIVED'; st.className = 'ok'; }
+    else { st.textContent = error ? ('ERROR: ' + error) : 'no code in URL'; st.className = 'err'; }
+    var marker = document.getElementById('oidc-result');
+    marker.setAttribute('data-code', code);
+    marker.setAttribute('data-state', state);
+    marker.setAttribute('data-error', error);
+    marker.textContent = 'OIDC_RESULT code=' + code + ' state=' + state + ' error=' + error;
+    document.title = code ? ('CODE ' + code.slice(0, 8)) : 'NO CODE';
+  </script>
+</body>
+</html>

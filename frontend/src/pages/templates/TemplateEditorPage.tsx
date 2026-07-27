@@ -44,6 +44,7 @@ export default function TemplateEditorPage() {
         canvasConfig, setPages, setCanvasConfig, removeElement, updateElement, selectedNodeIds,
         isDirty, markClean,
         showGrid, snapToGrid, toggleGrid, toggleSnap, gridSizeMm, setGridSize,
+        setTemplate,
     } = useEditorStore();
 
     // Derived state for the active page
@@ -86,6 +87,7 @@ export default function TemplateEditorPage() {
     const [zoom, setZoom] = useState(85);
     const [templateName, setTemplateName] = useState('Untitled Template');
     const [lastSaved, setLastSaved] = useState<string | null>(null);
+    const [printConfig, setPrintConfig] = useState<Record<string, unknown> | null>(null);
 
     const templateQuery = useTemplate(id as string, { enabled: id !== 'new' && !!id });
     const updateMutation = useUpdateTemplate();
@@ -103,14 +105,30 @@ export default function TemplateEditorPage() {
                 }
             }
             
-            if (content?.pages && Array.isArray(content.pages)) {
-                setPages(content.pages);
-            } else if (content?.elements && Array.isArray(content.elements)) {
-                setPages([{ id: 'page_1', name: 'Page 1', elements: content.elements }]);
+            // Honor the page count chosen at creation time (printConfig), padding with
+            // blank pages when the stored content has fewer pages than configured.
+            const pc = content?.printConfig;
+            setPrintConfig(pc ?? null);
+            const desiredPageCount = Math.max(
+                Number(pc?.pageCount) || 1,
+                pc?.hasBackSide ? 2 : 1,
+            );
+            let loadedPages =
+                content?.pages && Array.isArray(content.pages) && content.pages.length > 0
+                    ? content.pages
+                    : [{ id: 'page_1', name: 'Page 1', elements: Array.isArray(content?.elements) ? content.elements : [] }];
+            while (loadedPages.length < desiredPageCount) {
+                loadedPages = [
+                    ...loadedPages,
+                    { id: `page_${loadedPages.length + 1}`, name: `Page ${loadedPages.length + 1}`, elements: [] },
+                ];
             }
+            setPages(loadedPages);
             if (content?.canvasConfig) setCanvasConfig(content.canvasConfig);
+            
+            if (templateQuery.data) setTemplate(templateQuery.data);
         }
-    }, [templateQuery.data, setPages, setCanvasConfig]);
+    }, [templateQuery.data, setPages, setCanvasConfig, setTemplate]);
 
     const handleSave = async () => {
         if (!id || id === 'new') {
@@ -118,7 +136,7 @@ export default function TemplateEditorPage() {
             return;
         }
         try {
-            await updateMutation.mutateAsync({ id, data: { content: { pages, canvasConfig } } });
+            await updateMutation.mutateAsync({ id, data: { content: { pages, canvasConfig, ...(printConfig ? { printConfig } : {}) } } });
             const now = new Date();
             setLastSaved(`${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
             markClean();

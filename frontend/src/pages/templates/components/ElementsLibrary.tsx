@@ -1,24 +1,32 @@
 import { useEditorStore } from '../store/editor.store';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-
-// Dynamic fields available for templates
-const DYNAMIC_FIELDS = [
-    { key: '{{studentName}}', icon: '👤', label: 'Student Name' },
-    { key: '{{admissionNo}}', icon: '🔖', label: 'Admission No' },
-    { key: '{{rollNo}}', icon: '#', label: 'Roll No' },
-    { key: '{{className}}', icon: '📚', label: 'Class / Grade' },
-    { key: '{{dob}}', icon: '🎂', label: 'Date of Birth' },
-    { key: '{{photo}}', icon: '📷', label: 'Photo' },
-    { key: '{{bloodGroup}}', icon: '🩸', label: 'Blood Group' },
-    { key: '{{institutionName}}', icon: '🏛', label: 'Institution Name' },
-    { key: '{{institutionLogo}}', icon: '🖼', label: 'Institution Logo' },
-    { key: '{{issueDate}}', icon: '📅', label: 'Issue Date' },
-    { key: '{{qrCode}}', icon: '⬛', label: 'QR Code' },
-];
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api';
+import { Loader2 } from 'lucide-react';
 
 export default function ElementsLibrary() {
-    const { addElement } = useEditorStore();
+    const { addElement, template } = useEditorStore();
+    const serviceType = template?.serviceType;
+
+    const { data: variablesResp, isLoading } = useQuery({
+        queryKey: ['template-variables', serviceType],
+        queryFn: async () => {
+            const res = await api.get(`/templates/variables?serviceType=${serviceType}`);
+            const variablesArray = res.data.data || [];
+            
+            // Group by category
+            const grouped = variablesArray.reduce((acc: any, curr: any) => {
+                const cat = curr.category || 'General';
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(curr);
+                return acc;
+            }, {});
+            
+            return grouped;
+        },
+        enabled: !!serviceType,
+    });
 
     return (
         <div className="flex flex-col h-full bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -84,7 +92,7 @@ export default function ElementsLibrary() {
                         <h3 className="text-sm font-semibold text-slate-700 mb-3">Codes</h3>
                         <div className="grid grid-cols-2 gap-2.5">
                             <button
-                                onClick={() => addElement({ type: 'qr', data: '{{studentId}}', width: 100, height: 100 })}
+                                onClick={() => addElement({ type: 'qr', data: '{{student.id}}', width: 100, height: 100 })}
                                 className="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl flex flex-col items-center gap-2 transition-colors"
                             >
                                 <div className="w-8 h-8 border-2 border-slate-400 rounded grid grid-cols-3 gap-px p-1">
@@ -95,7 +103,7 @@ export default function ElementsLibrary() {
                                 <span className="text-[10px] font-bold text-slate-500 uppercase">QR Code</span>
                             </button>
                             <button
-                                onClick={() => addElement({ type: 'barcode', data: '{{admissionNo}}', width: 200, height: 60 })}
+                                onClick={() => addElement({ type: 'barcode', data: '{{student.admissionNumber}}', width: 200, height: 60 })}
                                 className="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl flex flex-col items-center gap-2 transition-colors"
                             >
                                 <div className="flex gap-px items-end h-8">
@@ -117,31 +125,47 @@ export default function ElementsLibrary() {
                         <p className="text-[11px] text-slate-400 mb-3 leading-relaxed">
                             These fields are replaced with real student data when generating documents.
                         </p>
-                        <div className="flex flex-wrap gap-2">
-                            {DYNAMIC_FIELDS.map(({ key, icon, label }) => (
-                                <button
-                                    key={key}
-                                    onClick={() => addElement({
-                                        type: 'text',
-                                        text: key,
-                                        fontSize: 14,
-                                        fill: '#b7102a',
-                                        fontWeight: 'bold',
-                                        width: 180,
-                                        height: 28
-                                    })}
-                                    title={`Add ${label}`}
-                                    className={cn(
-                                        'px-2.5 py-1.5 bg-slate-50 border border-slate-200 text-[11px] font-medium rounded-full',
-                                        'hover:border-[#b7102a] hover:bg-[#ffdad8]/20 hover:text-[#b7102a]',
-                                        'transition-all flex items-center gap-1.5 cursor-pointer'
-                                    )}
-                                >
-                                    <span>{icon}</span>
-                                    <span>{key}</span>
-                                </button>
-                            ))}
-                        </div>
+                        
+                        {isLoading ? (
+                            <div className="flex items-center justify-center p-4">
+                                <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                            </div>
+                        ) : !serviceType ? (
+                            <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded">Template type not set</p>
+                        ) : (
+                            <div className="flex flex-wrap gap-2">
+                                {Object.entries(variablesResp || {}).map(([categoryName, fields]) => (
+                                    <div key={categoryName} className="w-full mb-2">
+                                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{categoryName}</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {(fields as any[]).map((field) => (
+                                                <button
+                                                    key={field.handlebarsExpression}
+                                                    onClick={() => addElement({
+                                                        type: 'text',
+                                                        text: field.handlebarsExpression,
+                                                        fontSize: 14,
+                                                        fill: '#b7102a',
+                                                        fontWeight: 'bold',
+                                                        width: 180,
+                                                        height: 28
+                                                    })}
+                                                    title={`Add ${field.label}`}
+                                                    className={cn(
+                                                        'px-2.5 py-1.5 bg-slate-50 border border-slate-200 text-[11px] font-medium rounded-full',
+                                                        'hover:border-[#b7102a] hover:bg-[#ffdad8]/20 hover:text-[#b7102a]',
+                                                        'transition-all flex items-center gap-1.5 cursor-pointer'
+                                                    )}
+                                                >
+                                                    <span className="font-mono text-[9px] text-slate-400">{field.handlebarsExpression}</span>
+                                                    <span>{field.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </section>
 
                     {/* ── BACKGROUND PATTERNS ─────────────────── */}

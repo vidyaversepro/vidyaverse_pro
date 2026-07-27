@@ -1,42 +1,42 @@
-# Stage 1: Builder
+# Vidyaverse frontend (Vite + nginx) — Coolify build.
+#
+# IMPORTANT: build from the REPO ROOT context — pnpm workspace; the frontend
+# also depends on packages/shared-validation.
+# In Coolify set:  Build Pack = Dockerfile
+#                  Base Directory = /
+#                  Dockerfile Location = /frontend/Dockerfile
+#                  Ports Exposes = 80
+#
+# VITE_* are inlined into the bundle at BUILD time — add them in Coolify as
+# environment variables (they are passed through as build args below):
+#   VITE_API_URL     = https://api.vidyaverse.vinstitution.com/api/v1
+#   VITE_CHAT_WS_URL = wss://api.vidyaverse.vinstitution.com/api/v1/chat/ws
+
+# ---- Builder ----------------------------------------------------------------
 FROM node:20-alpine AS builder
-
 WORKDIR /app
+RUN corepack enable
 
-# Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/shared-validation/package.json ./packages/shared-validation/
+COPY backend/package.json ./backend/
+COPY frontend/package.json ./frontend/
+RUN pnpm install --frozen-lockfile
 
-# Install dependencies
-RUN npm install
+COPY packages/shared-validation ./packages/shared-validation
+COPY frontend ./frontend
 
-# Copy source
-COPY . .
+ARG VITE_API_URL
+ARG VITE_CHAT_WS_URL
+ENV VITE_API_URL=$VITE_API_URL \
+    VITE_CHAT_WS_URL=$VITE_CHAT_WS_URL
 
-# Build application (skip tsc type-checking; Vite handles TS transpilation via esbuild)
-RUN npx vite build
+RUN pnpm --filter @vidyaverse/shared-validation build \
+ && pnpm --filter @vidyaverse/frontend build
 
-# -------------------------------------------
-# Stage 2: Production with Nginx
+# ---- Production (nginx) -----------------------------------------------------
 FROM nginx:alpine AS production
-
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy built files
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Add non-root user
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
-
-USER nginx
-
+COPY frontend/nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /app/frontend/dist /usr/share/nginx/html
 EXPOSE 80
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
-
 CMD ["nginx", "-g", "daemon off;"]

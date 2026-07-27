@@ -101,6 +101,9 @@ export function registerHandlebarsHelpers(): void {
 
     Handlebars.registerHelper('default', (value: unknown, defaultValue: unknown) => value ?? defaultValue);
     Handlebars.registerHelper('index', (array: unknown[], idx: number) => array?.[idx]);
+    // Row numbering / arithmetic for tabular documents (marksheets, hall tickets).
+    Handlebars.registerHelper('inc', (v: unknown) => (Number(v) || 0) + 1);
+    Handlebars.registerHelper('add', (a: unknown, b: unknown) => (Number(a) || 0) + (Number(b) || 0));
     Handlebars.registerHelper('join', (array: string[], separator: string) => array?.join(separator || ', ') || '');
 
     Handlebars.registerHelper('truncate', (str: string, length: number) => {

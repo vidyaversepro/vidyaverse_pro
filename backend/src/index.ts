@@ -7,10 +7,14 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import fastifyCookie from '@fastify/cookie';
 import fastifyCsrf from '@fastify/csrf-protection';
+import fastifyWebsocket from '@fastify/websocket';
+
 
 import { env, connectDatabase, disconnectDatabase, connectRedis, disconnectRedis, initializeMinio } from './config/index.js';
 import { authPlugin, rbacPlugin, errorHandlerPlugin } from './plugins/index.js';
 import { logger } from './utils/logger.js';
+
+// Validation: see packages/shared-validation/
 
 import { auth } from './lib/auth.js';
 import { institutionModule } from './modules/institution/index.js';
@@ -38,6 +42,37 @@ import { analyticsModule } from './modules/analytics/index.js';
 import { approvalRoutes } from './modules/approvals/index.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import { opsRoutes } from './modules/ops/index.js';
+import { messagingModule } from './modules/messaging/index.js';
+import { paymentsModule } from './modules/payments/index.js';
+import { inboundModule } from './modules/inbound/index.js';
+import { adminModule } from './modules/admin/index.js';
+import { entitlementsModule } from './modules/entitlements/index.js';
+import { admissionsModule } from './modules/admissions/index.js';
+import { transportModule } from './modules/transport/index.js';
+import { hrModule } from './modules/hr/index.js';
+import { financeModule } from './modules/finance/index.js';
+import { timetableModule } from './modules/timetable/index.js';
+import { integrationsModule } from './modules/integrations/index.js';
+import { oidcModule } from './modules/oidc/index.js';
+import { hostelModule } from './modules/hostel/index.js';
+import { inventoryModule } from './modules/inventory/index.js';
+import { healthModule } from './modules/health/index.js';
+import { visitorModule } from './modules/visitor/index.js';
+import { gradebookModule } from './modules/gradebook/index.js';
+import { assignmentsModule } from './modules/assignments/index.js';
+import { noticesModule } from './modules/notices/index.js';
+import { reportsModule } from './modules/reports/index.js';
+import { alumniModule } from './modules/alumni/index.js';
+import { placementModule } from './modules/placement/index.js';
+import { biometricModule } from './modules/biometric/index.js';
+import { feesAdvancedModule } from './modules/fees-advanced/index.js';
+import { liveClassesModule } from './modules/live-classes/index.js';
+import { mobileAppModule } from './modules/mobile-app/index.js';
+import { onlineTestsModule } from './modules/online-tests/index.js';
+import { chatRoutes } from './modules/chat/chat.routes.js';
+import { initChatWsSubscriber } from './modules/chat/chat.ws.js';
+import { callsRoutes } from './modules/calls/calls.routes.js';
+import { attendanceModule } from './modules/attendance/index.js';
 
 export async function buildApp() {
     const fastify = Fastify({
@@ -46,6 +81,24 @@ export async function buildApp() {
         },
         bodyLimit: env.MAX_UPLOAD_SIZE_MB * 1024 * 1024,
     });
+
+    // Inline Zod validator — replaces fastify-type-provider-zod (incompatible with Fastify v4).
+    // Duck-types the schema object: if it has .safeParse(), treat it as a Zod schema.
+    // Fastify's default fast-json-stringify serialiser is kept for responses (no Zod response
+    // schemas exist in this codebase, so setSerializerCompiler is intentionally omitted).
+    fastify.setValidatorCompiler(({ schema }) => {
+      const s = schema as any;
+      if (s != null && typeof s.safeParse === 'function') {
+        return (data: unknown) => {
+          const result = s.safeParse(data);
+          return result.success ? { value: result.data } : { error: result.error };
+        };
+      }
+      // Non-Zod schema passthrough — should not occur in this codebase but safe to have.
+      return (data: unknown) => ({ value: data });
+    });
+
+    await fastify.register(fastifyWebsocket);
 
     // Security
     await fastify.register(helmet, {
@@ -78,6 +131,14 @@ export async function buildApp() {
         limits: {
             fileSize: env.MAX_UPLOAD_SIZE_MB * 1024 * 1024,
         },
+    });
+
+    // OAuth2 token/revoke endpoints are application/x-www-form-urlencoded per spec.
+    // Fastify has no urlencoded parser by default (→ 415), and no other route uses
+    // this content type, so this is additive. We keep the raw string as the body so
+    // the Better Auth mount can forward it verbatim.
+    fastify.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string' }, (_req, body, done) => {
+        done(null, body);
     });
 
     // API Documentation
@@ -130,6 +191,39 @@ export async function buildApp() {
     await fastify.register(authPlugin);
     await fastify.register(rbacPlugin);
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // GLOBAL AUTH WALL (default-deny)
+    // Every route registered after this point requires a valid Better Auth
+    // session, EXCEPT the explicit public allowlist below. New modules are
+    // therefore authenticated by default — no per-module hook can be forgotten.
+    // Per-route requireRole/requireInstitution still apply on top for authZ.
+    // Public = login/auth handler, health checks, static assets, external
+    // HMAC-verified webhooks, and the public OAuth consent-branding lookup.
+    // ─────────────────────────────────────────────────────────────────────────
+    const PUBLIC_EXACT = new Set<string>([
+        '/health',
+        '/api/v1/system/health',
+        '/test-ping',
+    ]);
+    const PUBLIC_PREFIXES = [
+        '/api/auth/',                  // Better Auth: login, session, password reset, OIDC token/authorize/jwks/.well-known
+        '/uploads/',                   // static assets (server-side render + <img>)
+        '/api/v1/inbound/webhooks/',   // WhatsApp inbound webhook (raw-body HMAC)
+        '/api/v1/payments/webhooks/',  // Razorpay / Cashfree webhooks (raw-body HMAC)
+        '/api/v1/oauth/',              // public OAuth consent-branding lookup
+    ];
+    fastify.addHook('onRequest', async (request, reply) => {
+        // CORS preflight carries no credentials — must pass.
+        if (request.method === 'OPTIONS') return;
+        const path = request.url.split('?')[0];
+        if (PUBLIC_EXACT.has(path)) return;
+        for (const prefix of PUBLIC_PREFIXES) {
+            if (path.startsWith(prefix)) return;
+        }
+        // Throws UnauthorizedError (→ 401) when there is no valid session.
+        await (fastify as typeof fastify & { authenticate: (req: typeof request, rep: typeof reply) => Promise<void> }).authenticate(request, reply);
+    });
+
     // Root health check — used by Docker HEALTHCHECK and load balancers
     fastify.get('/health', async () => ({
         status: 'ok',
@@ -149,6 +243,10 @@ export async function buildApp() {
         }
         
         if (!fs.existsSync(safePath)) {
+            return reply.status(404).send({ error: 'File not found' });
+        }
+
+        if (fs.statSync(safePath).isDirectory()) {
             return reply.status(404).send({ error: 'File not found' });
         }
 
@@ -183,11 +281,20 @@ export async function buildApp() {
     // Better Auth Routes
     fastify.all('/api/auth/*', async (request, reply) => {
         const url = new URL(request.url, env.API_BASE_URL || 'http://localhost:3002');
+        const contentType = String(request.headers['content-type'] || '');
+        const isForm = contentType.includes('x-www-form-urlencoded');
+        const hasBody = ['POST', 'PUT', 'PATCH'].includes(request.method);
+        // Forward form bodies raw (OAuth2 token/revoke); JSON bodies are re-serialized
+        // from the parsed object. Re-encoding a form body as JSON would corrupt it and
+        // break the OIDC token exchange for real relying parties.
+        const forwardedBody = hasBody
+            ? (isForm ? (request.body as string) : JSON.stringify(request.body))
+            : undefined;
         const webReq = new Request(url, {
             method: request.method,
             headers: request.headers as HeadersInit,
             // @ts-ignore
-            body: ['POST', 'PUT', 'PATCH'].includes(request.method) ? JSON.stringify(request.body) : undefined,
+            body: forwardedBody,
         });
 
         const response = await auth.handler(webReq);
@@ -237,17 +344,59 @@ export async function buildApp() {
     await fastify.register(analyticsModule);
     await fastify.register(approvalRoutes, { prefix: '/api/approvals' });
     await fastify.register(opsRoutes, { prefix: '/api/ops' });
+    await fastify.register(messagingModule);
+    await fastify.register(paymentsModule);
+    await fastify.register(inboundModule);
+    await fastify.register(adminModule);
+    await fastify.register(entitlementsModule);
+    await fastify.register(admissionsModule);
+    await fastify.register(transportModule);
+    await fastify.register(hrModule);
+    await fastify.register(financeModule);
+    await fastify.register(timetableModule);
+    await fastify.register(integrationsModule);
+    await fastify.register(oidcModule);
+    await fastify.register(hostelModule);
+    await fastify.register(inventoryModule);
+    await fastify.register(healthModule);
+    await fastify.register(visitorModule);
+    await fastify.register(gradebookModule);
+    await fastify.register(assignmentsModule);
+    await fastify.register(noticesModule);
+    await fastify.register(reportsModule);
+    await fastify.register(alumniModule);
+    await fastify.register(placementModule);
+    await fastify.register(biometricModule);
+    await fastify.register(feesAdvancedModule);
+    await fastify.register(liveClassesModule);
+    await fastify.register(mobileAppModule);
+    await fastify.register(onlineTestsModule);
+    await fastify.register(chatRoutes, { prefix: '/api/v1/chat' });
+    await fastify.register(callsRoutes, { prefix: '/api/v1/calls' });
+    await fastify.register(attendanceModule);
 
     return fastify;
 }
 
 import { csvImportWorker } from './workers/csvImportWorker.js';
+import { waOutboxWorker } from './workers/waOutboxWorker.js';
+import { digestWorker, scheduleDigestJobs } from './workers/digestWorker.js';
+import { inboundMediaWorker } from './workers/inboundMediaWorker.js';
+import { startAllWorkers } from './workers/index.js';
+
+// Background workers started via startAllWorkers() (ID-card/photo/group-photo/etc.).
+// Captured so they can be closed on graceful shutdown.
+let backgroundWorkers: Array<{ close?: () => Promise<void> } | undefined> = [];
 
 // Graceful shutdown
 async function gracefulShutdown(fastify: any, signal: string) {
     logger.info(`Received ${signal}. Shutting down gracefully...`);
 
     await csvImportWorker.close();
+    await waOutboxWorker.close();
+    await digestWorker.close();
+    await inboundMediaWorker.close();
+    await Promise.allSettled(backgroundWorkers.map((w) => w?.close?.()));
     await fastify.close();
     await disconnectDatabase();
     await disconnectRedis();
@@ -269,8 +418,18 @@ async function main() {
         logger.info('Initializing MinIO...');
         await initializeMinio();
 
+        // Schedule repeatable WhatsApp digest flush jobs (30-min + 17:00 IST)
+        await scheduleDigestJobs();
+
+        // Start background job workers (ID-card generation, photo enhancement,
+        // group photos, photo-zip import, monthly usage reset). Without this the
+        // BullMQ queues are produced-to but never consumed.
+        backgroundWorkers = startAllWorkers();
+
         // Instantiate app
         const app = await buildApp();
+
+        await initChatWsSubscriber(app);
 
         // Start server
         await app.listen({

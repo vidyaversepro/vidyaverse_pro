@@ -4,6 +4,9 @@ import { Heart, MessageCircle, Send, Sparkles, Users, Building2, GraduationCap }
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SaathiChatPanel } from './components/SaathiChatPanel';
+import { useChatWebSocket } from '@/hooks/useChatWebSocket';
 
 type FeedTab = 'institution' | 'class' | 'my';
 
@@ -12,6 +15,8 @@ export default function SaathiFeedPage() {
     const [activeTab, setActiveTab] = useState<FeedTab>('institution');
     const [newPostBody, setNewPostBody] = useState('');
     const [postScope, setPostScope] = useState('institution_only');
+
+    const { joinConversation, sendMessage, setTypingStatus } = useChatWebSocket();
 
     const feedQueryKey = ['social-feed', activeTab];
 
@@ -72,8 +77,15 @@ export default function SaathiFeedPage() {
                 </p>
             </div>
 
-            {/* Feed Tabs */}
-            <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+            <Tabs defaultValue="feed" className="w-full">
+                <TabsList className="mb-4">
+                    <TabsTrigger value="feed">Feed</TabsTrigger>
+                    <TabsTrigger value="chat">Chat</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="feed" className="space-y-6">
+                    {/* Feed Tabs */}
+                    <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
                 {tabs.map((tab) => (
                     <button
                         key={tab.key}
@@ -186,6 +198,16 @@ export default function SaathiFeedPage() {
                     ))}
                 </div>
             )}
+                </TabsContent>
+
+                <TabsContent value="chat">
+                    <SaathiChatPanel 
+                        joinConversation={joinConversation} 
+                        sendMessage={sendMessage} 
+                        setTypingStatus={setTypingStatus} 
+                    />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }

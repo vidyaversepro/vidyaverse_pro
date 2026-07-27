@@ -190,11 +190,16 @@ export function InstitutionModal({ open, onOpenChange, institution }: Institutio
             console.error(error);
             const vErrs = error.response?.data?.validationErrors;
             if (vErrs) {
-                if (vErrs.code) form.setError('code', { type: 'uniqueness', message: vErrs.code });
-                if (vErrs.adminEmail) form.setError('adminEmail', { type: 'uniqueness', message: vErrs.adminEmail });
-                if (vErrs.contactEmail) form.setError('contactEmail', { type: 'uniqueness', message: vErrs.contactEmail });
+                const msgs: string[] = [];
+                if (vErrs.code) { form.setError('code', { type: 'uniqueness', message: vErrs.code }); msgs.push(vErrs.code); }
+                if (vErrs.adminEmail) { form.setError('adminEmail', { type: 'uniqueness', message: vErrs.adminEmail }); msgs.push(vErrs.adminEmail); }
+                if (vErrs.contactEmail) { form.setError('contactEmail', { type: 'uniqueness', message: vErrs.contactEmail }); msgs.push(vErrs.contactEmail); }
 
-                // Navigate to the step with the error
+                // Always show a clear banner so the reason isn't missed, and jump
+                // to the step that holds the conflicting field.
+                form.setError('root', {
+                    message: msgs.join(' ') || 'Some values are already in use. Please use a unique code and emails.',
+                });
                 if (vErrs.code || vErrs.contactEmail) setStep(1);
             } else {
                 form.setError('root', {

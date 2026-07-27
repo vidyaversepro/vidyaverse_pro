@@ -8,10 +8,11 @@ export type StudentStatus = 'pending' | 'active' | 'graduated' | 'transferred' |
 export interface Student {
     id: string;
     institutionId: string;
-    sectionId: string;
-    branchId?: string;
-    rollNo: number;
-    admissionNumber?: string;
+    sectionId: string | null;
+    slotId: string | null;
+    userId?: string | null;
+    admissionNumber: string | null;
+    rollNo: number | null;
     name: string;
     academicYear: string;
     fatherName?: string;
@@ -164,6 +165,19 @@ export const useDeleteStudent = () => {
     });
 };
 
+export const useBulkDeleteStudents = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (ids: string[]) => {
+            const response = await api.post('/student/bulk-delete', { ids });
+            return response.data as { success: boolean; count: number };
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['students'] });
+        },
+    });
+};
+
 export const useUpdateStudentDataStatus = () => {
     const queryClient = useQueryClient();
     return useMutation({
@@ -221,6 +235,131 @@ export const useBulkRequestPhotos = () => {
         mutationFn: async (studentIds: string[]) => {
             const response = await api.post('/student/bulk-request-photos', { studentIds });
             return response.data;
+        },
+    });
+};
+
+// ---------------------------------------------------------------------------
+// Self-service — authenticated student's own profile
+// ---------------------------------------------------------------------------
+
+export interface MyStudentProfile {
+  id: string;
+  name: string;
+  admissionNumber: string;
+  rollNumber?: string | null;
+  section: {
+    id: string;
+    name: string;
+    class: { id: string; name: string };
+  };
+  institution: {
+    id: string;
+    name: string;
+    code: string;
+  };
+}
+
+export const useMyStudentProfile = () =>
+  useQuery({
+    queryKey: ['my-student-profile'],
+    queryFn: async () => {
+      const { data } = await api.get<{ data: MyStudentProfile }>('/auth/me/student');
+      return data.data;
+    },
+    retry: false, // 404 = not linked; don't retry hammering the backend
+    staleTime: 10 * 60 * 1000,
+  });
+
+export const useMyAttendanceSummary = (startDate?: string, endDate?: string) => {
+  return useQuery({
+    queryKey: ['my-attendance', startDate, endDate],
+    queryFn: async () => {
+      const { data } = await api.get('/auth/me/attendance', { params: { startDate, endDate } });
+      return data.data;
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useMyTodayTimetable = () => {
+  return useQuery({
+    queryKey: ['my-timetable-today'],
+    queryFn: async () => {
+      const { data } = await api.get('/auth/me/timetable/today');
+      return data.data;
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useMyNotices = (limit = 5) => {
+  return useQuery({
+    queryKey: ['my-notices', limit],
+    queryFn: async () => {
+      const { data } = await api.get('/auth/me/notices', { params: { limit } });
+      return data.data;
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useMyTransport = () => {
+  return useQuery({
+    queryKey: ['my-transport'],
+    queryFn: async () => {
+      const { data } = await api.get('/auth/me/transport');
+      return data.data;
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useMyHostel = () => {
+  return useQuery({
+    queryKey: ['my-hostel'],
+    queryFn: async () => {
+      const { data } = await api.get('/auth/me/hostel');
+      return data.data;
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useMyDocuments = () => {
+  return useQuery({
+    queryKey: ['my-documents'],
+    queryFn: async () => {
+      const { data } = await api.get('/auth/me/documents');
+      return data.data;
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useSearchUsers = (query: string, institutionId?: string) =>
+    useQuery({
+        queryKey: ['user-search', query, institutionId],
+        queryFn: () =>
+            api.get('/users', { params: { search: query, institutionId } })
+                .then((r) => r.data.data as { id: string; name: string; email: string }[]),
+        enabled: !!institutionId && query.length >= 2,
+        staleTime: 10_000,
+    });
+
+export const useLinkStudentUser = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ studentId, userId }: { studentId: string; userId: string | null }) =>
+            api.patch(`/students/${studentId}/link-user`, { userId }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['students'] });
         },
     });
 };

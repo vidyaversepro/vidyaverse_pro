@@ -141,6 +141,65 @@ const templateRoutes: FastifyPluginAsync = async (fastify) => {
     });
 
     /**
+     * Preview a curated DEFAULT template (by service type) with sample data +
+     * the institution's real branding. Returns a PNG (base64) for in-app preview.
+     */
+    fastify.get('/preview-default/:serviceType', {
+        config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
+        preHandler: [fastify.requireInstitution],
+        handler: async (request: any, reply) => {
+            const { serviceType } = request.params;
+            const institutionId = request.institutionId;
+            const { getDefaultTemplate, getSampleData } = await import('../../lib/default-templates/index.js');
+            const def = getDefaultTemplate(serviceType);
+            if (!def) return reply.status(404).send({ success: false, message: `No curated default for '${serviceType}'` });
+
+            const { buildBrandingContext } = await import('../../lib/branding-context.js');
+            const { wrapHtmlDocument } = await import('../../lib/document-base.js');
+            const { compileTemplate } = await import('../../utils/template-engine.js');
+            const { generateImageFromHTML } = await import('../../utils/pdf-generator.js');
+            const { generateStudentQRCode } = await import('../../utils/qrcode.js');
+
+            const branding = await buildBrandingContext(institutionId);
+            const sample = getSampleData(serviceType);
+            const qrCode = await generateStudentQRCode({
+                id: 'preview',
+                admissionNo: sample.admissionNumber || sample.student?.admissionNumber || 'PREVIEW',
+                name: sample.studentName || sample.student?.name || sample.name || 'Preview',
+                institutionCode: 'VV',
+            });
+            const data: any = { ...branding, ...sample, qrCode };
+            if (data.results) data.results.qrCode = qrCode;
+
+            const html = wrapHtmlDocument(compileTemplate(def.html, data));
+            const png = await generateImageFromHTML(html, {
+                width: def.widthMm, height: def.heightMm, scale: def.widthMm < 120 ? 4 : 2, format: 'png',
+            });
+            return { success: true, data: { serviceType, mime: 'image/png', pngBase64: png.toString('base64'), width: def.widthMm, height: def.heightMm } };
+        },
+    });
+
+    /**
+     * Lint a template's variables/helpers against the per-service-type catalog.
+     */
+    fastify.post('/lint', {
+        preHandler: [fastify.requireInstitution],
+        handler: async (request: any, reply) => {
+            const { content, serviceType } = request.body || {};
+            if (typeof content !== 'string' || !serviceType) {
+                return reply.status(400).send({ success: false, message: 'content (string) and serviceType are required' });
+            }
+            const { getSampleData } = await import('../../lib/default-templates/index.js');
+            const { lintTemplate, allowedRootsFromSample } = await import('../../lib/template-lint.js');
+            const { buildBrandingContext } = await import('../../lib/branding-context.js');
+            const branding = await buildBrandingContext(request.institutionId);
+            const allowed = allowedRootsFromSample(getSampleData(serviceType), Object.keys(branding));
+            const result = lintTemplate(content, allowed);
+            return { success: result.ok, data: result };
+        },
+    });
+
+    /**
      * List templates
      */
     fastify.get('/', {

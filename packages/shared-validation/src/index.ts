@@ -8,7 +8,6 @@ export * from './hall-ticket.schema';
 export * from './id-card.schema';
 export * from './library-card.schema';
 export * from './job.schema.js';
-
 export * from './marksheet.schema';
 export * from './notification.schema';
 export * from './portfolio.schema';
@@ -20,3 +19,9 @@ export * from './units';
 export * from './transfer-certificate.schema';
 export * from './visionarium.schema';
 export * from './visiting-card.schema';
+export * from './audience.schema';
+export * from './payments.schema';
+export * from './admissions.schema';
+export * from './institution-role.schema';
+export * from './student-link.schema';
+export * from './chat.schema';

@@ -37,29 +37,31 @@ function useCounter(target: number, suffix = '', duration = 2000) {
 }
 
 const stats = [
-    { icon: Users, label: 'Students Served', target: 500000, suffix: '+' },
-    { icon: School, label: 'Institutions', target: 1000, suffix: '+' },
-    { icon: FileCheck, label: 'Documents Generated', target: 5000000, suffix: '+' },
-    { icon: Award, label: 'Satisfaction', target: 98, suffix: '%' },
+    { icon: Users, label: 'Integrated Modules', target: 47, suffix: '' },
+    { icon: School, label: 'Module Categories', target: 6, suffix: '' },
+    { icon: FileCheck, label: 'Document Types', target: 8, suffix: '' },
+    { icon: Award, label: 'Multi-Tenant Ready', target: 100, suffix: '%' },
 ];
 
+// Pre-launch: design-partner personas, not fabricated named customers (honest
+// founding-cohort framing — value props voiced through roles, no invented people).
 const testimonials = [
     {
-        name: 'Rajesh Kumar',
-        role: 'Principal, Delhi Public School',
-        quote: 'Vidyaverse Pro transformed how we handle certificates. What used to take two weeks of manual work is now done in a single afternoon.',
+        name: 'School Principal',
+        role: 'Founding-cohort persona',
+        quote: 'What we need is one system instead of five vendors — fees, attendance, transport, and parent messaging that all share the same student record. That is exactly what Vidyaverse is built to be.',
         stars: 5,
     },
     {
-        name: 'Sunita Patel',
-        role: 'Admin Officer, St. Xavier\'s Academy',
-        quote: 'The AI photo extraction feature alone saved us 100+ hours during admission season. Parents love the professional-looking ID cards.',
+        name: 'Admin Officer',
+        role: 'Founding-cohort persona',
+        quote: 'The promise that matters most: reach every parent on WhatsApp automatically — attendance, results, fee links — without anyone copy-pasting numbers.',
         stars: 5,
     },
     {
-        name: 'Arvind Nair',
-        role: 'Vice Principal, Modern School',
-        quote: 'We replaced 4 separate vendors with one platform. The marksheet auto-calculation feature is incredibly accurate.',
+        name: 'Vice Principal',
+        role: 'Founding-cohort persona',
+        quote: 'One login across the campus stack, with documents and marksheets generated from the same data — that removes the busywork our staff drown in.',
         stars: 5,
     },
 ];
@@ -102,10 +104,10 @@ export default function StatsSection() {
                         className="text-center mb-12"
                     >
                         <h2 className="text-3xl sm:text-5xl font-bold text-white tracking-tight mb-4">
-                            Trusted by Thousands
+                            Built to Run Everything
                         </h2>
                         <p className="text-lg text-white/80 max-w-3xl mx-auto">
-                            Join our growing community of institutions across India
+                            One connected platform — not a pile of disconnected tools
                         </p>
                     </motion.div>
 
@@ -135,14 +137,17 @@ export default function StatsSection() {
                         transition={{ duration: 0.6 }}
                         className="text-center mb-12"
                     >
-                        <p className="section-overline">Success Stories</p>
+                        <p className="section-overline">Built With Educators</p>
                         <h2
                             className="text-3xl sm:text-5xl font-bold tracking-tight"
                             style={{ color: 'var(--text-primary)' }}
                         >
-                            Hear from{' '}
-                            <span className="gradient-text-educational">Real Users</span>
+                            Designed with our{' '}
+                            <span className="gradient-text-educational">founding cohort</span>
                         </h2>
+                        <p className="text-sm mt-3" style={{ color: 'var(--text-tertiary)' }}>
+                            Illustrative voices from design-partner interviews · launching 2026
+                        </p>
                     </motion.div>
 
                     <div className="relative">

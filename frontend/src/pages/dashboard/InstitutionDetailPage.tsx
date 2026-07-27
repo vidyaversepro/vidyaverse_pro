@@ -20,6 +20,7 @@ import {
     Layers,
     MoreVertical,
     Edit,
+    Palette,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -70,6 +71,8 @@ import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { api } from '@/lib/api';
 import SectionStudentOnboarding from '@/components/institutions/SectionStudentOnboarding';
+import ModulesSubscriptionPanel from '@/components/institutions/ModulesSubscriptionPanel';
+import BrandingPanel from '@/components/institutions/BrandingPanel';
 
 export default function InstitutionDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -127,6 +130,14 @@ export default function InstitutionDetailPage() {
                         <Users className="w-4 h-4" />
                         Students
                     </TabsTrigger>
+                    <TabsTrigger value="modules" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm px-4 py-2 gap-2">
+                        <Layers className="w-4 h-4" />
+                        Modules
+                    </TabsTrigger>
+                    <TabsTrigger value="branding" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm px-4 py-2 gap-2">
+                        <Palette className="w-4 h-4" />
+                        Branding
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="mt-6 focus-visible:outline-none">
@@ -137,6 +148,12 @@ export default function InstitutionDetailPage() {
                 </TabsContent>
                 <TabsContent value="students" className="mt-6 focus-visible:outline-none">
                     <StudentsTab institutionId={institution.id} />
+                </TabsContent>
+                <TabsContent value="modules" className="mt-6 focus-visible:outline-none">
+                    <ModulesSubscriptionPanel institutionId={institution.id} />
+                </TabsContent>
+                <TabsContent value="branding" className="mt-6 focus-visible:outline-none">
+                    <BrandingPanel institution={institution as any} />
                 </TabsContent>
             </Tabs>
         </div>
@@ -634,14 +651,17 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                         ) : (
                             <AnimatePresence mode="popLayout">
                                 {normalizedData.map((cls) => (
-                                    <motion.button
+                                    <motion.div
                                         layout
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         key={cls.id}
+                                        role="button"
+                                        tabIndex={0}
                                         onClick={() => setSelectedClassId(cls.id)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedClassId(cls.id); } }}
                                         className={cn(
-                                            "w-full text-left p-3 rounded-xl border transition-all flex justify-between items-center group",
+                                            "w-full text-left p-3 rounded-xl border transition-all flex justify-between items-center group cursor-pointer",
                                             selectedClassId === cls.id
                                                 ? "border-primary bg-primary/10 text-primary dark:bg-primary/20"
                                                 : "border-transparent bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 shadow-sm"
@@ -673,7 +693,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                             </DropdownMenu>
                                             <ChevronRight className={cn("w-4 h-4 transition-transform", selectedClassId === cls.id ? "opacity-100 translate-x-1" : "opacity-0")} />
                                         </div>
-                                    </motion.button>
+                                    </motion.div>
                                 ))}
                             </AnimatePresence>
                         )}
@@ -714,15 +734,18 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                         ) : (
                             <AnimatePresence mode="popLayout">
                                 {activeStreams.map((stream) => (
-                                    <motion.button
+                                    <motion.div
                                         layout
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
                                         key={stream.id}
+                                        role="button"
+                                        tabIndex={0}
                                         onClick={() => setSelectedStreamId(stream.id)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedStreamId(stream.id); } }}
                                         className={cn(
-                                            "w-full text-left p-3 rounded-xl border transition-all flex flex-col group shadow-sm",
+                                            "w-full text-left p-3 rounded-xl border transition-all flex flex-col group shadow-sm cursor-pointer",
                                             selectedStreamId === stream.id
                                                 ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300"
                                                 : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-emerald-300"
@@ -752,7 +775,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                             <span className="font-semibold text-base">{stream.name}</span>
                                             <ChevronRight className={cn("w-4 h-4 transition-transform", selectedStreamId === stream.id ? "opacity-100 translate-x-1" : "opacity-0")} />
                                         </div>
-                                    </motion.button>
+                                    </motion.div>
                                 ))}
                             </AnimatePresence>
                         )}

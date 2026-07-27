@@ -63,7 +63,11 @@ export async function initializeMinio(): Promise<void> {
         logger.info(`✅ R2 storage connected — bucket "${env.R2_BUCKET_NAME}"`);
     } catch (error) {
         logger.error(`❌ R2 storage initialization failed: ${error}`);
-        throw error;
+        // In production a broken storage layer is fatal. In development we let the
+        // server boot anyway — storage ops fail-soft via the circuit breaker — so
+        // the app is usable without valid R2 creds (uploads/downloads no-op).
+        if (env.NODE_ENV === 'production') throw error;
+        logger.warn('⚠️  Continuing without verified R2 storage (development). File uploads/downloads will fail until valid R2 creds are set.');
     }
 }
 
@@ -128,8 +132,8 @@ export const storage = {
     },
 
     generateObjectName(
-        institutionId: string,
-        type: 'photos' | 'documents' | 'templates' | 'signatures' | 'pdfs',
+        institutionId: string | 'platform',
+        type: 'photos' | 'documents' | 'templates' | 'signatures' | 'pdfs' | 'visionarium-articles',
         filename: string
     ): string {
         const timestamp = Date.now();

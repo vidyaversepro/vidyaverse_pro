@@ -18,6 +18,7 @@ export {
     useApprovalQueue,
     useUpdateStudent,
     useDeleteStudent,
+    useBulkDeleteStudents,
     useUpdateStudentDataStatus,
     useStudentCountsBySection,
     useGenerateSectionForms,

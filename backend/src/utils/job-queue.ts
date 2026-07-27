@@ -99,7 +99,9 @@ export function createWorker<T = unknown, R = unknown>(
 ): Worker<T, R> {
     const redis = getRedisClient();
     const worker = new Worker<T, R>(queueName, processor, {
-        connection: redis.duplicate(),
+        // BullMQ blocking workers require maxRetriesPerRequest: null on the
+        // connection; duplicate() otherwise inherits the app client's value.
+        connection: redis.duplicate({ maxRetriesPerRequest: null }),
         concurrency: options.concurrency ?? 5,
         lockDuration: options.lockDuration,
     });
@@ -132,7 +134,8 @@ export function getQueueEvents(queueName: string): QueueEvents {
     if (!queueEvents.has(queueName)) {
         const redis = getRedisClient();
         const events = new QueueEvents(queueName, {
-            connection: redis.duplicate(),
+            // QueueEvents also uses blocking reads → needs maxRetriesPerRequest: null.
+            connection: redis.duplicate({ maxRetriesPerRequest: null }),
         });
         queueEvents.set(queueName, events);
     }

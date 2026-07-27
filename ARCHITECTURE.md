@@ -4,6 +4,17 @@ This document describes the high-level architecture of Vidyaverse Pro.
 
 ---
 
+## Ecosystem Integration
+
+Vidyaverse Pro operates as part of the **Educational Excellence Trio**:
+1. **Vidyaverse Pro**: Educational management and administrative core.
+2. **PDLMS Pro**: Digital library and resource management.
+3. **DigiClassroom Pro**: AI-powered tutoring and document processing.
+
+These three systems function together to provide a comprehensive, end-to-end educational ecosystem for institutions and students.
+
+---
+
 ## System Overview
 
 Vidyaverse Pro is a **monorepo** containing two workspaces:

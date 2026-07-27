@@ -83,6 +83,7 @@ export default function TemplateNewPage() {
   const createTemplate = useCreateTemplate(); // Renamed from createMutation
 
   const [step, setStep] = useState<Step>(1);
+  const [lastStepChange, setLastStepChange] = useState(0);
 
   // Initialize form
   const form = useForm<TemplateCreationForm>({
@@ -135,7 +136,10 @@ export default function TemplateNewPage() {
     } else if (step === 2) {
       isValid = await trigger(['widthPx', 'heightPx', 'unit', 'orientation']);
     }
-    if (isValid) setStep((s) => (s + 1) as Step);
+    if (isValid && step < 3) {
+        setLastStepChange(Date.now());
+        setStep((step + 1) as Step);
+    }
   };
 
   const handleBack = () => {
@@ -150,6 +154,11 @@ export default function TemplateNewPage() {
     if (step < 3) {
       handleNext();
       return;
+    }
+    
+    // Prevent double-click bleed-through or key-repeat bugs
+    if (Date.now() - lastStepChange < 400) {
+        return;
     }
 
     const payload = {

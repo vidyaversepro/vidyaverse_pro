@@ -15,27 +15,27 @@ const rows = [
         manual: { text: 'No digital records', bad: true },
     },
     {
-        feature: 'Services',
-        traditional: { text: '8 separate tools', bad: true },
-        vidyaverse: { text: '8 services, 1 platform', good: true },
+        feature: 'Scope',
+        traditional: { text: '3-5 separate vendors', bad: true },
+        vidyaverse: { text: '47 modules, 1 platform', good: true },
         manual: { text: 'Disconnected workflows', bad: true },
     },
     {
-        feature: 'AI Costs',
-        traditional: { text: 'Gemini API = $100s', bad: true },
-        vidyaverse: { text: 'OpenCV cascade = 90% savings', good: true },
-        manual: { text: 'No AI automation', bad: true },
+        feature: 'Parent Reach',
+        traditional: { text: 'Email/SMS (rarely opened)', bad: true },
+        vidyaverse: { text: 'Native WhatsApp + AI replies', good: true },
+        manual: { text: 'Diary notes & calls', bad: true },
     },
     {
-        feature: 'Setup Time',
-        traditional: { text: 'Weeks of onboarding', bad: true },
-        vidyaverse: { text: '10-minute setup', good: true },
-        manual: { text: 'No setup needed', neutral: true },
+        feature: 'Identity',
+        traditional: { text: 'A login per tool', bad: true },
+        vidyaverse: { text: 'One SSO across the stack', good: true },
+        manual: { text: 'No digital identity', bad: true },
     },
     {
         feature: 'Scalability',
         traditional: { text: 'Costs increase linearly', bad: true },
-        vidyaverse: { text: '10,000+ institutions', good: true },
+        vidyaverse: { text: 'Multi-tenant, 10,000+ ready', good: true },
         manual: { text: 'Not scalable', bad: true },
     },
 ];
@@ -115,7 +115,7 @@ export default function ComparisonSection() {
                                     </td>
                                     <td className="p-4">
                                         <div className="flex items-center gap-2 text-sm text-white/40">
-                                            <CellIcon bad={row.manual.bad} neutral={row.manual.neutral} /> {row.manual.text}
+                                            <CellIcon bad={row.manual.bad} /> {row.manual.text}
                                         </div>
                                     </td>
                                 </motion.tr>

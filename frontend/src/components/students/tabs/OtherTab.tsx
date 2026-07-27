@@ -18,10 +18,9 @@ export function OtherTab(props: OtherTabProps) {
             </div>
 
             <PhotoCaptureEditor
-                studentId={props.studentId}
                 mode={props.mode}
                 currentPhotoUrl={currentPhotoUrl}
-                onSave={(file, previewUrl) => {
+                onSave={(_file, previewUrl) => {
                     setValue('photoUrl', previewUrl, { shouldDirty: true, shouldValidate: true });
                 }}
             />

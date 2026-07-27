@@ -51,7 +51,22 @@ const rbacPlugin: FastifyPluginAsync = async (fastify) => {
             const params = request.params as Record<string, unknown> | undefined;
             const headers = request.headers;
 
-            const institutionId = (params?.institutionId || query.institutionId || body?.institutionId || headers['x-institution-id'] || headers['institutionid']) as string | undefined;
+            let institutionId = (params?.institutionId || query.institutionId || body?.institutionId || headers['x-institution-id'] || headers['institutionid']) as string | undefined;
+
+            // Fallback: if no institution was supplied explicitly but the user
+            // belongs to exactly one institution, use it. This keeps single-tenant
+            // users working without every request having to thread institutionId,
+            // while still requiring an explicit choice when membership is ambiguous.
+            if (!institutionId) {
+                const memberships = await prisma.userInstitutionRole.findMany({
+                    where: { userId: request.user.userId },
+                    select: { institutionId: true },
+                    take: 2,
+                });
+                if (memberships.length === 1) {
+                    institutionId = memberships[0].institutionId;
+                }
+            }
 
             if (requireInstitution && !institutionId) {
                 throw new ForbiddenError('Institution context required');

@@ -157,13 +157,14 @@ export default function ServicesSection() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16"
                 >
-                    <p className="section-overline">Complete Suite</p>
+                    <p className="section-overline">Inside the Platform · Document Studio</p>
                     <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4" style={{ color: 'var(--text-primary)' }}>
-                        Eight Services.{' '}
-                        <span className="gradient-text-educational">One Seamless Experience.</span>
+                        One pillar of many:{' '}
+                        <span className="gradient-text-educational">the Document Studio.</span>
                     </h2>
                     <p className="text-lg max-w-3xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-                        Every tool you need to manage student documentation — from admission to graduation.
+                        Beyond academics, fees, and communication, Vidyaverse generates every official
+                        document an institution issues — each pulling from the same single student record.
                     </p>
                 </motion.div>
 

@@ -35,6 +35,8 @@ export const generateBulkVisitingCardsSchema = z.object({
     studentIds: z.array(z.string().uuid()).optional(),
     userIds: z.array(z.string().uuid()).optional(),
     templateId: z.string().uuid().optional(),
+    website: z.string().max(500).optional(),
+    linkedinUrl: z.string().max(500).optional(),
 }).refine(data => (data.studentIds?.length || 0) > 0 || (data.userIds?.length || 0) > 0, {
     message: "At least one student or user ID must be provided",
 });

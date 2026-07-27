@@ -9,10 +9,10 @@ const fadeUp = (delay: number) => ({
 });
 
 const heroStats = [
-    { label: 'Institutions', value: '1,000+', icon: Target, color: 'from-red-500 to-orange-500' },
-    { label: 'Documents/Month', value: '5M+', icon: TrendingUp, color: 'from-blue-500 to-cyan-500' },
-    { label: 'AI Powered', value: 'Yes', icon: Brain, color: 'from-purple-500 to-indigo-500' },
-    { label: 'Setup Time', value: '10 min', icon: Zap, color: 'from-green-500 to-emerald-500' },
+    { label: 'Integrated Modules', value: '47', icon: Target, color: 'from-red-500 to-orange-500' },
+    { label: 'Parent Channel', value: 'WhatsApp', icon: TrendingUp, color: 'from-green-500 to-emerald-500' },
+    { label: 'One Secure Login', value: 'SSO', icon: Brain, color: 'from-purple-500 to-indigo-500' },
+    { label: 'Setup Time', value: '10 min', icon: Zap, color: 'from-blue-500 to-cyan-500' },
 ];
 
 export default function HeroSection() {
@@ -79,7 +79,7 @@ export default function HeroSection() {
                 <motion.div {...fadeUp(0.1)} className="mb-8">
                     <div className="hero-badge">
                         <Zap size={14} style={{ color: 'var(--primary)' }} className="animate-pulse-vg" />
-                        <span>Trusted by 1,000+ Institutions Across India</span>
+                        <span>Launching 2026 · Founding cohort now open</span>
                     </div>
                 </motion.div>
 
@@ -91,7 +91,7 @@ export default function HeroSection() {
                 >
                     <span className="gradient-text-red">Vidyaverse Pro</span>
                     <br />
-                    <span className="text-4xl sm:text-5xl font-semibold">One Platform. Everything Your Institution Needs.</span>
+                    <span className="text-4xl sm:text-5xl font-semibold">The Operating System for Modern Institutions.</span>
                 </motion.h1>
 
                 {/* Subtitle */}
@@ -100,8 +100,9 @@ export default function HeroSection() {
                     className="text-lg sm:text-xl max-w-3xl mx-auto mb-12 leading-relaxed"
                     style={{ color: 'var(--text-secondary)' }}
                 >
-                    From <strong>ID cards</strong> to <strong>certificates</strong>, <em>marksheets</em> to <em>portfolios</em> —
-                    generate, manage, and distribute all institutional documents effortlessly with AI.
+                    Run your entire campus from one system — <strong>academics</strong>, <strong>fees</strong>,
+                    <em> attendance</em>, <em>transport</em>, documents, and AI-powered <strong>WhatsApp updates</strong> to
+                    every parent. 47 modules, one login.
                 </motion.p>
 
                 {/* CTAs */}
@@ -110,12 +111,12 @@ export default function HeroSection() {
                     className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
                 >
                     <a href="/register" className="btn-primary-landing text-lg px-8 py-4">
-                        Start Free Trial
+                        Join the Founding Cohort
                         <ArrowRight size={20} className="ml-1" />
                     </a>
-                    <a href="#how-it-works" className="btn-secondary-landing text-lg px-8 py-4">
+                    <a href="#modules" className="btn-secondary-landing text-lg px-8 py-4">
                         <Play size={18} className="mr-1" />
-                        Explore Features
+                        Explore the Platform
                     </a>
                 </motion.div>
 
@@ -186,10 +187,10 @@ export default function HeroSection() {
                                 {/* Dashboard content */}
                                 <div className="p-6 grid grid-cols-4 gap-4">
                                     {[
-                                        { label: 'ID Cards', emoji: '🆔', color: '#E63946' },
-                                        { label: 'Certificates', emoji: '📜', color: '#8B5CF6' },
-                                        { label: 'Portfolios', emoji: '💼', color: '#2563EB' },
-                                        { label: 'Marksheets', emoji: '📊', color: '#10B981' },
+                                        { label: 'Attendance', emoji: '✅', color: '#E63946' },
+                                        { label: 'Fees', emoji: '💳', color: '#8B5CF6' },
+                                        { label: 'Timetable', emoji: '📅', color: '#2563EB' },
+                                        { label: 'WhatsApp', emoji: '💬', color: '#10B981' },
                                     ].map((item, i) => (
                                         <motion.div
                                             key={item.label}

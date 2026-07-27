@@ -102,3 +102,19 @@ export function studentPhotoRequestEmail(studentName: string, institutionName: s
         ${fallbackLink(uploadLink)}
     `);
 }
+
+export function welcomeEmail(name: string): string {
+  return `
+    <div style="font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 24px;">
+      <h2 style="color: #1a1a1a; margin-bottom: 8px;">Welcome to Vidyaverse Pro</h2>
+      <p style="color: #444; line-height: 1.6;">Hi ${name},</p>
+      <p style="color: #444; line-height: 1.6;">
+        Your account has been created successfully. You can now sign in to access
+        your student dashboard, track attendance, view fee status, and more.
+      </p>
+      <p style="color: #888; font-size: 13px; margin-top: 32px;">
+        If you didn't create this account, please ignore this email or contact your school administrator.
+      </p>
+    </div>
+  `;
+}

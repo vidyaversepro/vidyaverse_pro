@@ -6,6 +6,7 @@ import { generateVerificationQRCode } from '../../utils/qrcode.js';
 import { generatePDFFromHTML, generateImageFromHTML } from '../../utils/pdf-generator.js';
 import { uploadToMinio, getMinioFileUrl } from '../../config/minio.js';
 import { env } from '../../config/env.js';
+import { buildBrandingContext } from '../../lib/branding-context.js';
 import { logger } from '../../utils/logger.js';
 import type {
     CreateVisitingCardInput,
@@ -92,8 +93,20 @@ export const createVisitingCardService = (tx: any = prisma) => ({
         const verificationUrl = `${env.FRONTEND_URL || 'https://vidyaverse.app'}/verify/vc/${cardNumber}`;
         const qrCode = await generateVerificationQRCode(verificationUrl);
 
-        // Prepare template data
+        // Shared branding context (institution + authorities, inlined assets).
+        const branding = await buildBrandingContext(institutionId, tx);
+
+        // Prepare template data — shared branding context + flat keys the curated
+        // template binds to, plus legacy nested objects for backward-compat.
         const templateData = {
+            ...branding,
+            // Flat keys the curated visiting card template expects:
+            name: personName,
+            designation: data.designation || (student ? 'Student' : 'Staff'),
+            phone: personPhone,
+            email: personEmail,
+            website: data.website || '',
+            // Legacy nested objects (custom templates may still bind to these):
             card: {
                 number: cardNumber,
                 designation: data.designation || (student ? 'Student' : 'Staff'),
@@ -174,7 +187,7 @@ export const createVisitingCardService = (tx: any = prisma) => ({
                 frontPdfUrl: pdfUrl,
                 thumbnailUrl,
                 qrCodeData: qrCode,
-                issueDate: new Date(),
+                issuedAt: new Date(),
                 status: 'generated' as VisitingCardStatus,
             },
         });

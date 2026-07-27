@@ -174,6 +174,15 @@ export const controller = {
         return reply.send({ success: true, message: 'Student deleted' });
     },
 
+    async bulkDelete(request: FastifyRequest, reply: FastifyReply) {
+        const { ids } = request.body as { ids: string[] };
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return reply.status(400).send({ success: false, message: 'ids array is required' });
+        }
+        const result = await getService(request).bulkDelete(ids, request.user?.userId);
+        return reply.send({ success: true, ...result });
+    },
+
     async countsBySection(request: FastifyRequest, reply: FastifyReply) {
         const query = request.query as Record<string, string>;
         const institutionId = query.institutionId || request.institutionId;
@@ -327,5 +336,11 @@ export const controller = {
 
         const data = await getService(request).bulkRequestPhotos(studentIds, institutionId);
         return reply.send({ success: true, ...data });
-    }
+    },
+    async linkUser(request: FastifyRequest, reply: FastifyReply) {
+        const { id } = request.params as { id: string };
+        const { userId } = request.body as { userId: string };
+        const data = await getService(request).linkUser(id, userId);
+        return reply.send({ success: true, data });
+    },
 };

@@ -60,8 +60,14 @@ export const controller = {
     async update(request: FastifyRequest, reply: FastifyReply) {
         const { id } = request.params as { id: string };
         const body = request.body as Record<string, any>;
-        const data = await getService(request).update(id, body);
-        return reply.send({ success: true, data });
+        console.log(`[DEBUG] PATCH /section/${id} - body:`, body, 'institutionId:', request.institutionId);
+        try {
+            const data = await getService(request).update(id, body);
+            return reply.send({ success: true, data });
+        } catch (error) {
+            console.error(`[DEBUG] Error in section update:`, error);
+            throw error;
+        }
     },
 
     async delete(request: FastifyRequest, reply: FastifyReply) {

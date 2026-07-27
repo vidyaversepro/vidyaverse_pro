@@ -5,19 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useOnboardingStore } from '@/stores/onboarding.store';
-import { CheckCircle2, Building2, Users2, Target, GraduationCap } from 'lucide-react';
+import { CheckCircle2, Building2, GraduationCap } from 'lucide-react';
 import { api } from '@/lib/api';
 
-import BrandingStep from './onboarding/BrandingStep';
 import AcademicStructureStep from './onboarding/AcademicStructureStep';
-import AuthorityStep from './onboarding/AuthorityStep';
 import ReviewStep from './onboarding/ReviewStep';
 
+// Branding (logo) and signing authorities are NOT collected here — they're
+// managed in the institution's Branding tab (single source of truth, with
+// dimension guidance). Onboarding only finalizes core setup.
 const steps = [
     { title: 'Institution Details', icon: Building2 },
-    { title: 'Branding & Identity', icon: Target },
     { title: 'Academic Structure', icon: GraduationCap },
-    { title: 'Authority Management', icon: Users2 },
     { title: 'Review & Complete', icon: CheckCircle2 },
 ];
 
@@ -54,33 +53,8 @@ export default function InstitutionOnboardingPage() {
     const handleComplete = async () => {
         if (!id) return;
         try {
-            // Upload branding logic (handled in the step or here, simplified for plan)
-            const formData = new FormData();
-            if (store.logoFile) formData.append('logo', store.logoFile);
-            if (store.darkLogoFile) formData.append('darkLogo', store.darkLogoFile);
-
-            if (store.logoFile || store.darkLogoFile) {
-                await api.post(`/institution/${id}/branding`, formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                });
-            }
-
-            // Upload Authorities
-            for (const auth of store.authorities) {
-                const authFormData = new FormData();
-                authFormData.append('name', auth.name);
-                authFormData.append('designation', auth.designation);
-                authFormData.append('roleType', auth.roleType);
-                if (auth.email) authFormData.append('email', auth.email);
-                if (auth.phone) authFormData.append('phone', auth.phone);
-                if (auth.signatureFile) authFormData.append('signature', auth.signatureFile);
-
-                await api.post(`/institution/${id}/authorities`, authFormData, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                });
-            }
-
-            // Finalize
+            // Branding (logo) and signing authorities are configured later in the
+            // institution's Branding tab — onboarding only finalizes core setup.
             await api.patch(`/institution/${id}/complete-onboarding`, {
                 institutionType: store.institutionType,
             });
@@ -101,6 +75,9 @@ export default function InstitutionOnboardingPage() {
             <div className="mb-8 space-y-2">
                 <h1 className="text-3xl font-bold tracking-tight">Secondary Onboarding</h1>
                 <p className="text-muted-foreground">Complete the setup profile for {institution?.name}</p>
+                <p className="text-xs text-muted-foreground">
+                    Logos &amp; signing authorities are configured afterwards in the institution&apos;s <span className="font-medium">Branding</span> tab.
+                </p>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8">
@@ -158,10 +135,8 @@ export default function InstitutionOnboardingPage() {
                                     </div>
                                 </div>
                             )}
-                            {currentStep === 1 && <BrandingStep />}
-                            {currentStep === 2 && <AcademicStructureStep />}
-                            {currentStep === 3 && <AuthorityStep />}
-                            {currentStep === 4 && <ReviewStep institution={institution} />}
+                            {currentStep === 1 && <AcademicStructureStep />}
+                            {currentStep === 2 && <ReviewStep institution={institution} />}
                         </CardContent>
 
                         <div className="p-4 sm:p-6 mt-auto border-t bg-muted/20 flex flex-wrap justify-between gap-3 rounded-b-xl">

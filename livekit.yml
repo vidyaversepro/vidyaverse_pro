@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  livekit:
+    build:
+      context: .
+      dockerfile: livekit.Dockerfile
+    command: --config /etc/livekit.yaml
+    restart: unless-stopped
+    network_mode: "host"

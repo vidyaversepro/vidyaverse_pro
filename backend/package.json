@@ -18,7 +18,19 @@
         "db:migrate": "prisma migrate dev",
         "db:generate": "prisma generate",
         "db:seed": "tsx prisma/seed.ts",
-        "db:studio": "prisma studio"
+        "db:studio": "prisma studio",
+        "smoke:oidc": "tsx src/scripts/smoke-oidc.ts",
+        "smoke:operations": "tsx src/scripts/smoke-operations.ts",
+        "smoke:academics": "tsx src/scripts/smoke-academics.ts",
+        "smoke:insights": "tsx src/scripts/smoke-insights.ts",
+        "smoke:extensions": "tsx src/scripts/smoke-extensions.ts",
+        "smoke:online-tests": "tsx src/scripts/smoke-online-tests.ts",
+        "smoke:r2": "tsx src/scripts/smoke-r2.ts",
+        "smoke:printables": "tsx src/scripts/smoke-printables.ts",
+        "seed:academics": "tsx prisma/seed-academics.ts",
+        "test:live": "tsx src/scripts/live-http-test.ts",
+        "test:fed:setup": "tsx src/scripts/fed-test-setup.ts",
+        "test:fed:flow": "tsx src/scripts/fed-test-flow.ts"
     },
     "prisma": {
         "seed": "tsx prisma/seed.ts"
@@ -34,10 +46,12 @@
         "@fastify/rate-limit": "^9.1.0",
         "@fastify/swagger": "^8.14.0",
         "@fastify/swagger-ui": "^3.0.0",
+        "@fastify/websocket": "^10.0.1",
         "@prisma/client": "^5.10.0",
         "@types/nodemailer": "^7.0.9",
         "@vidyaverse/shared-validation": "workspace:*",
         "adm-zip": "^0.5.17",
+        "bcryptjs": "^3.0.2",
         "better-auth": "^1.4.20",
         "bullmq": "^5.4.0",
         "date-fns": "^3.3.1",
@@ -49,6 +63,7 @@
         "handlebars": "^4.7.8",
         "ioredis": "^5.3.2",
         "jsdom": "^28.1.0",
+        "livekit-server-sdk": "^2.15.5",
         "nanoid": "^5.1.6",
         "nodemailer": "^8.0.1",
         "pdf-lib": "^1.17.1",
@@ -59,6 +74,8 @@
         "sharp": "^0.33.2",
         "speakeasy": "^2.0.0",
         "swagger-ui-dist": "^5.31.1",
+        "uuid": "^11.1.0",
+        "ws": "^8.18.0",
         "zod": "^3.22.4"
     },
     "devDependencies": {
@@ -70,6 +87,7 @@
         "@types/node": "^20.11.24",
         "@types/qrcode": "^1.5.5",
         "@types/supertest": "^7.2.0",
+        "@types/ws": "^8.18.1",
         "@typescript-eslint/eslint-plugin": "^7.1.1",
         "@typescript-eslint/parser": "^7.1.1",
         "eslint": "^8.57.0",

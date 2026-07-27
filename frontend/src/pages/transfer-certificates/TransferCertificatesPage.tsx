@@ -1,311 +1,447 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useClasses, useSections, useStudents } from '@/lib/queries';
-import { 
-    useGenerateTransferCertificate, 
-    useBulkGenerateTransferCertificates, 
-    useTransferCertificates,
-    useIssueTransferCertificate
-} from '@/lib/queries/transfer-certificates/transfer-certificate-queries';
-import { PageHeader } from '@/components/shared/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
+    Plus,
+    Search,
+    Filter,
+    Printer,
+    Users,
+    Download,
+    FileText,
+    ChevronLeft,
+    ChevronRight,
+    Ban,
+    CheckCircle
+} from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
-import { FileDown, Search, Loader2, CheckCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { Card, CardContent } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
+import { 
+    useTransferCertificates, 
+    type TransferCertificate, 
+    useIssueTransferCertificate, 
+    useCancelTransferCertificate, 
+    useBulkGenerateTransferCertificates 
+} from '@/lib/queries/transfer-certificates/transfer-certificate-queries';
+import { usePageInstitution } from '@/hooks/usePageInstitution';
+import { cn } from '@/lib/utils';
+import { GenerateDocsModal } from '@/components/printables/GenerateDocsModal';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function TransferCertificatesPage() {
-    const [searchParams] = useSearchParams();
+    const institutionId = usePageInstitution();
+    const { toast } = useToast();
+    const navigate = useNavigate();
     
-    // Derive institutionId from URL like StudentsPage does
-    const institutionId = searchParams.get('institutionId');
-
-    const [selectedClassId, setSelectedClassId] = useState<string>('');
-    const [selectedSectionId, setSelectedSectionId] = useState<string>('');
+    const [selectedCards, setSelectedCards] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [page, setPage] = useState(1);
+    
+    const [actionId, setActionId] = useState<{ id: string, type: 'issue' | 'cancel' } | null>(null);
+    const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
 
-    // Queries
-    const { data: classes, isLoading: loadingClasses } = useClasses(institutionId || undefined);
-    const { data: sections, isLoading: loadingSections } = useSections(selectedClassId, institutionId || undefined);
-    
-    // Fetch students based on selected section
-    const { data: studentsData, isLoading: loadingStudents } = useStudents({
-        institutionId: institutionId || '',
-        classId: selectedClassId,
-        sectionId: selectedSectionId,
-        limit: '100', // For bulk operations, fetch max
-    });
-    
-    // Also fetch generated TCs to know their status
-    const { data: generatedTcsData } = useTransferCertificates({
-        institutionId: institutionId || '',
-        limit: 100
+    const [tcFields, setTcFields] = useState({
+        reason: '',
+        conduct: 'good',
+        remarks: '',
+        leavingDate: new Date().toISOString().split('T')[0],
+        feeClearanceStatus: 'cleared',
     });
 
-    const isReadyToFetch = !!(institutionId && selectedSectionId);
-    const students = studentsData?.data || [];
-    const generatedTcs = generatedTcsData?.data || [];
-    
-    // Create a map to easily look up if a student has a TC
-    const studentsWithTcs = new Map(generatedTcs.map((tc: any) => [tc.studentId, tc]));
+    const issueMutation = useIssueTransferCertificate();
+    const cancelMutation = useCancelTransferCertificate();
+    const { mutateAsync: generateBulkAsync } = useBulkGenerateTransferCertificates();
 
-    // Filter students by search query
-    const filteredStudents = students.filter(student => 
-        student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        student.admissionNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        student.rollNo?.toString().includes(searchQuery.toLowerCase())
-    );
-
-    // Mutations
-    const { mutate: generateSingle } = useGenerateTransferCertificate();
-    const { mutate: generateBulk, isPending: generatingBulk } = useBulkGenerateTransferCertificates();
-    const { mutate: issueTc } = useIssueTransferCertificate();
-
-    const [generatingId, setGeneratingId] = useState<string | null>(null);
-    const [issuingId, setIssuingId] = useState<string | null>(null);
-
-    const handleGenerateSingle = (studentId: string) => {
-        if (!institutionId) return;
-        setGeneratingId(studentId);
-        
-        generateSingle(
-            { institutionId, data: { studentId } },
-            {
-                onSuccess: () => {
-                    toast.success('Transfer certificate generated successfully');
-                    setGeneratingId(null);
-                },
-                onError: (error: any) => {
-                    toast.error(error?.response?.data?.message || 'Failed to generate transfer certificate');
-                    setGeneratingId(null);
-                }
+    const handleAction = async () => {
+        if (!actionId || !institutionId) return;
+        try {
+            if (actionId.type === 'issue') {
+                await issueMutation.mutateAsync({ id: actionId.id, institutionId });
+                toast({ title: 'Transfer Certificate issued successfully' });
+            } else {
+                await cancelMutation.mutateAsync({ id: actionId.id, institutionId, reason: 'Cancelled by admin' });
+                toast({ title: 'Transfer Certificate cancelled' });
             }
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: error?.response?.data?.message || 'Action failed' });
+        } finally {
+            setActionId(null);
+        }
+    };
+
+    const { data, isLoading } = useTransferCertificates({
+        institutionId: institutionId || '',
+        page: page.toString(),
+        limit: '20',
+        search: searchQuery,
+    });
+
+    const toggleSelectCard = (id: string) => {
+        setSelectedCards((prev) =>
+            prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
         );
     };
 
-    const handleGenerateBulk = () => {
-        if (!institutionId || students.length === 0) return;
-        
-        const studentIds = filteredStudents.map(s => s.id);
-        
-        generateBulk(
-            { institutionId, data: { studentIds } },
-            {
-                onSuccess: () => toast.success(`Generating transfer certificates for ${studentIds.length} students`),
-                onError: (error: any) => toast.error(error?.response?.data?.message || 'Failed to generate transfer certificates')
-            }
-        );
-    };
-
-    const handleIssueTc = (tcId: string) => {
-        if (!institutionId) return;
-        setIssuingId(tcId);
-        
-        issueTc(
-            { id: tcId, institutionId },
-            {
-                onSuccess: () => {
-                    toast.success('Transfer certificate issued successfully');
-                    setIssuingId(null);
-                },
-                onError: (error: any) => {
-                    toast.error(error?.response?.data?.message || 'Failed to issue transfer certificate');
-                    setIssuingId(null);
-                }
-            }
-        );
+    const handlePrintSelected = () => {
+        if (selectedCards.length === 0) {
+            toast({
+                variant: 'destructive',
+                title: 'No TCs selected',
+                description: 'Please select at least one transfer certificate to print.',
+            });
+            return;
+        }
+        navigate('/app/transfer-certificates/print', { state: { productIds: selectedCards } });
     };
 
     return (
-        <div className="p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <PageHeader
-                    breadcrumb={[
-                        { label: 'Dashboard', href: '/app/dashboard' },
-                        { label: 'Transfer Certificates' },
-                    ]}
-                    title="Transfer Certificates (TC)"
-                    description="Generate and issue transfer certificates for outgoing students"
-                />
-                
-                {isReadyToFetch && filteredStudents.length > 0 && (
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Transfer Certificates</h1>
+                    <p className="text-gray-500 dark:text-gray-400">
+                        View and manage generated transfer certificates
+                    </p>
+                </div>
+                <div className="flex gap-2">
+                    {selectedCards.length > 0 && (
+                        <Button variant="outline" onClick={handlePrintSelected}>
+                            <Printer className="w-4 h-4 mr-2" />
+                            Print ({selectedCards.length})
+                        </Button>
+                    )}
                     <Button 
-                        onClick={handleGenerateBulk} 
-                        disabled={generatingBulk}
-                        className="bg-brand-500 hover:bg-brand-600 font-semibold"
+                        className="bg-brand-500 hover:bg-brand-600 font-semibold text-white"
+                        onClick={() => setIsGenerateModalOpen(true)}
                     >
-                        {generatingBulk ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileDown className="w-4 h-4 mr-2" />}
-                        Generate All ({filteredStudents.length})
+                        <Plus className="w-4 h-4 mr-2" />
+                        Generate New
                     </Button>
-                )}
+                </div>
             </div>
 
-            <Card className="bg-dark-800/50 backdrop-blur-xl border-white/10">
-                <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">Class</label>
-                            <select 
-                                className="w-full bg-dark-900 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
-                                value={selectedClassId}
-                                onChange={(e) => {
-                                    setSelectedClassId(e.target.value);
-                                    setSelectedSectionId('');
-                                }}
-                                disabled={loadingClasses}
-                            >
-                                <option value="">Select Class...</option>
-                                {classes?.map((c: any) => (
-                                    <option key={c.id} value={c.id}>
-                                        {c.name}
-                                    </option>
-                                ))}
-                            </select>
+            {/* Filters */}
+            <Card className="border-0 shadow-lg">
+                <CardContent className="p-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Input
+                                placeholder="Search by student name or admission no..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10"
+                            />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">Section</label>
-                            <select 
-                                className="w-full bg-dark-900 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
-                                value={selectedSectionId}
-                                onChange={(e) => setSelectedSectionId(e.target.value)}
-                                disabled={!selectedClassId || loadingSections}
-                            >
-                                <option value="">Select Section...</option>
-                                {sections?.map((s: any) => (
-                                    <option key={s.id} value={s.id}>
-                                        {s.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        <Button variant="outline">
+                            <Filter className="w-4 h-4 mr-2" />
+                            Filters
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
 
-            {isReadyToFetch ? (
-                <Card className="bg-dark-800/50 backdrop-blur-xl border-white/10">
-                    <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4">
-                        <div>
-                            <CardTitle>Students List</CardTitle>
-                            <CardDescription>Generate individual or bulk TCs</CardDescription>
+            {/* TC Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {isLoading ? (
+                    Array.from({ length: 8 }).map((_, i) => (
+                        <div key={i} className="animate-pulse">
+                            <div className="aspect-[1.586] bg-gray-100 dark:bg-gray-800 rounded-lg" />
                         </div>
-                        <div className="relative w-full sm:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input 
-                                placeholder="Search by name or roll no..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 bg-dark-900/50 border-white/10 text-white w-full h-9"
-                            />
+                    ))
+                ) : !institutionId ? (
+                    <div className="col-span-full py-12 text-center text-amber-600">
+                        Please select an institution from the top-bar switcher.
+                    </div>
+                ) : data?.data?.length === 0 ? (
+                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                        <div className="w-16 h-16 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mb-4">
+                            <FileText className="w-8 h-8 text-brand-500" />
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        {loadingStudents ? (
-                            <div className="flex flex-col items-center justify-center py-12">
-                                <Loader2 className="w-8 h-8 text-brand-500 animate-spin mb-4" />
-                                <p className="text-gray-400">Loading students...</p>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">No Transfer Certificates Yet</h3>
+                        <p className="text-gray-500 mt-1">Generate transfer certificates using the button above.</p>
+                    </div>
+                ) : (
+                    data?.data?.map((tc: TransferCertificate) => (
+                        <motion.div
+                            key={tc.id}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className={cn(
+                                'group relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all',
+                                selectedCards.includes(tc.id)
+                                    ? 'border-brand-500 ring-2 ring-brand-500/20'
+                                    : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                            )}
+                            onClick={() => toggleSelectCard(tc.id)}
+                        >
+                            {/* Thumbnail */}
+                            <div className="aspect-[1.586] bg-gray-100 relative group-hover:scale-105 transition-transform duration-300">
+                                {tc.pdfUrl && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-400">
+                                        <FileText className="w-12 h-12 mb-2 opacity-20" />
+                                        <span className="absolute text-sm font-medium">Transfer Certificate</span>
+                                    </div>
+                                )}
+                                {/* Fallback layout when no rendered doc image is available */}
+                                <div className={cn('absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-white dark:bg-slate-900', tc.pdfUrl && 'hidden')}>
+                                    <div className="w-16 h-16 rounded-full bg-gray-200 mb-2 overflow-hidden border-2 border-brand-500">
+                                        {tc.student?.photoUrl ? (
+                                            <img src={tc.student.photoUrl} alt={tc.student.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <Users className="w-8 h-8 text-gray-400 m-auto mt-4" />
+                                        )}
+                                    </div>
+                                    <h3 className="font-bold text-sm truncate w-full">{tc.student?.name}</h3>
+                                    <p className="text-xs text-gray-500 font-mono mt-1">{tc.tcNumber}</p>
+                                    {tc.student?.section && (
+                                        <p className="text-xs text-gray-400 mt-1">
+                                            {tc.student.section.class.name} - {tc.student.section.name}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
-                        ) : filteredStudents.length === 0 ? (
-                            <div className="text-center py-12 text-gray-400">
-                                No students found in this section.
+
+                            {/* Selection indicator */}
+                            <div
+                                className={cn(
+                                    'absolute top-2 left-2 w-5 h-5 rounded border-2 transition-colors flex items-center justify-center',
+                                    selectedCards.includes(tc.id)
+                                        ? 'bg-brand-500 border-brand-500'
+                                        : 'bg-white border-gray-300'
+                                )}
+                            >
+                                {selectedCards.includes(tc.id) && (
+                                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                )}
                             </div>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full min-w-[600px] text-left border-collapse">
-                                    <thead>
-                                        <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-gray-400 font-medium">
-                                            <th className="px-4 py-3 w-16 text-center">Roll No</th>
-                                            <th className="px-4 py-3">Student Name</th>
-                                            <th className="px-4 py-3 text-center">Status</th>
-                                            <th className="px-4 py-3 text-right">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/10">
-                                        {filteredStudents.map((student) => {
-                                            const isGenerating = generatingId === student.id || generatingBulk;
-                                            const tc = studentsWithTcs.get(student.id);
-                                            const isIssuing = issuingId === tc?.id;
-                                            
-                                            return (
-                                                <tr key={student.id} className="hover:bg-white/5 transition-colors">
-                                                    <td className="px-4 py-3 text-center text-gray-400">
-                                                        {student.rollNo || '-'}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="font-medium text-white">{student.name}</div>
-                                                        <div className="text-xs text-gray-500">Adm: {student.admissionNumber || '-'}</div>
-                                                    </td>
-                                                    <td className="px-4 py-3 text-center">
-                                                        {!tc ? (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-500/10 text-gray-400 border border-gray-500/20">
-                                                                Not Generated
-                                                            </span>
-                                                        ) : tc.status === 'draft' ? (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
-                                                                Draft
-                                                            </span>
-                                                        ) : tc.status === 'issued' ? (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                                                                Issued
-                                                            </span>
-                                                        ) : (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                                                                Cancelled
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-3 text-right space-x-2">
-                                                        {(!tc || tc.status === 'draft' || tc.status === 'cancelled') && (
-                                                            <Button 
-                                                                variant="outline" 
-                                                                size="sm"
-                                                                disabled={isGenerating}
-                                                                onClick={() => handleGenerateSingle(student.id)}
-                                                                className="border-white/10 hover:bg-white/10 text-white bg-transparent h-8"
-                                                            >
-                                                                {generatingId === student.id ? (
-                                                                    <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
-                                                                ) : (
-                                                                    <FileDown className="w-3.5 h-3.5 mr-2" />
-                                                                )}
-                                                                {tc ? 'Re-generate' : 'Generate'}
-                                                            </Button>
-                                                        )}
-                                                        {tc && tc.status === 'draft' && (
-                                                            <Button 
-                                                                variant="outline" 
-                                                                size="sm"
-                                                                disabled={isIssuing}
-                                                                onClick={() => handleIssueTc(tc.id)}
-                                                                className="border-green-500/20 hover:bg-green-500/20 text-green-400 bg-green-500/10 h-8"
-                                                            >
-                                                                {isIssuing ? (
-                                                                    <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
-                                                                ) : (
-                                                                    <CheckCircle className="w-3.5 h-3.5 mr-2" />
-                                                                )}
-                                                                Issue
-                                                            </Button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+
+                            {/* Hover actions */}
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                {tc.pdfUrl && (
+                                    <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); window.open(tc.pdfUrl, '_blank'); }}>
+                                        <Download className="w-4 h-4" />
+                                    </Button>
+                                )}
+                                {tc.status === 'draft' && (
+                                    <>
+                                        <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); setActionId({ id: tc.id, type: 'issue' }); }}>
+                                            <CheckCircle className="w-4 h-4 text-green-500" />
+                                        </Button>
+                                        <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); setActionId({ id: tc.id, type: 'cancel' }); }}>
+                                            <Ban className="w-4 h-4 text-red-500" />
+                                        </Button>
+                                    </>
+                                )}
                             </div>
-                        )}
-                    </CardContent>
-                </Card>
-            ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-xl bg-dark-800/30">
-                    <FileDown className="w-12 h-12 text-gray-500 mb-4" />
-                    <h3 className="text-xl font-medium text-gray-300 mb-2">Select Filters</h3>
-                    <p className="text-gray-500 max-w-sm">
-                        Please select a class and section to view students and generate TCs.
+
+                            {/* Info */}
+                            <div className="p-3 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+                                <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                                    {tc.student?.name}
+                                </p>
+                                <div className="flex items-center justify-between mt-1">
+                                    <span className="text-xs text-gray-500">{tc.student?.admissionNumber}</span>
+                                    <span
+                                        className={cn(
+                                            'text-xs px-1.5 py-0.5 rounded capitalize font-medium',
+                                            tc.status === 'issued'
+                                                ? 'bg-green-100 text-green-700'
+                                                : tc.status === 'draft'
+                                                ? 'bg-yellow-100 text-yellow-700'
+                                                : 'bg-red-100 text-red-700'
+                                        )}
+                                    >
+                                        {tc.status}
+                                    </span>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))
+                )}
+            </div>
+
+            {/* Pagination */}
+            {data?.meta && (
+                <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-500">
+                        Page {page} of {data.meta.totalPages || 1}
                     </p>
+                    <div className="flex gap-2">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={page === 1}
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={page >= (data.meta.totalPages || 1)}
+                            onClick={() => setPage((p) => Math.min(data.meta.totalPages || 1, p + 1))}
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </Button>
+                    </div>
                 </div>
             )}
+
+            <GenerateDocsModal
+                isOpen={isGenerateModalOpen}
+                onClose={() => {
+                    setTcFields({
+                        reason: '', conduct: 'good', remarks: '',
+                        leavingDate: new Date().toISOString().split('T')[0],
+                        feeClearanceStatus: 'cleared'
+                    });
+                    setIsGenerateModalOpen(false);
+                }}
+                title="Generate Transfer Certificates"
+                description="Select outgoing students to generate their TCs."
+                serviceType="transfer_certificate"
+                institutionId={institutionId || undefined}
+                submitLabel="Generate TCs"
+                selectionMode="manual-students"
+                requiresDestructiveConfirmation={true}
+                destructiveConfirmationMessage="Generating a TC will mark the selected student(s) as 'transferred'. This action cannot be undone. Are you sure you want to proceed?"
+                canSubmit={!!tcFields.reason && !!tcFields.conduct}
+                onGenerate={async ({ studentIds, institutionId: inst, templateId }) => {
+                    const isCleared = tcFields.feeClearanceStatus === 'cleared' || tcFields.feeClearanceStatus === 'waived';
+                    const payload = {
+                        studentIds: studentIds || [],
+                        templateId,
+                        reason: tcFields.reason as any,
+                        conductGrade: tcFields.conduct as any,
+                        remarks: tcFields.remarks,
+                        lastAttendanceDate: new Date(tcFields.leavingDate).toISOString(),
+                        feesCleared: isCleared,
+                        noDues: isCleared
+                    };
+                    const res: any = await generateBulkAsync({ institutionId: inst, data: payload });
+                    const body = res?.data ?? res;
+                    return { successful: body?.successful?.length ?? 0, failed: body?.failed?.length ?? 0 };
+                }}
+            >
+                <div className="space-y-4 pt-2">
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Reason for Leaving <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                            className="w-full bg-white dark:bg-dark-900 border border-gray-300 dark:border-white/10 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
+                            value={tcFields.reason}
+                            onChange={(e) => setTcFields(p => ({ ...p, reason: e.target.value }))}
+                        >
+                            <option value="">Select reason…</option>
+                            <option value="transfer">Parent's Request / Transfer</option>
+                            <option value="migration">Migration</option>
+                            <option value="completion">TC on Completion</option>
+                            <option value="withdrawal">Admission Cancelled / Withdrawal</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Character & Conduct <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                            className="w-full bg-white dark:bg-dark-900 border border-gray-300 dark:border-white/10 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
+                            value={tcFields.conduct}
+                            onChange={(e) => setTcFields(p => ({ ...p, conduct: e.target.value }))}
+                        >
+                            <option value="good">Good</option>
+                            <option value="very_good">Very Good</option>
+                            <option value="excellent">Excellent</option>
+                            <option value="satisfactory">Satisfactory</option>
+                            <option value="needs_improvement">Needs Improvement</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Date of Leaving
+                        </label>
+                        <input
+                            type="date"
+                            className="w-full bg-white dark:bg-dark-900 border border-gray-300 dark:border-white/10 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
+                            value={tcFields.leavingDate}
+                            onChange={(e) => setTcFields(p => ({ ...p, leavingDate: e.target.value }))}
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Fee Clearance
+                        </label>
+                        <select
+                            className="w-full bg-white dark:bg-dark-900 border border-gray-300 dark:border-white/10 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
+                            value={tcFields.feeClearanceStatus}
+                            onChange={(e) => setTcFields(p => ({ ...p, feeClearanceStatus: e.target.value }))}
+                        >
+                            <option value="cleared">Cleared</option>
+                            <option value="pending">Pending</option>
+                            <option value="waived">Waived</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Additional Remarks
+                        </label>
+                        <textarea
+                            className="w-full bg-white dark:bg-dark-900 border border-gray-300 dark:border-white/10 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all resize-none"
+                            rows={2}
+                            placeholder="Optional remarks…"
+                            value={tcFields.remarks}
+                            onChange={(e) => setTcFields(p => ({ ...p, remarks: e.target.value }))}
+                        />
+                    </div>
+                </div>
+            </GenerateDocsModal>
+
+            <AlertDialog open={!!actionId} onOpenChange={() => setActionId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {actionId?.type === 'cancel'
+                                ? "This will cancel the transfer certificate."
+                                : "This will permanently issue the transfer certificate."}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            className={actionId?.type === 'cancel' ? "bg-red-600 hover:bg-red-700 text-white" : "bg-green-600 hover:bg-green-700 text-white"}
+                            onClick={handleAction}
+                        >
+                            {actionId?.type === 'cancel' ? 'Cancel TC' : 'Issue TC'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

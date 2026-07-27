@@ -50,10 +50,53 @@ const envSchema = z.object({
     MAINTENANCE_MODE: z.string().transform((v) => v === 'true').default('false'),
     ENABLE_REGISTRATION: z.string().transform((v) => v === 'true').default('true'),
 
+    // WhatsApp / Meta Cloud API (Phase 1 messaging rail). Optional so existing
+    // deployments keep validating; per-institution phoneNumberId lives in the DB.
+    WHATSAPP_ACCESS_TOKEN: z.string().optional(),
+    WHATSAPP_APP_SECRET: z.string().optional(),
+    WHATSAPP_VERIFY_TOKEN: z.string().optional(),
+    WHATSAPP_API_VERSION: z.string().default('v18.0'),
+    WHATSAPP_DIGEST_WINDOW_MINUTES: z.string().transform(Number).default('30'),
+
+    // Payment gateways (Phase 2). Optional so existing deployments keep validating.
+    RAZORPAY_KEY_ID: z.string().optional(),
+    RAZORPAY_KEY_SECRET: z.string().optional(),
+    RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
+    CASHFREE_APP_ID: z.string().optional(),
+    CASHFREE_SECRET_KEY: z.string().optional(),
+    CASHFREE_WEBHOOK_SECRET: z.string().optional(),
+
+    // Inbound AI (Phase 3). Optional — without a key the pipeline uses a
+    // rule-based keyword classifier so it still works in dev.
+    ANTHROPIC_API_KEY: z.string().optional(),
+    ANTHROPIC_MODEL: z.string().default('claude-3-5-haiku-latest'),
+
+    // Voice transcription (Phase 4). Optional — degrades gracefully if absent.
+    BHASHINI_API_KEY: z.string().optional(),
+    BHASHINI_PIPELINE_ID: z.string().optional(),
+    AZURE_SPEECH_KEY: z.string().optional(),
+    AZURE_SPEECH_REGION: z.string().optional(),
+
     // Better Auth
     BETTER_AUTH_URL: z.string().default('http://localhost:3002'),
     BETTER_AUTH_SECRET: z.string().min(32, 'BETTER_AUTH_SECRET must be at least 32 characters'),
+
+    // OIDC Provider (Phase 2 — federation). When OIDC_ENABLED=false the plugin is
+    // not registered, so existing deployments and tests are unaffected.
+    OIDC_ENABLED: z.string().transform((v) => v === 'true').default('false'),
+    // The `iss` claim on every issued ID token. Production is api.vgraphics.in.
+    // Locked once any tokens are issued — changing it later invalidates them.
+    VIDYAVERSE_ISSUER: z.string().optional(),
+    // Trusted origins for relying parties — added to Better Auth trustedOrigins.
+    PDLMS_ORIGIN: z.string().optional(),
+    DCP_ORIGIN: z.string().optional(),
+
+    // LiveKit (Phase 5 - Calls)
+    LIVEKIT_API_KEY: z.string().default('devkey'),
+    LIVEKIT_API_SECRET: z.string().default('secret'),
+    LIVEKIT_WS_URL: z.string().default('ws://localhost:7880'),
 });
+
 
 // NOTE: process.env and console.error are intentional here — logger is not yet
 // initialized during env validation. This is the only file exempt from the
@@ -80,6 +123,7 @@ export const SUBSCRIPTION_LIMITS = {
         enabledServices: ['id_card', 'certificate', 'library_card'],
         emailNotifications: 100,
         smsNotifications: 0,
+        whatsappPerMonth: 1000,
         customDomain: false,
         whiteLabel: false,
         apiAccess: false,
@@ -96,6 +140,7 @@ export const SUBSCRIPTION_LIMITS = {
         enabledServices: ['id_card', 'certificate', 'group_photo', 'portfolio', 'hall_ticket', 'marksheet', 'library_card', 'transfer_certificate'],
         emailNotifications: 1000,
         smsNotifications: 500,
+        whatsappPerMonth: 10000,
         customDomain: false,
         whiteLabel: false,
         apiAccess: true,
@@ -112,6 +157,7 @@ export const SUBSCRIPTION_LIMITS = {
         enabledServices: ['id_card', 'certificate', 'group_photo', 'portfolio', 'hall_ticket', 'marksheet', 'library_card', 'transfer_certificate'],
         emailNotifications: -1,
         smsNotifications: -1,
+        whatsappPerMonth: -1,
         customDomain: true,
         whiteLabel: true,
         apiAccess: true,

@@ -101,6 +101,7 @@ interface EditorState {
     showGrid: boolean;
     snapToGrid: boolean;
     gridSizeMm: number;
+    template: any | null;
 
     // Element Actions (operate on currentPageId)
     addElement: (element: Partial<TemplateElement>) => void;
@@ -133,6 +134,7 @@ interface EditorState {
     toggleGrid: () => void;
     toggleSnap: () => void;
     setGridSize: (size: number) => void;
+    setTemplate: (template: any) => void;
 
     // Canvas Config
     setCanvasConfig: (config: Partial<CanvasConfig>) => void;
@@ -221,6 +223,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     showGrid: false,
     snapToGrid: false,
     gridSizeMm: 5,
+    template: null,
     canvasConfig: {
         widthMm: 210,
         heightMm: 297,
@@ -499,6 +502,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     toggleGrid: () => set((state) => ({ showGrid: !state.showGrid })),
     toggleSnap: () => set((state) => ({ snapToGrid: !state.snapToGrid })),
     setGridSize: (size) => set({ gridSizeMm: Math.max(1, Math.min(50, size)) }),
+    setTemplate: (template) => set({ template }),
 
     setCanvasConfig: (config) => set((state) => ({
         canvasConfig: { ...state.canvasConfig, ...config },

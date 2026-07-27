@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { controller } from './controller.js';
+import { linkStudentUserSchema } from '@vidyaverse/shared-validation';
 
 export async function routes(app: FastifyInstance) {
     // PUBLIC ONBOARDING ROUTES
@@ -107,9 +108,23 @@ export async function routes(app: FastifyInstance) {
         preHandler: [app.authenticate, app.rbac({ roles: ['main_admin', 'school_admin'] })],
     }, controller.getAuditLog);
 
+    // Bulk delete students (school_admin, main_admin)
+    app.post('/bulk-delete', {
+        preHandler: [app.authenticate, app.rbac({ roles: ['school_admin', 'main_admin'] })],
+    }, controller.bulkDelete);
+
     // Delete student (school_admin, main_admin)
     app.delete('/:id', {
         preHandler: [app.authenticate, app.rbac({ roles: ['school_admin', 'main_admin'] })],
     }, controller.delete);
+
+    // Link a User account to this Student record (main_admin, school_admin only)
+    app.patch('/:id/link-user', {
+        preHandler: [
+            app.authenticate,
+            app.rbac({ roles: ['main_admin', 'school_admin'] }),
+        ],
+        schema: { body: linkStudentUserSchema },
+    }, controller.linkUser);
 
 }

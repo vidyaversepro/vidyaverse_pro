@@ -202,7 +202,17 @@ export const service = {
     // ONBOARDING & BRANDING
     // ============================================================================
 
-    async updateBranding(id: string, data: { logoUrl?: string; darkLogoUrl?: string }) {
+    async updateBranding(
+        id: string,
+        data: {
+            logoUrl?: string;
+            darkLogoUrl?: string;
+            signatureUrl?: string;
+            sealUrl?: string;
+            signatureTitle?: string;
+        }
+    ) {
+        // Undefined fields are skipped by Prisma, so only provided assets update.
         return prisma.institution.update({
             where: { id },
             data,

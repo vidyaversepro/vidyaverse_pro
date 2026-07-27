@@ -11,8 +11,9 @@ import path from 'path';
 export function startPhotoZipImportWorker() {
     logger.info('Initializing Photo ZIP Import Worker');
 
-    // Use the centralized Redis connection pool instead of standalone Redis
-    const connection = getRedisClient();
+    // Blocking BullMQ worker needs a dedicated connection with
+    // maxRetriesPerRequest: null (can't share the app's client).
+    const connection = getRedisClient().duplicate({ maxRetriesPerRequest: null });
 
     return new Worker<PhotoZipImportJobData>(
         QUEUE_NAMES.PHOTO_ZIP_IMPORT,

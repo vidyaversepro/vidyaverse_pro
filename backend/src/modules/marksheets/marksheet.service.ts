@@ -1,9 +1,12 @@
 import { prisma } from '../../config/database.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.js';
 import { templateService } from '../templates/template.service.js';
+import { templateResolver } from '../templates/template-resolver.js';
 import { generatePDFFromHTML } from '../../utils/pdf-generator.js';
 import { generateStudentQRCode } from '../../utils/qrcode.js';
 import { storage } from '../../config/minio.js';
+import { buildBrandingContext } from '../../lib/branding-context.js';
+import { toDataUri } from '../../lib/asset-inline.js';
 import { logger } from '../../utils/logger.js';
 import type {
     MarkEntryInput,
@@ -80,6 +83,38 @@ export const createMarksheetService = (tx: any = prisma) => ({
         return tx.calculationEngine.findMany({
             where: { institutionId, isActive: true },
             orderBy: { createdAt: 'desc' },
+        });
+    },
+
+    // Get-or-create the institution's calculation engine. Marksheet.calculationEngineId
+    // is a required FK, so every institution needs one; created lazily with the
+    // standard CBSE-style grade scale (matches calculateResults' built-in default).
+    async ensureCalculationEngine(institutionId: string, academicYear: string) {
+        const existing = await tx.calculationEngine.findFirst({
+            where: { institutionId, isActive: true },
+            orderBy: { createdAt: 'desc' },
+        });
+        if (existing) return existing;
+
+        const now = new Date().getFullYear();
+        return tx.calculationEngine.create({
+            data: {
+                institutionId,
+                academicYear: academicYear || `${now}-${now + 1}`,
+                cgpaFormula: 'sum(gradePoints)/subjectCount',
+                percentageFormula: 'sum(obtained)/sum(max)*100',
+                percentileFormula: 'rankBasedPercentile',
+                gradeScale: [
+                    { minPercent: 91, maxPercent: 100, grade: 'A+', gradePoint: 10, remarks: 'Outstanding' },
+                    { minPercent: 81, maxPercent: 90, grade: 'A', gradePoint: 9, remarks: 'Excellent' },
+                    { minPercent: 71, maxPercent: 80, grade: 'B+', gradePoint: 8, remarks: 'Very Good' },
+                    { minPercent: 61, maxPercent: 70, grade: 'B', gradePoint: 7, remarks: 'Good' },
+                    { minPercent: 51, maxPercent: 60, grade: 'C+', gradePoint: 6, remarks: 'Above Average' },
+                    { minPercent: 41, maxPercent: 50, grade: 'C', gradePoint: 5, remarks: 'Average' },
+                    { minPercent: 33, maxPercent: 40, grade: 'D', gradePoint: 4, remarks: 'Pass' },
+                    { minPercent: 0, maxPercent: 32, grade: 'F', gradePoint: 0, remarks: 'Fail' },
+                ],
+            },
         });
     },
 
@@ -277,7 +312,10 @@ export const createMarksheetService = (tx: any = prisma) => ({
 
         for (const mark of marks) {
             const examSubject = examSchedule.subjects.find((s: any) => s.subjectId === mark.subjectId) as any;
-            const maxMarks = examSubject?.maxMarks || 100;
+            if (!examSubject) {
+                throw new Error(`Subject ${mark.subjectId} not found in exam schedule — cannot calculate marks`);
+            }
+            const maxMarks = examSubject.maxMarks || 100;
             const marksObtained = Number(mark.theoryObtainedMarks || mark.totalObtainedMarks || 0);
             const percentage = (marksObtained / maxMarks) * 100;
             const grade = this.getGrade(percentage, gradeMapping);
@@ -361,6 +399,12 @@ export const createMarksheetService = (tx: any = prisma) => ({
             where: { id: examScheduleId },
         });
 
+        // Ensure the required calculation-engine FK is satisfied (was '' before).
+        const calculationEngine = await this.ensureCalculationEngine(
+            institutionId,
+            examSchedule?.academicYear || ''
+        );
+
         // Check if marksheet already exists
         const existing = await tx.marksheet.findFirst({
             where: { studentId, examScheduleId },
@@ -370,10 +414,11 @@ export const createMarksheetService = (tx: any = prisma) => ({
             return existing;
         }
 
-        // Get template
+        // Get template — resolveTemplate auto-seeds the curated default for any
+        // institution that has none yet (same path certificate/hall-ticket use).
         const template = templateId
-            ? await templateService.getById(templateId, institutionId)
-            : await templateService.getDefault(institutionId, 'marksheet');
+            ? await templateResolver.resolveById(templateId, institutionId)
+            : await templateResolver.resolveTemplate({ institutionId, productType: 'marksheet', audience: 'STUDENT' });
 
         // Generate marksheet number
         const marksheetNumber = await this.generateMarksheetNumber(institutionId, examScheduleId);
@@ -393,8 +438,15 @@ export const createMarksheetService = (tx: any = prisma) => ({
             institutionCode: student.institution.code || 'VV'
         });
 
-        // Prepare template data
+        // Prepare template data — shared branding context + flat keys the curated
+        // template expects, plus marksheet-specific data.
+        const branding = await buildBrandingContext(institutionId, tx);
+        const studentPhoto = await toDataUri(student.photoUrl);
         const templateData = {
+            ...branding,
+            examName: examSchedule?.examName || 'Examination',
+            academicYear: examSchedule?.academicYear || (student.institution as any)?.academicYear || '',
+            studentPhoto,
             student: {
                 id: student.id,
                 name: student.name,
@@ -450,7 +502,7 @@ export const createMarksheetService = (tx: any = prisma) => ({
                 institutionId,
                 examScheduleId,
                 templateId: template.id,
-                calculationEngineId: '', // Placeholder, should be mapped properly
+                calculationEngineId: calculationEngine.id,
                 totalPercentage: results.percentage,
                 grade: results.grade,
                 cgpa: results.gradePoint,
@@ -465,6 +517,7 @@ export const createMarksheetService = (tx: any = prisma) => ({
         });
 
         logger.info('Marksheet generated', { marksheetNumber, studentId });
+        await this.calculateRanks(examScheduleId);
         return marksheet;
     },
 

@@ -1,45 +1,54 @@
 import { useSession } from '@/lib/auth.client';
-import { PageHeader } from '@/components/shared/PageHeader';
-import { StatsBar } from '@/components/dashboard/StatsBar';
-import { EnrollmentTrendChart } from '@/components/dashboard/EnrollmentTrendChart';
-import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
-import { InstitutionsOverviewTable } from '@/components/dashboard/InstitutionsOverviewTable';
-import { QuickActionsPanel } from '@/components/dashboard/QuickActionsPanel';
+import { usePageInstitution } from '@/hooks/usePageInstitution';
+import { useMyInstitutionRole } from '@/lib/queries/auth-queries';
+import { PageLoader } from '@/lib/lazy-page';
+import { lazy, Suspense } from 'react';
+
+const SuperAdminDashboardView = lazy(
+  () => import('./views/SuperAdminDashboardView'),
+);
+const MainAdminDashboardView = lazy(
+  () => import('./views/MainAdminDashboardView'),
+);
+const SchoolAdminDashboardView = lazy(
+  () => import('./views/SchoolAdminDashboardView'),
+);
+const TeacherDashboardView = lazy(
+  () => import('./views/TeacherDashboardView'),
+);
 
 export default function DashboardPage() {
-    const { data: session } = useSession();
-    const userName = session?.user?.name || 'Admin';
+  const { data: session } = useSession();
+  const globalRole = (session?.user as { globalRole?: string })?.globalRole;
+  const institutionId = usePageInstitution();
 
+  // Only fetch institutionRole when the user is an institution-scoped admin.
+  // super_admin never needs it — skip the request entirely for them.
+  const { data: institutionRole, isLoading } = useMyInstitutionRole(
+    globalRole !== 'super_admin' ? institutionId : undefined,
+  );
+
+  // super_admin: platform-wide view, no institution role needed
+  if (globalRole === 'super_admin') {
     return (
-        <div className="space-y-6 max-w-[1600px] mx-auto pb-8">
-            <PageHeader
-                breadcrumb={[{ label: 'Dashboard' }]}
-                title="Overview"
-                description={`Welcome back, ${userName}! Here's what's happening today.`}
-            />
-
-            {/* Stats Row */}
-            <StatsBar />
-
-            {/* Main Content Grid: Chart + Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                    <EnrollmentTrendChart />
-                </div>
-                <div className="lg:col-span-1">
-                    <RecentActivityFeed />
-                </div>
-            </div>
-
-            {/* Secondary Content Grid: Institutions + Quick Actions */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                    <InstitutionsOverviewTable />
-                </div>
-                <div className="lg:col-span-1">
-                    <QuickActionsPanel />
-                </div>
-            </div>
-        </div>
+      <Suspense fallback={<PageLoader />}>
+        <SuperAdminDashboardView />
+      </Suspense>
     );
+  }
+
+  // institution-scoped admin: wait for role resolution
+  if (isLoading) return <PageLoader />;
+
+  return (
+    <Suspense fallback={<PageLoader />}>
+      {institutionRole === 'teacher' ? (
+        <TeacherDashboardView />
+      ) : institutionRole === 'school_admin' ? (
+        <SchoolAdminDashboardView />
+      ) : (
+        <MainAdminDashboardView />
+      )}
+    </Suspense>
+  );
 }

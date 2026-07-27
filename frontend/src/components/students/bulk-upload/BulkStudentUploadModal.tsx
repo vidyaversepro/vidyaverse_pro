@@ -77,7 +77,15 @@ export function BulkStudentUploadModal({
 
         try {
             const response = await api.post('/student/bulk-csv', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    // The backend tenant-scopes by the x-institution-id header, not the
+                    // institutionId form field. The wizard's institution is chosen
+                    // independently of the active-institution switcher, so forward it
+                    // explicitly or the section lookup runs under the wrong tenant → 400
+                    // "Section not found or unauthorized".
+                    'x-institution-id': wizard.institutionId,
+                }
             });
 
             const jobExecutionId = response.data?.jobExecutionId;

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useActiveInstitution } from '@/stores/activeInstitution';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
@@ -15,6 +16,21 @@ export const api = axios.create({
         'Content-Type': 'application/json',
     },
     withCredentials: true, // Crucial for Better Auth session cookies
+});
+
+// ---------------------------------------------------------------------------
+// Request interceptor — attach the active institution as x-institution-id so
+// scoped endpoints resolve the right tenant. Never overrides an explicit header.
+// ---------------------------------------------------------------------------
+api.interceptors.request.use((config) => {
+    const institutionId = useActiveInstitution.getState().institutionId;
+    if (institutionId) {
+        config.headers = config.headers ?? {};
+        if (!config.headers['x-institution-id']) {
+            config.headers['x-institution-id'] = institutionId;
+        }
+    }
+    return config;
 });
 
 // ---------------------------------------------------------------------------

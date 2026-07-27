@@ -46,3 +46,60 @@ export const photoZipImportQueue = new Queue(PHOTO_ZIP_IMPORT_QUEUE_NAME, {
         }
     }
 });
+
+// ── WhatsApp messaging rail (Phase 1) ───────────────────────────────────────
+export const WA_OUTBOX_QUEUE_NAME = 'WHATSAPP_OUTBOX';
+
+export const waOutboxQueue = new Queue(WA_OUTBOX_QUEUE_NAME, {
+    connection,
+    defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+            type: 'exponential',
+            delay: 2000,
+        },
+        removeOnComplete: {
+            age: 3600,
+            count: 500,
+        },
+        removeOnFail: {
+            age: 24 * 3600,
+        }
+    }
+});
+
+export const DIGEST_FLUSH_QUEUE_NAME = 'WHATSAPP_DIGEST_FLUSH';
+
+export const digestFlushQueue = new Queue(DIGEST_FLUSH_QUEUE_NAME, {
+    connection,
+    defaultJobOptions: {
+        attempts: 2,
+        removeOnComplete: {
+            age: 3600,
+            count: 100,
+        },
+        removeOnFail: {
+            age: 24 * 3600,
+        }
+    }
+});
+
+export const INBOUND_MEDIA_QUEUE_NAME = 'WHATSAPP_INBOUND_MEDIA';
+
+export const inboundMediaQueue = new Queue(INBOUND_MEDIA_QUEUE_NAME, {
+    connection,
+    defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+            type: 'exponential',
+            delay: 2000,
+        },
+        removeOnComplete: {
+            age: 3600,
+            count: 200,
+        },
+        removeOnFail: {
+            age: 24 * 3600,
+        }
+    }
+});

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -115,7 +115,14 @@ export function BulkPhotoUploadModal({
 
         try {
             const response = await api.post('/student/bulk-photo-zip', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    // Backend tenant-scopes by this header, not the institutionId form
+                    // field. This modal's institution is selected independently of the
+                    // active-institution switcher, so forward it explicitly to keep the
+                    // import job attributed to the right tenant.
+                    'x-institution-id': institutionId,
+                }
             });
 
             const jobExecutionId = response.data?.jobExecutionId;

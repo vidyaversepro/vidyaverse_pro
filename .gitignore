@@ -11,6 +11,7 @@ build/
 .env
 .env.local
 .env.*.local
+backend/.env
 
 # IDE
 .vscode/
@@ -21,24 +22,54 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+.vscode/settings.json
 
 # Logs
 # Logs and Debug
 logs
 *.log
+!pnpm-debug.log*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 .pnpm-debug.log*
-ts_*.txt
-test-*.js
+
+# Debug and scratch files
+debug-*.ts
+fix-*.mjs
+fix-*.js
+fix*.mjs
+fix*.js
+scratch_*.ts
+scratch_*.cjs
 test-*.ts
-test-*.mjs
-verify-*.ts
-check-*.mjs
-pnpm-debug.log*
+test-*.js
+test_*.ts
+recover.py
+extract.cjs
+replace-*.cjs
+script.cjs
+out.txt
+out.log
+*_errors*.txt
+*_errors*.log
+ts_errors*
+tsc_output*
+vitest_*.log
+vitest-*.txt
+vitest-results.json
+raw-errors.txt
+compile_errors.txt
+build-output.txt
+auth-output.txt
+approval-error.json
+full_schema.sql
+
+# Lock files
+package-lock.json
+yarn.lock
 
 # Testing
 coverage/

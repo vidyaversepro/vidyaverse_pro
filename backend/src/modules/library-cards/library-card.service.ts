@@ -1,9 +1,12 @@
 import { prisma } from '../../config/database.js';
 import { NotFoundError } from '../../utils/errors.js';
 import { templateService } from '../templates/template.service.js';
+import { templateResolver } from '../templates/template-resolver.js';
 import { generatePDFFromHTML } from '../../utils/pdf-generator.js';
 import { generateStudentQRCode, generateQRCodeDataURL } from '../../utils/qrcode.js';
 import { storage } from '../../config/minio.js';
+import { buildBrandingContext } from '../../lib/branding-context.js';
+import { toDataUri } from '../../lib/asset-inline.js';
 import { logger } from '../../utils/logger.js';
 import type {
     GenerateLibraryCardInput,
@@ -41,10 +44,11 @@ export const createLibraryCardService = (tx: any = prisma) => ({
             return existing;
         }
 
-        // Get template
+        // Get template — resolveTemplate auto-seeds the curated default for any
+        // institution that has none yet (same path certificate/hall-ticket use).
         const template = templateId
-            ? await templateService.getById(templateId, institutionId)
-            : await templateService.getDefault(institutionId, 'library_card');
+            ? await templateResolver.resolveById(templateId, institutionId)
+            : await templateResolver.resolveTemplate({ institutionId, productType: 'library_card', audience: 'STUDENT' });
 
         if (!template) {
             throw new Error('No library card template found. Please create a template first.');
@@ -73,8 +77,21 @@ export const createLibraryCardService = (tx: any = prisma) => ({
         const from = validFrom ? new Date(validFrom) : now;
         const until = validUntil ? new Date(validUntil) : new Date(now.setFullYear(now.getFullYear() + 1));
 
-        // Prepare template data
+        // Prepare template data — shared branding context + flat keys the curated
+        // template binds to, plus legacy nested objects for backward-compat.
+        const branding = await buildBrandingContext(institutionId, tx);
+        const studentPhoto = await toDataUri(student.photoUrl);
         const templateData = {
+            ...branding,
+            // Flat keys the curated library card template expects:
+            studentName: student.name,
+            studentPhoto,
+            libraryId: cardNumber,
+            admissionNumber: student.admissionNumber,
+            className: [student.section?.class?.name, student.section?.name].filter(Boolean).join(' - '),
+            validUntil: until.toLocaleDateString('en-GB'),
+            qrCode,
+            // Legacy nested objects (custom templates may still bind to these):
             student: {
                 id: student.id,
                 name: student.name,

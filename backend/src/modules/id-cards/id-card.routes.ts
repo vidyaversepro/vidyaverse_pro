@@ -78,6 +78,30 @@ const idCardRoutes = async (fastify) => {
         },
     });
     /**
+     * Update an ID card (status / validity)
+     */
+    fastify.patch('/:id', {
+        preHandler: [fastify.requireInstitution, fastify.requireRole(['main_admin', 'school_admin', 'teacher'])],
+        handler: async (request, reply) => {
+            const { id } = request.params as any;
+            const institutionId = request.institutionId;
+            const result = await getService(request).update(id, institutionId, request.body as any);
+            return reply.send({ success: true, data: result });
+        },
+    });
+    /**
+     * Delete an ID card
+     */
+    fastify.delete('/:id', {
+        preHandler: [fastify.requireInstitution, fastify.requireRole(['main_admin', 'school_admin'])],
+        handler: async (request, reply) => {
+            const { id } = request.params as any;
+            const institutionId = request.institutionId;
+            const result = await getService(request).remove(id, institutionId);
+            return reply.send({ success: true, data: result });
+        },
+    });
+    /**
      * Print multiple ID cards
      */
     fastify.post('/print', {

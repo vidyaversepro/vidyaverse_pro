@@ -7,6 +7,8 @@ import { generatePDFFromHTML, generateImageFromHTML } from '../../utils/pdf-gene
 import { uploadToMinio, getMinioFileUrl } from '../../config/minio.js';
 import { env } from '../../config/env.js';
 import { logger } from '../../utils/logger.js';
+import { buildBrandingContext } from '../../lib/branding-context.js';
+import { toDataUri } from '../../lib/asset-inline.js';
 import type {
     CreateCertificateInput,
     CertificateQueryInput,
@@ -53,8 +55,31 @@ export const createCertificateService = (tx: any = prisma) => ({
         const verificationUrl = `${env.FRONTEND_URL || 'https://vidyaverse.app'}/verify/${certificateNo}`;
         const qrCode = await generateVerificationQRCode(verificationUrl);
 
-        // Prepare template data
+        // Prepare template data — shared branding context + flat keys the curated
+        // template binds to, plus legacy nested objects for backward-compat.
+        const branding = await buildBrandingContext(institutionId, tx);
+        const studentPhoto = await toDataUri(student.photoUrl);
+        const issuedOn = new Date();
         const templateData = {
+            ...branding,
+            // Flat keys the curated certificate template expects:
+            certificateTitle: String(data.certificateType || data.title || 'ACHIEVEMENT')
+                .replace(/_/g, ' ')
+                .toUpperCase(),
+            bodyHtml: data.description || '',
+            studentName: student.name,
+            studentPhoto,
+            className: [student.section?.class?.name, student.section?.name]
+                .filter(Boolean)
+                .join(' - '),
+            academicYear: (student.institution as any)?.academicYear || '',
+            place:
+                (data.customFields as any)?.place ||
+                (student.institution as any)?.city ||
+                '',
+            issueDate: issuedOn.toLocaleDateString('en-GB'),
+            certificateNumber: certificateNo,
+            // Legacy nested objects (custom templates may still bind to these):
             certificate: {
                 number: certificateNo,
                 type: data.certificateType,
@@ -64,7 +89,7 @@ export const createCertificateService = (tx: any = prisma) => ({
                 eventDate: data.eventDate ? new Date(data.eventDate) : null,
                 position: data.position,
                 grade: data.grade,
-                issueDate: new Date(),
+                issueDate: issuedOn,
                 ...data.customFields,
             },
             student: {

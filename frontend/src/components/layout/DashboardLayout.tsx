@@ -21,6 +21,29 @@ import {
     Heart,
     Activity,
     Contact,
+    MessageCircle,
+    UserPlus,
+    Bus,
+    Wallet,
+    Landmark,
+    CalendarClock,
+    BookMarked,
+    Sparkles,
+    KeyRound,
+    Building2,
+    Package,
+    HeartPulse,
+    UserCheck,
+    GraduationCap as GradCap,
+    ClipboardList as ClipboardListIcon,
+    Megaphone,
+    BarChart3 as BarChart,
+    Building,
+    Fingerprint,
+    Percent,
+    Video,
+    Smartphone,
+    FileQuestion,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -29,34 +52,63 @@ import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth.client';
 import { useThemeStore } from '@/stores/theme.store';
 import { useLayoutStore } from '@/stores/layout.store';
+import { useMyEntitlements } from '@/lib/queries/admin/entitlements-queries';
 import { cn } from '@/lib/utils';
 import NotificationBell from '@/components/layout/NotificationBell';
 import UserProfileDropdown from '@/components/layout/UserProfileDropdown';
 import HamburgerButton from '@/components/layout/HamburgerButton';
+import InstitutionSwitcher from '@/components/layout/InstitutionSwitcher';
 
-const adminSidebarItems = [
+type SidebarItem = { label: string; icon: typeof LayoutDashboard; href: string; module?: string };
+
+const adminSidebarItems: SidebarItem[] = [
     { label: 'Dashboard', icon: LayoutDashboard, href: '/app/dashboard' },
     { label: 'Institutions', icon: GraduationCap, href: '/app/institutions' },
     { label: 'Users', icon: Users, href: '/app/users' },
     { label: 'Students', icon: Users, href: '/app/students' },
-    { label: 'Visiting Cards', icon: Contact, href: '/app/visiting-cards' },
-    { label: 'ID Cards', icon: CreditCard, href: '/app/id-cards' },
-    { label: 'Group Photos', icon: Camera, href: '/app/group-photos' },
-    { label: 'Certificates', icon: Award, href: '/app/certificates' },
-    { label: 'Portfolios', icon: Briefcase, href: '/app/portfolios' },
-    { label: 'Exam Schedules', icon: ClipboardList, href: '/app/hall-tickets/exam-schedules' },
-    { label: 'Hall Tickets', icon: ClipboardList, href: '/app/hall-tickets' },
-    { label: 'Marksheets', icon: BarChart3, href: '/app/marksheets' },
-    { label: 'Library Cards', icon: Library, href: '/app/library-cards' },
-    { label: 'Transfer Certs', icon: FileCheck, href: '/app/transfer-certificates' },
+    { label: 'Visiting Cards', icon: Contact, href: '/app/visiting-cards', module: 'visiting_card' },
+    { label: 'ID Cards', icon: CreditCard, href: '/app/id-cards', module: 'id_card' },
+    { label: 'Group Photos', icon: Camera, href: '/app/group-photos', module: 'group_photo' },
+    { label: 'Certificates', icon: Award, href: '/app/certificates', module: 'certificate' },
+    { label: 'Communications', icon: MessageCircle, href: '/app/communications', module: 'whatsapp_messaging' },
+    { label: 'Admissions', icon: UserPlus, href: '/app/admissions', module: 'admissions_crm' },
+    { label: 'Transport', icon: Bus, href: '/app/transport', module: 'transport' },
+    { label: 'HR & Payroll', icon: Wallet, href: '/app/hr', module: 'hr_payroll' },
+    { label: 'Finance', icon: Landmark, href: '/app/finance', module: 'finance_accounting' },
+    { label: 'Timetable', icon: CalendarClock, href: '/app/timetable', module: 'timetable' },
+    { label: 'Library', icon: BookMarked, href: '/app/library', module: 'library' },
+    { label: 'AI Tutor', icon: Sparkles, href: '/app/ai-tutor', module: 'ai_tutor' },
+    { label: 'Gradebook (CCE)', icon: GradCap, href: '/app/gradebook', module: 'gradebook_cce' },
+    { label: 'Assignments', icon: ClipboardListIcon, href: '/app/assignments', module: 'assignments' },
+    { label: 'Online Tests', icon: FileQuestion, href: '/app/online-tests', module: 'assessments_online' },
+    { label: 'Hostel & Mess', icon: Building2, href: '/app/hostel', module: 'hostel' },
+    { label: 'Inventory', icon: Package, href: '/app/inventory', module: 'inventory' },
+    { label: 'Health', icon: HeartPulse, href: '/app/health', module: 'health' },
+    { label: 'Visitor', icon: UserCheck, href: '/app/visitor', module: 'visitor' },
+    { label: 'Notices & Calendar', icon: Megaphone, href: '/app/notices', module: 'notices_events' },
+    { label: 'Reports & BI', icon: BarChart, href: '/app/reports', module: 'reports_bi' },
+    { label: 'Alumni', icon: GradCap, href: '/app/alumni', module: 'alumni' },
+    { label: 'Placement', icon: Building, href: '/app/placement', module: 'placement' },
+    { label: 'Biometric', icon: Fingerprint, href: '/app/biometric', module: 'attendance_biometric' },
+    { label: 'Concessions & EMI', icon: Percent, href: '/app/fees-advanced', module: 'fees_advanced' },
+    { label: 'Live Classes', icon: Video, href: '/app/live-classes', module: 'live_classes' },
+    { label: 'Mobile App', icon: Smartphone, href: '/app/mobile-app', module: 'mobile_app' },
+    { label: 'Portfolios', icon: Briefcase, href: '/app/portfolios', module: 'portfolio' },
+    { label: 'Exam Schedules', icon: ClipboardList, href: '/app/hall-tickets/exam-schedules', module: 'examination' },
+    { label: 'Hall Tickets', icon: ClipboardList, href: '/app/hall-tickets', module: 'hall_ticket' },
+    { label: 'Marksheets', icon: BarChart3, href: '/app/marksheets', module: 'marksheet' },
+    { label: 'Library Cards', icon: Library, href: '/app/library-cards', module: 'library_card' },
+    { label: 'Transfer Certs', icon: FileCheck, href: '/app/transfer-certificates', module: 'transfer_certificate' },
     { label: 'Jobs', icon: Activity, href: '/app/jobs' },
     { label: 'Templates', icon: FileText, href: '/app/templates' },
-    { label: 'Visionarium', icon: BookOpen, href: '/app/visionarium' },
-    { label: 'Saathi Network', icon: Heart, href: '/app/saathi' },
+    { label: 'Visionarium', icon: BookOpen, href: '/app/visionarium', module: 'visionarium' },
+    { label: 'Saathi Network', icon: Heart, href: '/app/saathi', module: 'social' },
+    { label: 'OAuth Clients', icon: KeyRound, href: '/app/oauth-clients' },
     { label: 'Settings', icon: Settings, href: '/app/settings' },
 ];
 
-const studentSidebarItems = [
+const studentSidebarItems: SidebarItem[] = [
+    { label: 'Dashboard', icon: LayoutDashboard, href: '/student/dashboard' },
     { label: 'Saathi Feed', icon: Heart, href: '/student/feed' },
     { label: 'Connections', icon: Users, href: '/student/connections' },
     { label: 'Visionarium', icon: BookOpen, href: '/student/visionarium' },
@@ -68,11 +120,21 @@ export default function DashboardLayout() {
     const location = useLocation();
     const { sidebarOpen, mobileSidebar, setMobileSidebar } = useLayoutStore();
     const { isDarkMode, toggleDarkMode } = useThemeStore();
+    const { data: myEnt } = useMyEntitlements();
 
     // Pick sidebar items based on whether we are in admin or student routes
     const isStudentRoute = location.pathname.startsWith('/student');
     const sidebarItems = isStudentRoute ? studentSidebarItems : adminSidebarItems;
     const homeLink = isStudentRoute ? '/student/feed' : '/app/dashboard';
+
+    // Gate nav by the institution's enabled modules. Fail-open: items without a
+    // module key, or when entitlements aren't available (e.g. super-admin without
+    // an active institution), are always shown.
+    const enabledSet =
+        !isStudentRoute && myEnt
+            ? new Set<string>([...(myEnt.enabledModules ?? []), ...(myEnt.coreModules ?? [])])
+            : null;
+    const visibleItems = sidebarItems.filter((i) => !i.module || !enabledSet || enabledSet.has(i.module));
 
     const handleLogout = async () => {
         await signOut({
@@ -126,7 +188,7 @@ export default function DashboardLayout() {
                 {/* Navigation */}
                 <TooltipProvider delayDuration={0}>
                     <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1 custom-scrollbar">
-                        {sidebarItems.map((item) => {
+                        {visibleItems.map((item) => {
                             const isActive = location.pathname.startsWith(item.href);
 
                             const linkContent = (
@@ -216,6 +278,9 @@ export default function DashboardLayout() {
                     </div>
 
                     <div className="flex items-center gap-1.5">
+                        {/* Active institution — hidden for student-role routes */}
+                        {!isStudentRoute && <InstitutionSwitcher />}
+
                         {/* Theme toggle */}
                         <Button
                             variant="ghost"

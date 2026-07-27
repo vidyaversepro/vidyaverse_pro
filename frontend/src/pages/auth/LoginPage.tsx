@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -23,8 +23,15 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
+    // OIDC federated flow: Better Auth redirects here with the full authorize query
+    // (client_id, response_type, redirect_uri, scope, state, code_challenge…). After
+    // sign-in we must loop the browser back to the authorize endpoint to resume.
+    const isOidcFlow = searchParams.has('client_id') && searchParams.has('response_type');
+    const isFederated = isOidcFlow || searchParams.get('federated') === '1';
+    const returnTo = searchParams.get('return_to') || searchParams.get('redirect');
 
     const {
         register,
@@ -47,7 +54,15 @@ export default function LoginPage() {
                             title: 'Welcome back!',
                             description: `Logged in successfully`,
                         });
-                        navigate('/student/feed');
+                        if (isOidcFlow) {
+                            // Resume the OIDC flow: re-hit authorize (now authenticated)
+                            // with the original query → Better Auth proceeds to consent.
+                            window.location.href = `/api/auth/oauth2/authorize?${searchParams.toString()}`;
+                        } else if (returnTo) {
+                            window.location.href = returnTo;
+                        } else {
+                            navigate('/student/feed');
+                        }
                     },
                     onError: (ctx: any) => {
                         toast({
@@ -98,10 +113,12 @@ export default function LoginPage() {
                                 />
                             </motion.div>
                             <h1 className="text-2xl font-bold gradient-text-brand">
-                                Welcome Back
+                                {isFederated ? 'Sign in to continue' : 'Welcome Back'}
                             </h1>
                             <p className="text-sm text-muted-foreground mt-1">
-                                Sign in to your account
+                                {isFederated
+                                    ? 'An application is requesting access to your Vidyaverse account'
+                                    : 'Sign in to your account'}
                             </p>
                         </div>
 

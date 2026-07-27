@@ -63,12 +63,35 @@ export class TemplateResolverService {
                         { targetAudience: 'ALL' }
                     ]
                 },
-                orderBy: { isDefault: 'desc', updatedAt: 'desc' },
+                orderBy: [{ isDefault: 'desc' }, { updatedAt: 'desc' }],
             });
 
             if (template) {
                 logger.debug(`Template resolved via Strategy 3 (Fallback to any active)`, { templateId: template.id, ctx });
                 return template;
+            }
+
+            // 4. Final fallback: auto-seed the curated default HTML template for
+            //    this service type so every institution generates out of the box.
+            const { getDefaultTemplate } = await import('../../lib/default-templates/index.js');
+            const def = getDefaultTemplate(ctx.productType);
+            if (def) {
+                logger.info(`No template found — seeding curated default for ${ctx.productType}`, { institutionId: ctx.institutionId });
+                return prisma.template.create({
+                    data: {
+                        institutionId: ctx.institutionId,
+                        name: def.name,
+                        serviceType: ctx.productType,
+                        templateType: 'html',
+                        content: def.html,
+                        targetAudience: ctx.audience,
+                        widthMm: def.widthMm,
+                        heightMm: def.heightMm,
+                        orientation: def.orientation,
+                        isDefault: true,
+                        isActive: true,
+                    },
+                });
             }
 
             logger.error(`Template resolution failed`, { ctx });

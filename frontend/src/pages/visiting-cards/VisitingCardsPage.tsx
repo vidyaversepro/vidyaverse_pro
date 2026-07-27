@@ -15,9 +15,12 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { useVisitingCards, type VisitingCard, useDeleteVisitingCard } from '@/lib/queries';
+import { useVisitingCards, type VisitingCard, useDeleteVisitingCard, useGenerateBulkVisitingCards } from '@/lib/queries';
+import { usePageInstitution } from '@/hooks/usePageInstitution';
+import { GenerateDocsModal } from '@/components/printables/GenerateDocsModal';
 import { cn } from '@/lib/utils';
 import {
     AlertDialog,
@@ -39,6 +42,10 @@ export default function VisitingCardsPage() {
     const [showBulkDelete, setShowBulkDelete] = useState(false);
 
     const deleteMutation = useDeleteVisitingCard();
+    const institutionId = usePageInstitution();
+    const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+    const [vcOverrides, setVcOverrides] = useState({ website: '', linkedinUrl: '' });
+    const generateBulkVisiting = useGenerateBulkVisitingCards();
 
     const handleDelete = async (id: string) => {
         try {
@@ -90,8 +97,7 @@ export default function VisitingCardsPage() {
     };
 
     const handleGenerateNew = () => {
-        // Here we could open a modal to select a student or user
-        toast({ title: 'Feature coming soon', description: 'Please generate visiting cards from the user or student list.' });
+        setIsGenerateOpen(true);
     };
 
     return (
@@ -281,6 +287,53 @@ export default function VisitingCardsPage() {
                     </div>
                 </div>
             )}
+
+            <GenerateDocsModal
+                isOpen={isGenerateOpen}
+                onClose={() => {
+                    setVcOverrides({ website: '', linkedinUrl: '' });
+                    setIsGenerateOpen(false);
+                }}
+                title="Generate Visiting Cards"
+                description="Select students or staff to generate visiting cards."
+                serviceType="visiting_card"
+                institutionId={institutionId || undefined}
+                submitLabel="Generate Cards"
+                audienceType="both"
+                onGenerate={async ({ studentIds, userIds, templateId }) => {
+                    const res: any = await generateBulkVisiting.mutateAsync({ 
+                        studentIds: studentIds || [], 
+                        userIds: userIds || [],
+                        templateId,
+                        ...(vcOverrides.website && { website: vcOverrides.website }),
+                        ...(vcOverrides.linkedinUrl && { linkedinUrl: vcOverrides.linkedinUrl }),
+                    });
+                    const body = res?.data ?? res;
+                    return { successful: body?.successful?.length ?? 0, failed: body?.failed?.length ?? 0 };
+                }}
+            >
+                <div className="space-y-3 pt-1">
+                    <p className="text-xs text-muted-foreground">
+                        These fields override the profile data for this batch only.
+                    </p>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Website</Label>
+                        <Input
+                            placeholder="https://school.edu.in"
+                            value={vcOverrides.website}
+                            onChange={(e) => setVcOverrides((prev) => ({ ...prev, website: e.target.value }))}
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">LinkedIn URL</Label>
+                        <Input
+                            placeholder="https://linkedin.com/in/username"
+                            value={vcOverrides.linkedinUrl}
+                            onChange={(e) => setVcOverrides((prev) => ({ ...prev, linkedinUrl: e.target.value }))}
+                        />
+                    </div>
+                </div>
+            </GenerateDocsModal>
 
             <AlertDialog open={!!deleteId || showBulkDelete} onOpenChange={() => { setDeleteId(null); setShowBulkDelete(false); }}>
                 <AlertDialogContent>

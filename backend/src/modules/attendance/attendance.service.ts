@@ -11,6 +11,7 @@ import type {
     AttendanceQueryInput,
     AttendanceReportInput,
 } from '@vidyaverse/shared-validation';
+import { messagingService } from '../messaging/messaging.service.js';
 
 // QR code TTL in seconds (5 minutes)
 const QR_CODE_TTL = 300;
@@ -206,7 +207,47 @@ export const attendanceService = {
         );
 
         logger.info('Attendance marked', { sessionId, count: records.length, userId });
+
+        // Best-effort WhatsApp absence alerts (batched via digest). Never blocks marking.
+        try {
+            await this.dispatchAbsenceDigests(institutionId, session, records);
+        } catch (err) {
+            logger.warn({ err }, '[attendance] failed to buffer absence digests');
+        }
+
         return results;
+    },
+
+    /**
+     * Buffer a WhatsApp absence alert for each guardian of an absent student who
+     * has notifyAttendance enabled on their guardian↔student edge. Buffered events
+     * are batched into a digest by the digest worker.
+     */
+    async dispatchAbsenceDigests(
+        institutionId: string,
+        session: { id: string; date: Date },
+        records: MarkAttendanceInput['records'],
+    ) {
+        if (!(await messagingService.isMessagingEnabled(institutionId))) return;
+
+        const absentIds = records.filter((r) => r.status === 'absent').map((r) => r.studentId);
+        if (absentIds.length === 0) return;
+
+        const dateStr = new Date(session.date).toISOString().slice(0, 10);
+
+        const links = await prisma.guardianStudentLink.findMany({
+            where: { institutionId, studentId: { in: absentIds }, notifyAttendance: true },
+            include: { student: { select: { id: true, name: true } } },
+        });
+
+        for (const link of links) {
+            await messagingService.bufferDigestEvent(institutionId, link.guardianId, {
+                type: 'attendance_absent',
+                studentId: link.studentId,
+                childName: link.student.name,
+                text: `${link.student.name} आज (${dateStr}) अनुपस्थित रहा`,
+            });
+        }
     },
 
     async updateRecord(recordId: string, institutionId: string, data: AttendanceRecordUpdateInput) {

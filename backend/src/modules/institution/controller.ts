@@ -64,19 +64,29 @@ export const controller = {
         const parts = (request as any).parts();
         let logoUrl: string | undefined;
         let darkLogoUrl: string | undefined;
+        let signatureUrl: string | undefined;
+        let sealUrl: string | undefined;
+        let signatureTitle: string | undefined;
 
         for await (const part of parts) {
             if (part.type === 'file') {
                 const buffer = await part.toBuffer();
-                const objectName = storage.generateObjectName(institutionId, 'photos', part.filename);
+                const folder = (part.fieldname === 'signature' || part.fieldname === 'seal') ? 'signatures' : 'photos';
+                const objectName = storage.generateObjectName(institutionId, folder, part.filename);
                 const url = await storage.uploadFile(objectName, buffer, part.mimetype);
 
                 if (part.fieldname === 'logo') logoUrl = url;
                 if (part.fieldname === 'darkLogo') darkLogoUrl = url;
+                if (part.fieldname === 'signature') signatureUrl = url;
+                if (part.fieldname === 'seal') sealUrl = url;
+            } else if (part.type === 'field' && part.fieldname === 'signatureTitle') {
+                signatureTitle = part.value as string;
             }
         }
 
-        const data = await service.updateBranding(institutionId, { logoUrl, darkLogoUrl });
+        const data = await service.updateBranding(institutionId, {
+            logoUrl, darkLogoUrl, signatureUrl, sealUrl, signatureTitle,
+        });
         return reply.send({ data });
     },
 

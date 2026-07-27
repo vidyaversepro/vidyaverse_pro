@@ -10,10 +10,13 @@ export const createArticleSchema = z.object({
     summary: z.string().optional(),
     language: z.enum(['hi', 'en', 'hi_en']).default('en'),
     category: z.enum([
-        'SCIENCE', 'MATHS', 'HISTORY', 'IT', 'ESSAY', 'POEM',
-        'ITIHASA', 'DARSHANA', 'BHARATIYA_VIGYAN', 'GENERAL',
-    ]).default('GENERAL'),
-    issueId: z.string().uuid().optional(),
+        'science', 'mathematics', 'life_sciences', 'history',
+        'political_science', 'economics', 'information_technology', 'languages'
+    ]).default('science'),
+    articleType: z.enum(['article', 'story', 'poem', 'artwork', 'interview']).optional().nullable(),
+    perspective: z.enum(['student', 'teacher', 'expert', 'alumni']).optional().nullable(),
+    translationOfId: z.string().uuid().optional().nullable(),
+    issueId: z.string().uuid().optional().nullable(),
     status: z.enum(['draft', 'review', 'published', 'archived']).default('draft'),
 });
 
@@ -22,7 +25,10 @@ export const updateArticleSchema = createArticleSchema.partial();
 // ─── Issue Schemas ───────────────────────────────────────────────────────────
 
 export const createIssueSchema = z.object({
-    title: z.string().min(1).max(255),
+    titleEnglish: z.string().min(1).max(255),
+    titleHindi: z.string().min(1).max(255).optional().nullable(),
+    volume: z.number().int().positive().optional().nullable(),
+    number: z.number().int().positive().optional().nullable(),
     issueCode: z.string().min(1).max(50),
     coverImageUrl: z.string().url().optional(),
     publishDate: z.string(), // ISO date string

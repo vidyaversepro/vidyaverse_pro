@@ -1,13 +1,13 @@
 import { prisma } from '../../config/database.js';
 import { type ServiceType } from '@prisma/client';
 import { compileTemplate } from '../../utils/template-engine.js';
+import { wrapHtmlDocument } from '../../lib/document-base.js';
 import { NotFoundError, BadRequestError } from '../../utils/errors.js';
 import { logger } from '../../utils/logger.js';
 import { JSDOM } from 'jsdom';
 import createDOMPurify from 'dompurify';
 import { nanoid } from 'nanoid';
 import path from 'path';
-import fs from 'fs/promises';
 
 const window = new JSDOM('').window;
 const purify = createDOMPurify(window as any);
@@ -135,17 +135,14 @@ export const createTemplateService = (tx: any = prisma) => ({
 
         const ext = path.extname(filename) || (mimetype === 'image/svg+xml' ? '.svg' : '.png');
         const uniqueName = `${nanoid()}${ext}`;
-        const relativePath = `templates/${templateId}/assets/${uniqueName}`;
 
-        // Save to local filesystem (uploads directory at project root)
-        const uploadsDir = path.resolve(process.cwd(), 'uploads', 'templates', templateId, 'assets');
-        await fs.mkdir(uploadsDir, { recursive: true });
-        const filePath = path.join(uploadsDir, uniqueName);
-        await fs.writeFile(filePath, processBuffer);
+        // Save to MinIO storage
+        const { storage } = await import('../../config/minio.js');
+        const targetInstitutionId = institutionId || 'system';
+        const objectName = storage.generateObjectName(targetInstitutionId, 'templates', `${templateId}/${uniqueName}`);
+        const url = await storage.uploadFile(objectName, processBuffer, mimetype);
 
-        // Return a URL that maps to the static file route (relative path for proxy compatibility)
-        const url = `/uploads/${relativePath}`;
-        logger.info({ url, filePath }, 'Template asset uploaded to local disk');
+        logger.info({ url }, 'Template asset uploaded to object storage');
         return { url };
     },
 
@@ -181,7 +178,19 @@ export const createTemplateService = (tx: any = prisma) => ({
         try {
             const { applyMasking } = await import('../../utils/pii-masking.js');
             const maskedData = applyMasking(data);
-            return compileTemplate(template.content, maskedData);
+
+            // JSON templates (Studio canvas: elements[]/pages[]) must go through
+            // the layout renderer; only raw-HTML templates are plain Handlebars.
+            const content = template.content.trim();
+            const isJson = (template.templateType || '').toLowerCase() === 'json'
+                || (content.startsWith('{') && (content.includes('"elements"') || content.includes('"pages"')));
+            if (isJson) {
+                const { compileJsonTemplateToHtml } = await import('../../utils/template-engine.js');
+                return wrapHtmlDocument(compileJsonTemplateToHtml(JSON.parse(content), maskedData));
+            }
+            // Wrap raw-HTML templates in the shared document base (bundled fonts
+            // + reset) so Hindi/English render identically everywhere.
+            return wrapHtmlDocument(compileTemplate(template.content, maskedData));
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Template rendering failed';
             logger.error('Template rendering error', { templateId, error: message });

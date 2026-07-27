@@ -71,3 +71,53 @@ export const useBulkMarkEntryMutation = (institutionId: string) => {
         },
     });
 };
+
+// ── Marksheet documents (list + generate), mirroring the other printables ──
+
+export const useMarksheets = (params?: Record<string, unknown>) => {
+    return useQuery({
+        queryKey: [...marksheetKeys.all, 'list', params],
+        queryFn: async () => {
+            const { data } = await api.get('/marksheets', { params });
+            return data;
+        },
+    });
+};
+
+export const useGenerateMarksheet = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({
+            institutionId,
+            data,
+        }: {
+            institutionId: string;
+            data: { studentId: string; examScheduleId: string; templateId?: string };
+        }) => {
+            const res = await api.post('/marksheets/generate', data, {
+                headers: { 'x-institution-id': institutionId },
+            });
+            return res.data;
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: marksheetKeys.all }),
+    });
+};
+
+export const useBulkGenerateMarksheets = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({
+            institutionId,
+            data,
+        }: {
+            institutionId: string;
+            data: { studentIds: string[]; examScheduleId: string; templateId?: string };
+        }) => {
+            const res = await api.post('/marksheets/generate/bulk', data, {
+                headers: { 'x-institution-id': institutionId },
+            });
+            return res.data;
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: marksheetKeys.all }),
+    });
+};

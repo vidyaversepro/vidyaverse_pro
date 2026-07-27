@@ -15,7 +15,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { useCertificates, type Certificate } from '@/lib/queries';
+import { useCertificates, useGenerateBulkCertificates, type Certificate } from '@/lib/queries';
+import { usePageInstitution } from '@/hooks/usePageInstitution';
+import { GenerateDocsModal } from '@/components/printables/GenerateDocsModal';
 import { cn } from '@/lib/utils';
 
 const certificateTypeColors: Record<string, string> = {
@@ -34,6 +36,13 @@ export default function CertificatesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedType, setSelectedType] = useState<string | null>(null);
 
+    const institutionId = usePageInstitution();
+    const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+    const [certType, setCertType] = useState('academic_excellence');
+    const [certTitle, setCertTitle] = useState('');
+    const [certDesc, setCertDesc] = useState('');
+    const generateBulk = useGenerateBulkCertificates();
+
     const { data, isLoading } = useCertificates({
         page: page.toString(),
         limit: '12',
@@ -50,7 +59,7 @@ export default function CertificatesPage() {
                         Create and manage student certificates
                     </p>
                 </div>
-                <Button className="bg-gradient-to-r from-amber-500 to-orange-500">
+                <Button className="bg-gradient-to-r from-amber-500 to-orange-500" onClick={() => setIsGenerateOpen(true)}>
                     <Plus className="w-4 h-4 mr-2" />
                     Create Certificate
                 </Button>
@@ -215,6 +224,65 @@ export default function CertificatesPage() {
                     </div>
                 </div>
             )}
+
+            <GenerateDocsModal
+                isOpen={isGenerateOpen}
+                onClose={() => setIsGenerateOpen(false)}
+                title="Generate Certificates"
+                description="Issue the same certificate to every student in the selected scope."
+                serviceType="certificate"
+                institutionId={institutionId}
+                canSubmit={!!certTitle.trim()}
+                submitLabel="Generate Certificates"
+                onGenerate={async ({ studentIds, templateId }) => {
+                    const safeStudentIds = studentIds || [];
+                    const res: any = await generateBulk.mutateAsync({
+                        studentIds: safeStudentIds,
+                        certificateType: certType,
+                        title: certTitle.trim(),
+                        description: certDesc.trim() || undefined,
+                        templateId,
+                    });
+                    const body = res?.data ?? res;
+                    return {
+                        successful: body?.successful?.length ?? safeStudentIds.length,
+                        failed: body?.failed?.length ?? 0,
+                    };
+                }}
+            >
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Certificate Type</label>
+                    <select
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-[#b7102a]/20"
+                        value={certType}
+                        onChange={(e) => setCertType(e.target.value)}
+                    >
+                        <option value="academic_excellence">Academic Excellence</option>
+                        <option value="topper">Topper</option>
+                        <option value="sports">Sports</option>
+                        <option value="cultural">Cultural</option>
+                        <option value="attendance">Attendance</option>
+                        <option value="character">Character</option>
+                        <option value="scholarship">Scholarship</option>
+                    </select>
+                </div>
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Title <span className="text-red-500">*</span>
+                    </label>
+                    <Input value={certTitle} onChange={(e) => setCertTitle(e.target.value)} placeholder="e.g. Certificate of Academic Excellence" />
+                </div>
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                    <textarea
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-[#b7102a]/20"
+                        rows={3}
+                        value={certDesc}
+                        onChange={(e) => setCertDesc(e.target.value)}
+                        placeholder="Body text shown on the certificate"
+                    />
+                </div>
+            </GenerateDocsModal>
         </div>
     );
 }

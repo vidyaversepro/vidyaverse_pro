@@ -1,58 +1,52 @@
-# Stage 1: Builder
+# Vidyaverse backend (Fastify) — Coolify build.
+#
+# IMPORTANT: build from the REPO ROOT context, not /backend, because this is a
+# pnpm workspace and the backend depends on packages/shared-validation.
+# In Coolify set:  Build Pack = Dockerfile
+#                  Base Directory = /
+#                  Dockerfile Location = /backend/Dockerfile
+#                  Ports Exposes = 3000
+#
+# The Prisma schema declares the linux-musl target, so node:20-alpine works.
+# Runtime env (DATABASE_URL, REDIS_URL, R2_*, JWT_*, BETTER_AUTH_SECRET,
+# FRONTEND_URL, API_BASE_URL, PORT=3000, …) is injected by Coolify.
+
+# ---- Builder ----------------------------------------------------------------
 FROM node:20-alpine AS builder
-
+# python3/make/g++ for native deps (bcrypt, sharp); openssl for Prisma.
+RUN apk add --no-cache python3 make g++ openssl
 WORKDIR /app
+RUN corepack enable
 
-# Install build dependencies (needed for bcrypt, sharp, etc.)
-RUN apk add --no-cache python3 make g++ openssl openssl-dev
+# Workspace manifests first for better install-layer caching.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/shared-validation/package.json ./packages/shared-validation/
+COPY backend/package.json ./backend/
+COPY frontend/package.json ./frontend/
+RUN pnpm install --frozen-lockfile
 
-# Copy package files
-COPY package.json package-lock.json* ./
-COPY prisma ./prisma/
+# Only the sources needed to build the backend.
+COPY packages/shared-validation ./packages/shared-validation
+COPY backend ./backend
 
-# Install all dependencies
-RUN npm install
+# Build the shared package, generate the Prisma client, compile the backend.
+RUN pnpm --filter @vidyaverse/shared-validation build \
+ && pnpm --filter @vidyaverse/backend exec prisma generate \
+ && pnpm --filter @vidyaverse/backend build
 
-# Copy source
-COPY . .
-
-# Generate Prisma client
-RUN npx prisma generate
-
-# Build TypeScript (tsconfig.build.json has strict:false + skipLibCheck for fast Docker builds)
-RUN npx tsc -p tsconfig.build.json
-
-# Prune dev dependencies
-RUN npm prune --production
-
-# -------------------------------------------
-# Stage 2: Production
+# ---- Production -------------------------------------------------------------
 FROM node:20-alpine AS production
-
+RUN apk add --no-cache openssl
 WORKDIR /app
+RUN corepack enable
+ENV NODE_ENV=production
 
-# Add non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+# Copy the whole built workspace so pnpm symlinks and shared-validation/dist
+# stay intact, and the Prisma CLI is available for migrate deploy at startup.
+COPY --from=builder /app ./
+WORKDIR /app/backend
 
-# Install runtime dependencies (curl for healthcheck, openssl for Prisma)
-RUN apk add --no-cache curl openssl
-
-# Copy from builder
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
-
-# Set user
-USER nodejs
-
-# Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
-
-# Start application
-CMD ["node", "dist/index.js"]
+# Apply pending migrations (idempotent), then boot the Fastify server.
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && node dist/index.js"]

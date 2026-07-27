@@ -53,6 +53,11 @@ export function StudentDraftGrid({ students, onStudentClick }: StudentDraftGridP
                         </CardHeader>
                         <CardContent className="p-5 pt-3">
                             <div className="flex flex-wrap gap-2 mt-2">
+                                {student.userId ? (
+                                    <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100 text-[10px] py-0 px-2 h-5">Linked</Badge>
+                                ) : (
+                                    <Badge className="bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-100 text-[10px] py-0 px-2 h-5">No account</Badge>
+                                )}
                                 {missingPhoto && (
                                     <Badge variant="destructive" className="text-[10px] py-0 px-2 h-5">
                                         <Camera className="w-3 h-3 mr-1" /> No Photo

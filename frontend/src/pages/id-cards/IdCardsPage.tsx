@@ -185,8 +185,11 @@ export default function IdCardsPage() {
                         >
                             {/* Thumbnail */}
                             <div className="aspect-[1.586] bg-gray-100 relative group-hover:scale-105 transition-transform duration-300">
-                                {/* Placeholder for card preview */}
-                                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+                                {idCard.cardFrontUrl && (
+                                    <img src={idCard.cardFrontUrl} alt={idCard.student?.name} className="absolute inset-0 w-full h-full object-contain bg-white" />
+                                )}
+                                {/* Fallback layout when no rendered card image is available */}
+                                <div className={cn('absolute inset-0 flex flex-col items-center justify-center p-4 text-center', idCard.cardFrontUrl && 'hidden')}>
                                     <div className="w-16 h-16 rounded-full bg-gray-200 mb-2 overflow-hidden">
                                         {idCard.student.photoUrl ? (
                                             <img src={idCard.student.photoUrl} alt={idCard.student.name} className="w-full h-full object-cover" />

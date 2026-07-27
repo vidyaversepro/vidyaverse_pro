@@ -33,7 +33,6 @@ import { IdCard, useUpdateIdCard } from '@/lib/queries';
 
 const formSchema = z.object({
     status: z.string().min(1, 'Status is required'),
-    templateId: z.string().min(1, 'Template is required'),
 });
 
 interface IdCardEditSheetProps {
@@ -51,7 +50,6 @@ export function IdCardEditSheet({ isOpen, onClose, idCard }: IdCardEditSheetProp
         resolver: zodResolver(formSchema),
         defaultValues: {
             status: '',
-            templateId: '',
         },
     });
 
@@ -59,13 +57,6 @@ export function IdCardEditSheet({ isOpen, onClose, idCard }: IdCardEditSheetProp
         if (idCard) {
             form.reset({
                 status: idCard.status,
-                // We don't have templateId directly on IdCard interface in queries.ts, 
-                // but let's assume it's available or we skip it for now.
-                // Actually IdCard interface has template relation maybe?
-                // Looking at queries.ts, IdCard has pdfUrl, student, etc. but not templateId explicitly.
-                // But backend has it. 
-                // For now, let's just allow status update.
-                templateId: 'default-template-id', // Placeholder
             });
         }
     }, [idCard, form]);

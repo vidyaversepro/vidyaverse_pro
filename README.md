@@ -17,6 +17,16 @@
 
 ---
 
+## 🌟 The Educational Excellence Trio
+
+This application is proudly part of an integrated trio of platforms designed to deliver complete educational excellence, working seamlessly together to manage, educate, and empower institutions:
+
+1. **Vidyaverse Pro**: The core Educational Management Platform. Handles institutional administration, student records, ID cards, certificates, and operational workflows.
+2. **PDLMS Pro**: The Digital Library Management System. Provides a comprehensive, multi-tenant digital library for students and institutions to access and manage educational resources.
+3. **DigiClassroom Pro**: The AI-Powered Learning Engine. Delivers advanced document processing, Retrieval-Augmented Generation (RAG), and AI tutoring capabilities to transform static materials into interactive learning experiences.
+
+---
+
 ## 📋 Table of Contents
 
 - [Features](#-features)

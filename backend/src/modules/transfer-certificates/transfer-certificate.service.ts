@@ -1,9 +1,11 @@
 import { prisma } from '../../config/database.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.js';
 import { templateService } from '../templates/template.service.js';
+import { templateResolver } from '../templates/template-resolver.js';
 import { generatePDFFromHTML } from '../../utils/pdf-generator.js';
 import { generateStudentQRCode } from '../../utils/qrcode.js';
 import { storage } from '../../config/minio.js';
+import { buildBrandingContext } from '../../lib/branding-context.js';
 import { logger } from '../../utils/logger.js';
 import type {
     GenerateTransferCertificateInput,
@@ -51,10 +53,11 @@ export const createTransferCertificateService = (tx: any = prisma) => ({
             throw new BadRequestError('Transfer certificate already exists for this student');
         }
 
-        // Get template
+        // Get template — resolveTemplate auto-seeds the curated default for any
+        // institution that has none yet (same path certificate/hall-ticket use).
         const template = templateId
-            ? await templateService.getById(templateId, institutionId)
-            : await templateService.getDefault(institutionId, 'transfer_certificate');
+            ? await templateResolver.resolveById(templateId, institutionId)
+            : await templateResolver.resolveTemplate({ institutionId, productType: 'transfer_certificate', audience: 'STUDENT' });
 
         if (!template) {
             throw new Error('No transfer certificate template found. Please create a template first.');
@@ -73,8 +76,36 @@ export const createTransferCertificateService = (tx: any = prisma) => ({
             institutionCode: student.institution.code || 'VV'
         });
 
-        // Prepare template data
+        // Prepare template data — shared branding context + flat keys the curated
+        // template binds to, plus legacy nested objects for backward-compat.
+        const branding = await buildBrandingContext(institutionId, tx);
+        const fmtDate = (d: any) => (d ? new Date(d).toLocaleDateString('en-GB') : '');
+        const titleCase = (s: any) =>
+            String(s || '').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+        const academicYear = this.getCurrentAcademicYear();
         const templateData = {
+            ...branding,
+            // Flat keys the curated transfer-certificate template expects:
+            studentName: student.name,
+            fatherName: student.fatherName,
+            motherName: student.motherName,
+            dob: fmtDate(student.dob),
+            admissionNumber: student.admissionNumber,
+            admissionDate: fmtDate(student.dateOfAdmission),
+            leavingDate: fmtDate(lastAttendanceDate),
+            className: student.section?.class?.name || '',
+            lastClassStudied:
+                [student.section?.class?.name, student.section?.name].filter(Boolean).join(' - ') +
+                (student.section?.stream?.name ? ` (${student.section.stream.name})` : ''),
+            conduct: titleCase(conductGrade) || 'Good',
+            reason,
+            remarks,
+            tcNumber,
+            place: (student.institution as any)?.city || '',
+            issueDate: fmtDate(new Date()),
+            academicYear,
+            feeClearanceStatus: feesCleared && noDues ? 'Cleared' : 'Dues Outstanding',
+            // Legacy nested objects (custom templates may still bind to these):
             student: {
                 id: student.id,
                 name: student.name,
@@ -105,7 +136,7 @@ export const createTransferCertificateService = (tx: any = prisma) => ({
                 noDues,
                 qrCode,
                 issueDate: new Date(),
-                academicYear: this.getCurrentAcademicYear(),
+                academicYear,
                 attendance: attendanceSummary,
             },
         };
@@ -173,7 +204,7 @@ export const createTransferCertificateService = (tx: any = prisma) => ({
     },
 
     async generateBulk(institutionId: string, data: BulkGenerateTCsInput) {
-        const { studentIds, templateId, reason } = data;
+        const { studentIds, templateId, reason, remarks, conductGrade, lastAttendanceDate, feesCleared, noDues, characterCertificate } = data;
         const results = {
             successful: [] as Record<string, unknown>[],
             failed: [] as { studentId: string; error: string }[],
@@ -186,11 +217,12 @@ export const createTransferCertificateService = (tx: any = prisma) => ({
                     studentId,
                     templateId,
                     reason,
-                    conductGrade: 'good',
-                    lastAttendanceDate: new Date().toISOString(),
-                    feesCleared: true,
-                    noDues: true,
-                    characterCertificate: true,
+                    remarks,
+                    conductGrade: conductGrade || 'good',
+                    lastAttendanceDate: lastAttendanceDate || new Date().toISOString(),
+                    feesCleared: feesCleared ?? true,
+                    noDues: noDues ?? true,
+                    characterCertificate: characterCertificate ?? true,
                 });
                 results.successful.push(tc);
             } catch (error: any) {
@@ -343,14 +375,19 @@ export const createTransferCertificateService = (tx: any = prisma) => ({
     },
 
     // Helper methods
-    async getAttendanceSummary(_studentId: string) {
-        // Simplified attendance summary
-        return {
-            totalDays: 220,
-            presentDays: 200,
-            absentDays: 20,
-            percentage: 90.91,
-        };
+    // Real attendance summary from attendance_records (late/excused/half_day count
+    // as present; only 'absent' is deducted). Returns zeros when no data exists —
+    // we never fabricate attendance figures on a legal document.
+    async getAttendanceSummary(studentId: string) {
+        const records = await tx.attendanceRecord.findMany({
+            where: { studentId },
+            select: { status: true },
+        });
+        const totalDays = records.length;
+        const absentDays = records.filter((r: { status: string }) => r.status === 'absent').length;
+        const presentDays = totalDays - absentDays;
+        const percentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 10000) / 100 : 0;
+        return { totalDays, presentDays, absentDays, percentage };
     },
 
     getCurrentAcademicYear(): string {

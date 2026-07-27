@@ -4,10 +4,10 @@ import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 
 const navLinks = [
-    { label: 'Use Cases', href: '#use-cases' },
-    { label: 'Services', href: '#services' },
+    { label: 'Modules', href: '#modules' },
+    { label: 'Communication', href: '#communication' },
+    { label: 'Ecosystem', href: '#ecosystem' },
     { label: 'How It Works', href: '#how-it-works' },
-    { label: 'Success Stories', href: '#testimonials' },
 ];
 
 export default function Navbar() {
@@ -69,7 +69,7 @@ export default function Navbar() {
                         Log In
                     </a>
                     <a href="/register" className="btn-primary-landing text-sm px-5 py-2.5">
-                        Start Free Trial
+                        Get Started
                     </a>
                 </div>
 
@@ -117,7 +117,7 @@ export default function Navbar() {
                                 Log In
                             </a>
                             <a href="/register" className="btn-primary-landing text-sm py-3 text-center">
-                                Start Free Trial
+                                Get Started
                             </a>
                         </div>
                     </motion.div>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useStudents, useDeleteStudent, useBulkRequestPhotos, type Student, type DataStatus } from '@/lib/queries';
+import { useStudents, useDeleteStudent, useBulkDeleteStudents, useBulkRequestPhotos, type Student, type DataStatus } from '@/lib/queries';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { StatCard } from '@/components/shared/StatCard';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -58,6 +58,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import StudentModal from './StudentModal';
+import { StudentLinkUserModal } from './StudentLinkUserModal';
 import { BulkStudentUploadModal } from '@/components/students/bulk-upload/BulkStudentUploadModal';
 import { BulkPhotoUploadModal } from '@/components/students/bulk-upload/BulkPhotoUploadModal';
 import { StudentDraftGrid } from '@/components/students/StudentDraftGrid';
@@ -152,6 +153,7 @@ export default function StudentsPage() {
 
     const { data: studentsData, isLoading, isFetching } = useStudents(queryParams);
     const deleteStudent = useDeleteStudent();
+    const bulkDeleteStudents = useBulkDeleteStudents();
 
     const students = studentsData?.data || [];
     const pagination = studentsData?.pagination;
@@ -163,8 +165,12 @@ export default function StudentsPage() {
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
     const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
+    const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
     const [isVolunteerMode, setIsVolunteerMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+    const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+    const [linkingStudent, setLinkingStudent] = useState<Student | null>(null);
 
     const bulkRequestPhotos = useBulkRequestPhotos();
 
@@ -232,6 +238,18 @@ export default function StudentsPage() {
         }
     };
 
+    const handleBulkDelete = async () => {
+        if (selectedIds.size === 0) return;
+        try {
+            const result = await bulkDeleteStudents.mutateAsync(Array.from(selectedIds));
+            toast.success(`Successfully deleted ${result.count} student${result.count !== 1 ? 's' : ''}`);
+            setSelectedIds(new Set());
+        } catch (error) {
+            toast.error('Failed to delete students');
+        }
+        setIsBulkDeleteOpen(false);
+    };
+
     // Count stats
     const totalStudents = pagination?.total || 0;
     const approvedCount = students.filter((s: Student) => s.dataStatus === 'approved').length;
@@ -289,10 +307,16 @@ export default function StudentsPage() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                         {selectedIds.size > 0 && (
-                            <Button variant="secondary" onClick={handleBulkRequestPhotos} disabled={bulkRequestPhotos.isPending}>
-                                <Upload className="h-4 w-4 mr-2" />
-                                {bulkRequestPhotos.isPending ? 'Sending...' : `Request Photos (${selectedIds.size})`}
-                            </Button>
+                            <>
+                                <Button variant="destructive" onClick={() => setIsBulkDeleteOpen(true)} disabled={bulkDeleteStudents.isPending}>
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    {bulkDeleteStudents.isPending ? 'Deleting...' : `Delete Selected (${selectedIds.size})`}
+                                </Button>
+                                <Button variant="secondary" onClick={handleBulkRequestPhotos} disabled={bulkRequestPhotos.isPending}>
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    {bulkRequestPhotos.isPending ? 'Sending...' : `Request Photos (${selectedIds.size})`}
+                                </Button>
+                            </>
                         )}
                         <Button onClick={handleCreate}>
                             <Plus className="h-4 w-4 mr-2" />
@@ -430,7 +454,13 @@ export default function StudentsPage() {
                                                 {student.section?.name || <span className="text-muted-foreground">—</span>}
                                             </TableCell>
                                             <TableCell>
-                                                <p className="font-semibold">{student.name}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="font-semibold">{student.name}</p>
+                                                    {student.userId
+                                                        ? <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100 text-[10px] py-0 px-2 h-5">Linked</Badge>
+                                                        : <Badge className="bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-100 text-[10px] py-0 px-2 h-5">No account</Badge>
+                                                    }
+                                                </div>
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
@@ -445,6 +475,9 @@ export default function StudentsPage() {
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem onClick={() => handleView(student)}>
                                                             <Eye className="h-4 w-4 mr-2" /> View Details
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => { setLinkingStudent(student); setIsLinkModalOpen(true); }}>
+                                                            <UserCheck className="w-4 h-4 mr-2" /> Link User Account
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => handleEdit(student)}>
                                                             <Pencil className="h-4 w-4 mr-2" /> Edit
@@ -533,6 +566,39 @@ export default function StudentsPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Bulk Delete Confirmation */}
+            <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete {selectedIds.size} Student{selectedIds.size !== 1 ? 's' : ''}?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You are about to permanently delete <strong>{selectedIds.size} student{selectedIds.size !== 1 ? 's' : ''}</strong>.
+                            This action cannot be undone and will remove all associated data
+                            (ID cards, certificates, hall tickets, photos, etc.) for each student.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleBulkDelete}
+                            className="bg-destructive text-destructive-foreground"
+                            disabled={bulkDeleteStudents.isPending}
+                        >
+                            {bulkDeleteStudents.isPending ? 'Deleting...' : `Delete ${selectedIds.size} Student${selectedIds.size !== 1 ? 's' : ''}`}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {linkingStudent && (
+                <StudentLinkUserModal
+                    isOpen={isLinkModalOpen}
+                    onClose={() => { setIsLinkModalOpen(false); setLinkingStudent(null); }}
+                    student={linkingStudent}
+                    institutionId={filters.institutionId || ''}
+                />
+            )}
         </div>
     );
 }

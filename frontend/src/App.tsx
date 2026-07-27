@@ -48,7 +48,44 @@ const ExamSchedulesPage = lazyPage(() => import('@/pages/hall-tickets/ExamSchedu
 const HallTicketsPage = lazyPage(() => import('@/pages/hall-tickets/HallTicketsPage'));
 const LibraryCardsPage = lazyPage(() => import('@/pages/library-cards/LibraryCardsPage'));
 const MarksEntryPage = lazyPage(() => import('@/pages/marksheets/MarksEntryPage'));
+const MarksheetsPage = lazyPage(() => import('@/pages/marksheets/MarksheetsPage'));
 const TransferCertificatesPage = lazyPage(() => import('@/pages/transfer-certificates/TransferCertificatesPage'));
+
+// Communications (Urmi assimilation — WhatsApp parent comms)
+const CommunicationsPage = lazyPage(() => import('@/pages/communications/CommunicationsPage'));
+const AdmissionsPage = lazyPage(() => import('@/pages/admissions/AdmissionsPage'));
+const TransportPage = lazyPage(() => import('@/pages/transport/TransportPage'));
+const HRPage = lazyPage(() => import('@/pages/hr/HRPage'));
+const FinancePage = lazyPage(() => import('@/pages/finance/FinancePage'));
+const FeesPage = lazyPage(() => import('@/pages/fees/FeesPage'));
+const TimetablePage = lazyPage(() => import('@/pages/timetable/TimetablePage'));
+const LibraryIntegrationPage = lazyPage(() => import('@/pages/integrations/LibraryPage'));
+const AITutorPage = lazyPage(() => import('@/pages/integrations/AITutorPage'));
+
+// ERP Operations cluster
+const HostelPage = lazyPage(() => import('@/pages/hostel/HostelPage'));
+const InventoryPage = lazyPage(() => import('@/pages/inventory/InventoryPage'));
+const HealthPage = lazyPage(() => import('@/pages/health/HealthPage'));
+const VisitorPage = lazyPage(() => import('@/pages/visitor/VisitorPage'));
+
+// ERP Academics cluster
+const GradebookPage = lazyPage(() => import('@/pages/gradebook/GradebookPage'));
+const AssignmentsPage = lazyPage(() => import('@/pages/assignments/AssignmentsPage'));
+const OnlineTestsPage = lazyPage(() => import('@/pages/online-tests/OnlineTestsPage'));
+
+// ERP Insights cluster
+const NoticesPage = lazyPage(() => import('@/pages/notices/NoticesPage'));
+const ReportsPage = lazyPage(() => import('@/pages/reports/ReportsPage'));
+const AlumniPage = lazyPage(() => import('@/pages/alumni/AlumniPage'));
+const PlacementPage = lazyPage(() => import('@/pages/placement/PlacementPage'));
+
+// ERP Extensions cluster
+const BiometricPage = lazyPage(() => import('@/pages/biometric/BiometricPage'));
+const FeesAdvancedPage = lazyPage(() => import('@/pages/fees-advanced/FeesAdvancedPage'));
+const LiveClassesPage = lazyPage(() => import('@/pages/live-classes/LiveClassesPage'));
+const MobileAppPage = lazyPage(() => import('@/pages/mobile-app/MobileAppPage'));
+const AttendancePage = lazyPage(() => import('@/pages/attendance/AttendancePage'));
+const AttendanceSessionDetailsPage = lazyPage(() => import('@/pages/attendance/AttendanceSessionDetailsPage'));
 
 // Ops
 const JobDashboardPage = lazyPage(() => import('@/pages/ops/JobDashboardPage'));
@@ -60,11 +97,17 @@ const SubmissionsPage = lazyPage(() => import('@/pages/visionarium/SubmissionsPa
 
 // Saathi
 const SaathiFeedPage = lazyPage(() => import('@/pages/saathi/SaathiFeedPage'));
+const StudentDashboardPage = lazyPage(() => import('@/pages/student-dashboard/StudentDashboardPage'));
 const SaathiConnectionsPage = lazyPage(() => import('@/pages/saathi/SaathiConnectionsPage'));
+const SaathiCallPage = lazyPage(() => import('@/pages/saathi/SaathiCallPage'));
 
 // Onboarding
 const StudentOnboardingPage = lazyPage(() => import('@/pages/onboard/StudentOnboardingPage'));
 const StudentPhotoUploadPage = lazyPage(() => import('@/pages/onboard/StudentPhotoUploadPage'));
+
+// OIDC federation (Phase 2 — Vidyaverse as IdP for PDLMS / DCP)
+const ConsentPage = lazyPage(() => import('@/pages/oauth/ConsentPage'));
+const OAuthClientsPage = lazyPage(() => import('@/pages/admin/OAuthClientsPage'));
 
 // =============================================================================
 // ROUTE GUARDS
@@ -187,6 +230,7 @@ export default function App() {
                             </PublicRoute>
                         }
                     />
+                    <Route path="/oauth/consent" element={<ConsentPage />} />
 
                     {/* Admin Setup Route */}
                     <Route
@@ -217,17 +261,45 @@ export default function App() {
                         <Route path="id-cards" element={<IdCardsPage />} />
                         <Route path="id-cards/print" element={<PrintBatchPage />} />
                         <Route path="certificates" element={<CertificatesPage />} />
+                        <Route path="communications" element={<CommunicationsPage />} />
+                        <Route path="admissions" element={<AdmissionsPage />} />
+                        <Route path="transport" element={<TransportPage />} />
+                        <Route path="hr" element={<HRPage />} />
+                        <Route path="finance" element={<FinancePage />} />
+                        <Route path="fees" element={<FeesPage />} />
+                        <Route path="attendance" element={<AttendancePage />} />
+                        <Route path="attendance/sessions/:id" element={<AttendanceSessionDetailsPage />} />
+                        <Route path="timetable" element={<TimetablePage />} />
+                        <Route path="library" element={<LibraryIntegrationPage />} />
+                        <Route path="ai-tutor" element={<AITutorPage />} />
+                        <Route path="hostel" element={<HostelPage />} />
+                        <Route path="inventory" element={<InventoryPage />} />
+                        <Route path="health" element={<HealthPage />} />
+                        <Route path="visitor" element={<VisitorPage />} />
+                        <Route path="gradebook" element={<GradebookPage />} />
+                        <Route path="assignments" element={<AssignmentsPage />} />
+                        <Route path="online-tests" element={<OnlineTestsPage />} />
+                        <Route path="notices" element={<NoticesPage />} />
+                        <Route path="reports" element={<ReportsPage />} />
+                        <Route path="alumni" element={<AlumniPage />} />
+                        <Route path="placement" element={<PlacementPage />} />
+                        <Route path="biometric" element={<BiometricPage />} />
+                        <Route path="fees-advanced" element={<FeesAdvancedPage />} />
+                        <Route path="live-classes" element={<LiveClassesPage />} />
+                        <Route path="mobile-app" element={<MobileAppPage />} />
                         <Route path="templates" element={<TemplatesPage />} />
                         <Route path="group-photos" element={<GroupPhotosPage />} />
                         <Route path="hall-tickets" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><HallTicketsPage /></Suspense></ErrorBoundary>} />
                         <Route path="hall-tickets/exam-schedules" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><ExamSchedulesPage /></Suspense></ErrorBoundary>} />
                         <Route path="library-cards" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><LibraryCardsPage /></Suspense></ErrorBoundary>} />
-                        <Route path="marksheets" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><MarksEntryPage /></Suspense></ErrorBoundary>} />
+                        <Route path="marksheets" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><MarksheetsPage /></Suspense></ErrorBoundary>} />
+                        <Route path="marksheets/entry" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><MarksEntryPage /></Suspense></ErrorBoundary>} />
                         <Route path="transfer-certificates" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><TransferCertificatesPage /></Suspense></ErrorBoundary>} />
                         <Route path="jobs" element={<ErrorBoundary><Suspense fallback={<PageLoader />}><JobDashboardPage /></Suspense></ErrorBoundary>} />
                         <Route path="settings" element={<SettingsPage />} />
+                        <Route path="oauth-clients" element={<OAuthClientsPage />} />
                         <Route path="visionarium" element={<VisionariumPage />} />
-                        <Route path="visionarium/test-series" element={<TestSeriesPage />} />
+                        <Route path="visionarium/test-series" element={<VisionariumPage />} />
                         <Route path="visionarium/submissions" element={<SubmissionsPage />} />
                         <Route path="saathi" element={<SaathiFeedPage />} />
                         <Route path="saathi/connections" element={<SaathiConnectionsPage />} />
@@ -242,6 +314,12 @@ export default function App() {
                         <Route path=":id/edit" element={<TemplateEditorPage />} />
                     </Route>
 
+                    {/* Isolated Full-Screen Call Route */}
+                    <Route
+                        path="/student/call"
+                        element={<ProtectedRoute><ErrorBoundary><SaathiCallPage /></ErrorBoundary></ProtectedRoute>}
+                    />
+
                     {/* Student / User Dashboard Routes */}
                     <Route
                         path="/student"
@@ -253,11 +331,12 @@ export default function App() {
                             </ProtectedRoute>
                         }
                     >
-                        <Route index element={<Navigate to="/student/feed" replace />} />
+                        <Route index element={<Navigate to="/student/dashboard" replace />} />
                         <Route path="feed" element={<SaathiFeedPage />} />
+                        <Route path="dashboard" element={<StudentDashboardPage />} />
                         <Route path="connections" element={<SaathiConnectionsPage />} />
                         <Route path="visionarium" element={<VisionariumPage />} />
-                        <Route path="visionarium/test-series" element={<TestSeriesPage />} />
+                        <Route path="visionarium/test-series" element={<VisionariumPage />} />
                         <Route path="visionarium/submissions" element={<SubmissionsPage />} />
                         <Route path="settings" element={<SettingsPage />} />
                     </Route>

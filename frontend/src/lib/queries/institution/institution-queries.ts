@@ -14,6 +14,12 @@ export interface Institution {
     subscriptionStatus: 'trial' | 'active' | 'suspended' | 'cancelled';
     isActive: boolean;
     onboardingCompleted: boolean;
+    // Branding (used on generated documents like ID cards / certificates)
+    logoUrl?: string | null;
+    darkLogoUrl?: string | null;
+    signatureUrl?: string | null;
+    sealUrl?: string | null;
+    signatureTitle?: string | null;
     createdAt: string;
     updatedAt: string;
     _count?: {
@@ -101,6 +107,86 @@ export const useDeleteInstitution = () => {
     });
 };
 
+/**
+ * Upload institution branding (logo / dark logo / principal signature / seal)
+ * and/or set the signature title. Send a FormData with any of:
+ *   logo, darkLogo, signature, seal (files) and signatureTitle (text).
+ */
+export const useUpdateBranding = (id: string) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (formData: FormData) => {
+            const res = await api.post(`/institution/${id}/branding`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return res.data.data as Institution;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['institution', id] });
+            queryClient.invalidateQueries({ queryKey: ['institutions'] });
+        },
+    });
+};
+
+// ── Signing authorities (Principal/Dean/etc.) — the canonical source of
+//    signatures used on ID cards & certificates ───────────────────────────────
+export interface Authority {
+    id: string;
+    name: string;
+    designation: string;
+    roleType: string;
+    email?: string | null;
+    phone?: string | null;
+    signatureUrl?: string | null;
+    displayOrder: number;
+}
+
+export const useAuthorities = (institutionId?: string) =>
+    useQuery({
+        queryKey: ['authorities', institutionId],
+        queryFn: async () => {
+            const res = await api.get(`/institution/${institutionId}/authorities`);
+            return res.data.data as Authority[];
+        },
+        enabled: !!institutionId,
+    });
+
+export const useCreateAuthority = (institutionId: string) => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async (formData: FormData) => {
+            const res = await api.post(`/institution/${institutionId}/authorities`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return res.data.data as Authority;
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['authorities', institutionId] }),
+    });
+};
+
+export const useUpdateAuthority = (institutionId: string) => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ authorityId, formData }: { authorityId: string; formData: FormData }) => {
+            const res = await api.patch(`/institution/${institutionId}/authorities/${authorityId}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return res.data.data as Authority;
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['authorities', institutionId] }),
+    });
+};
+
+export const useDeleteAuthority = (institutionId: string) => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async (authorityId: string) => {
+            await api.delete(`/institution/${institutionId}/authorities/${authorityId}`);
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['authorities', institutionId] }),
+    });
+};
+
 // Classes API
 export const useClasses = (institutionId?: string) => {
     return useQuery({
@@ -131,7 +217,7 @@ export const useUpdateClass = () => {
     return useMutation({
         mutationFn: async (data: { id: string; institutionId: string; streamsEnabled?: boolean; name?: string }) => {
             const { id, institutionId, ...body } = data;
-            const response = await api.patch(`/class/${id}`, body);
+            const response = await api.patch(`/class/${id}`, body, { headers: { 'x-institution-id': institutionId } });
             return response.data;
         },
         onSuccess: (_, variables) => {
@@ -144,7 +230,7 @@ export const useDeleteClass = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (data: { id: string; institutionId: string }) => {
-            const response = await api.delete(`/class/${data.id}`);
+            const response = await api.delete(`/class/${data.id}`, { headers: { 'x-institution-id': data.institutionId } });
             return response.data;
         },
         onSuccess: (_, variables) => {
@@ -183,7 +269,7 @@ export const useUpdateStream = () => {
     return useMutation({
         mutationFn: async (data: { id: string; institutionId: string; classId: string; name?: string; description?: string }) => {
             const { id, institutionId, classId, ...body } = data;
-            const response = await api.patch(`/stream/${id}`, body);
+            const response = await api.patch(`/stream/${id}`, body, { headers: { 'x-institution-id': institutionId } });
             return response.data;
         },
         onSuccess: (_, variables) => {
@@ -196,7 +282,7 @@ export const useDeleteStream = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (data: { id: string; classId: string; institutionId: string }) => {
-            const response = await api.delete(`/stream/${data.id}`);
+            const response = await api.delete(`/stream/${data.id}`, { headers: { 'x-institution-id': data.institutionId } });
             return response.data;
         },
         onSuccess: (_, variables) => {
@@ -251,7 +337,7 @@ export const useUpdateSection = () => {
     return useMutation({
         mutationFn: async (data: { id: string; institutionId: string; classId: string; streamId?: string; name?: string; expectedStudentCount?: number }) => {
             const { id, institutionId, classId, streamId, ...body } = data;
-            const response = await api.patch(`/section/${id}`, body);
+            const response = await api.patch(`/section/${id}`, body, { headers: { 'x-institution-id': institutionId } });
             return response.data;
         },
         onSuccess: (_, variables) => {
@@ -264,7 +350,7 @@ export const useDeleteSection = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (data: { id: string; classId: string; streamId?: string; institutionId: string }) => {
-            const response = await api.delete(`/section/${data.id}`);
+            const response = await api.delete(`/section/${data.id}`, { headers: { 'x-institution-id': data.institutionId } });
             return response.data;
         },
         onSuccess: (_, variables) => {

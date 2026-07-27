@@ -40,6 +40,10 @@ export function getRedisClient(): Redis {
 
 export async function connectRedis(): Promise<void> {
     const client = getRedisClient();
+    // Idempotent: with lazyConnect, any earlier Redis command (cache/worker) may
+    // have already auto-connected the singleton. Calling connect() again throws
+    // "Redis is already connecting/connected", which intermittently broke boot.
+    if (['connecting', 'connect', 'ready'].includes(client.status)) return;
     await client.connect();
 }
 

@@ -5,6 +5,8 @@ import { templateResolver } from '../templates/template-resolver.js';
 import { generatePDFFromHTML } from '../../utils/pdf-generator.js';
 import { generateStudentQRCode } from '../../utils/qrcode.js';
 import { storage } from '../../config/minio.js';
+import { buildBrandingContext } from '../../lib/branding-context.js';
+import { toDataUri } from '../../lib/asset-inline.js';
 import { logger } from '../../utils/logger.js';
 import type {
     GenerateHallTicketInput,
@@ -200,8 +202,40 @@ export const createHallTicketService = (tx: any = prisma) => ({
             institutionCode: student.institution.code || 'VV'
         });
 
-        // Prepare template data
+        // Prepare template data — shared branding context + flat keys the curated
+        // template binds to, plus legacy nested objects for backward-compat.
+        const branding = await buildBrandingContext(institutionId, tx);
+        const studentPhoto = await toDataUri(student.photoUrl);
+        const fmtTime = (d: Date) =>
+            `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        const schedule = examSchedule.subjects.map((es: any) => {
+            const start = es.startTime ? new Date(es.startTime) : null;
+            const end = start ? new Date(start.getTime() + (es.durationMinutes || 0) * 60000) : null;
+            return {
+                date: es.examDate ? new Date(es.examDate).toLocaleDateString('en-GB') : '',
+                day: es.examDate ? new Date(es.examDate).toLocaleDateString('en-GB', { weekday: 'short' }) : '',
+                subject: es.subjectName,
+                time: start && end ? `${fmtTime(start)} – ${fmtTime(end)}` : '',
+            };
+        });
+        const instructions = examSchedule.instructions
+            ? String(examSchedule.instructions).split('\n').map((s) => s.trim()).filter(Boolean)
+            : undefined;
         const templateData = {
+            ...branding,
+            // Flat keys the curated hall ticket template expects:
+            studentName: student.name,
+            studentPhoto,
+            admissionNumber: student.admissionNumber,
+            rollNo: (student as any).rollNumber || '',
+            className: [student.section?.class?.name, student.section?.name].filter(Boolean).join(' - '),
+            examName: examSchedule.examName,
+            academicYear: examSchedule.academicYear || '',
+            examCenter: examSchedule.subjects.find((es: any) => es.venue)?.venue || student.institution.name,
+            qrCode,
+            schedule,
+            ...(instructions && instructions.length ? { instructions } : {}),
+            // Legacy nested objects (custom templates may still bind to these):
             student: {
                 id: student.id,
                 name: student.name,

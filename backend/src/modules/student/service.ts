@@ -2,7 +2,7 @@ import { prisma } from '../../config/database';
 import { Prisma, DataStatus, SlotStatus } from '@prisma/client';
 import { enrollmentService } from '../../lib/enrollment.js';
 import { nanoid } from 'nanoid';
-import { BadRequestError, ForbiddenError, ConflictError } from '../../utils/errors.js';
+import { BadRequestError, ForbiddenError, ConflictError, NotFoundError } from '../../utils/errors.js';
 import { logAudit } from '../../utils/audit.js';
 import { checkDuplicates } from './duplicateDetection.js';
 import { schemaByTab } from '@vidyaverse/shared-validation';
@@ -847,6 +847,61 @@ export const createStudentService = (tx: any = prisma) => ({
         });
     },
 
+    async bulkDelete(ids: string[], userId?: string) {
+        if (!ids.length) throw new BadRequestError('No student IDs provided');
+        if (ids.length > 200) throw new BadRequestError('Cannot delete more than 200 students at once');
+
+        // Fetch all students to clean up their assets
+        const students = await tx.student.findMany({
+            where: { id: { in: ids } },
+            select: {
+                id: true,
+                institutionId: true,
+                name: true,
+                photoUrl: true,
+                thumbUrl: true,
+                studentSignatureUrl: true,
+                parentSignatureUrl: true,
+            },
+        });
+
+        if (students.length === 0) throw new NotFoundError('No students found for the given IDs');
+
+        // Clean up MinIO objects for all students
+        const allUrls = students.flatMap(s => [
+            s.photoUrl,
+            s.thumbUrl,
+            s.studentSignatureUrl,
+            s.parentSignatureUrl,
+        ].filter(Boolean) as string[]);
+
+        await Promise.allSettled(
+            allUrls.map(url => {
+                const key = extractKey(url);
+                return key ? deleteObject(key) : Promise.resolve();
+            })
+        );
+
+        // Log audit for each deleted student
+        for (const student of students) {
+            logAudit({
+                action: 'STUDENT_DELETED',
+                userId,
+                institutionId: student.institutionId,
+                entityType: 'student',
+                entityId: student.id,
+                changes: { name: student.name, bulkDelete: true },
+            });
+        }
+
+        // Delete all students
+        const result = await tx.student.deleteMany({
+            where: { id: { in: ids } },
+        });
+
+        return { count: result.count };
+    },
+
     // ─────────────────────────────────────────────────────────────────────────
     // Advanced Onboarding - Auto Generation & CSV
     // ─────────────────────────────────────────────────────────────────────────
@@ -1274,6 +1329,49 @@ export const createStudentService = (tx: any = prisma) => ({
         }
 
         return results;
+    },
+
+    async linkUser(studentId: string, userId: string | null) {
+        // Confirm the student exists within this institution's scope
+        const student = await tx.student.findUnique({
+            where: { id: studentId },
+            select: { id: true, userId: true },
+        });
+        if (!student) {
+            throw new NotFoundError('Student not found');
+        }
+
+        // Confirm the target user account exists if linking
+        if (userId) {
+            const user = await tx.user.findUnique({
+                where: { id: userId },
+                select: { id: true, globalRole: true },
+            });
+            if (!user) {
+                throw new NotFoundError('User account not found');
+            }
+        }
+
+        // Prisma enforces @unique on userId — will throw P2002 if already
+        // linked to a different student. Let that bubble as a 500 for now;
+        // a more specific error can be added when the admin UI is built.
+        const updated = await tx.student.update({
+            where: { id: studentId },
+            data: { userId },
+            select: {
+                id: true,
+                admissionNumber: true,
+                userId: true,
+                section: {
+                    select: {
+                        name: true,
+                        class: { select: { name: true } },
+                    },
+                },
+            },
+        });
+
+        return updated;
     }
 });
 

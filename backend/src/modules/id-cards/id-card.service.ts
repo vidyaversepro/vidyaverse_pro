@@ -4,8 +4,7 @@ import { templateService } from '../templates/template.service.js';
 import { templateResolver } from '../templates/template-resolver.js';
 import { generateStudentQRCode } from '../../utils/qrcode.js';
 import { generatePDFFromHTML, generateImageFromHTML, generateMultiPagePDF } from '../../utils/pdf-generator.js';
-import { uploadToMinio, getMinioFileUrl, downloadFromMinio, getPresignedUrl } from '../../config/minio.js';
-import { resolvePhotoUrl } from '../../utils/internal-asset-url.js';
+import { uploadToMinio, getMinioFileUrl, downloadFromMinio, getPresignedUrl, deleteObject, extractKey } from '../../config/minio.js';
 import { logger } from '../../utils/logger.js';
 import { addJob, QUEUE_NAMES } from '../../utils/job-queue.js';
 import { ID_CARD_PUPPETEER_CONCURRENCY } from '../../utils/worker-config.js';
@@ -15,6 +14,38 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { randomUUID } from 'crypto';
 import type { IdCardQueryInput, PrintIdCardsInput } from '@vidyaverse/shared-validation';
+
+/**
+ * Fetch a storage object and return it as a base64 data URI so Puppeteer can
+ * render it without depending on bucket public-read access or presigned TTLs.
+ * Returns '' on any failure (missing/legacy/broken URLs) so the template can
+ * degrade gracefully via {{#if}} guards.
+ */
+async function toDataUri(objectKeyOrUrl?: string | null): Promise<string> {
+    if (!objectKeyOrUrl) return '';
+    try {
+        const key = extractKey(objectKeyOrUrl) ?? objectKeyOrUrl;
+        const buf = await downloadFromMinio(key);
+        const ext = (key.split('.').pop() || '').toLowerCase().split('?')[0];
+        const mime =
+            ext === 'png' ? 'image/png'
+            : ext === 'webp' ? 'image/webp'
+            : ext === 'svg' ? 'image/svg+xml'
+            : ext === 'gif' ? 'image/gif'
+            : 'image/jpeg';
+        return `data:${mime};base64,${buf.toString('base64')}`;
+    } catch {
+        return '';
+    }
+}
+
+/** dd/mm/yyyy or '' */
+function fmtDate(d?: Date | string | null): string {
+    if (!d) return '';
+    const dt = typeof d === 'string' ? new Date(d) : d;
+    if (isNaN(dt.getTime())) return '';
+    return dt.toLocaleDateString('en-GB');
+}
 
 export const createIdCardService = (tx: any = prisma) => ({
     /**
@@ -65,42 +96,102 @@ export const createIdCardService = (tx: any = prisma) => ({
             institutionCode: student.institution.code || 'VV',
         });
 
-        // Prepare data for template
+        // Principal signature comes from the institution's signing authorities
+        // (the canonical store populated during onboarding's Authority step).
+        // Prefer the PRINCIPAL, else the lowest displayOrder. Fall back to the
+        // legacy institution.signatureUrl only if no authority exists.
+        const authorities = await tx.institutionAuthority.findMany({
+            where: { institutionId },
+            orderBy: { displayOrder: 'asc' },
+            select: { name: true, designation: true, roleType: true, signatureUrl: true },
+        });
+        const principal =
+            authorities.find((a: { roleType: string }) => a.roleType === 'PRINCIPAL') || authorities[0] || null;
+
+        const ROLE_LABELS: Record<string, string> = {
+            PRINCIPAL: 'Principal', VICE_CHANCELLOR: 'Vice Chancellor', HOD: 'Head of Department',
+            REGISTRAR: 'Registrar', DEAN: 'Dean', DIRECTOR: 'Director', COORDINATOR: 'Coordinator', TEACHER: 'Teacher',
+        };
+        const principalName = principal?.name || '';
+        const principalTitle =
+            principal?.designation || (principal ? ROLE_LABELS[principal.roleType] : '') ||
+            student.institution.signatureTitle || 'Principal';
+
+        // Inline all images as data URIs (robust in Puppeteer regardless of
+        // bucket public access / presigned TTLs).
+        const [photo, institutionLogo, principalSignature, schoolSeal] = await Promise.all([
+            toDataUri(student.photoUrl),
+            toDataUri(student.institution.logoUrl),
+            toDataUri(principal?.signatureUrl || student.institution.signatureUrl),
+            toDataUri(student.institution.sealUrl),
+        ]);
+
+        const validUntilDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+        const className = [student.section?.class?.name, student.section?.name].filter(Boolean).join(' - ');
+        const fullAddress = [student.address, student.city, student.state, student.pincode].filter(Boolean).join(', ');
+
+        // Unified render data. Flat keys match the Studio editor's variable
+        // vocabulary ({{studentName}}, {{institutionLogo}}, {{qrCode}}, …);
+        // nested student/class/institution objects are kept for older templates.
+        const flat = {
+            // Student
+            studentName: student.name,
+            studentId: student.id,
+            admissionNo: student.admissionNumber || '',
+            admissionNumber: student.admissionNumber || '',
+            rollNo: (student as any).rollNo ?? '',
+            className,
+            section: student.section?.name || '',
+            stream: student.section?.stream?.name || '',
+            dob: fmtDate(student.dob),
+            gender: student.sex || '',
+            bloodGroup: student.bloodGroup || '',
+            fatherName: student.fatherName || '',
+            motherName: student.motherName || '',
+            guardianName: student.guardianName || '',
+            phone: student.contact || student.guardianPhone || '',
+            email: student.parentEmail || '',
+            address: fullAddress,
+            photo,
+            photoUrl: photo,
+            // Institution / branding
+            institutionName: student.institution.name,
+            institutionLogo,
+            institutionAddress: student.institution.address || '',
+            institutionPhone: student.institution.contactPhone || '',
+            institutionEmail: student.institution.contactEmail || '',
+            institutionCode: student.institution.code || '',
+            principalSignature,
+            principalName,
+            principalTitle,
+            schoolSeal,
+            // Meta
+            academicYear: this.getCurrentAcademicYear(),
+            issueDate: fmtDate(new Date()),
+            validUntil: fmtDate(validUntilDate),
+            qrCode,
+            qrData: qrCode,
+        };
+
         const templateData = {
+            ...flat,
             student: {
-                id: student.id,
-                admissionNo: student.admissionNumber,
+                ...flat,
                 name: student.name,
                 fullName: student.name,
-                fatherName: student.fatherName,
-                motherName: student.motherName,
-                dateOfBirth: student.dob,
-                gender: student.sex,
-                bloodGroup: student.bloodGroup,
-                phone: student.contact,
-                email: student.parentEmail,
-                address: student.address,
-                photoUrl: await resolvePhotoUrl(student.photoUrl, 'server'),
+                dateOfBirth: fmtDate(student.dob),
             },
-            class: {
-                name: student.section?.class?.name || '',
-                section: student.section?.name || '',
-            },
-            stream: {
-                name: student.section?.stream?.name || '',
-            },
+            class: { name: student.section?.class?.name || '', section: student.section?.name || '', className },
+            stream: { name: student.section?.stream?.name || '' },
             institution: {
                 name: student.institution.name,
                 code: student.institution.code,
-                logo: student.institution.logoUrl,
+                logo: institutionLogo,
+                logoUrl: institutionLogo,
                 address: student.institution.address,
                 phone: student.institution.contactPhone,
                 email: student.institution.contactEmail,
             },
-            academicYear: this.getCurrentAcademicYear(),
-            issueDate: new Date(),
-            validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-            qrCode,
         };
 
         // Render template
@@ -140,7 +231,7 @@ export const createIdCardService = (tx: any = prisma) => ({
                 pdfObjectPath: filename,
                 cardFrontUrl: thumbnailUrl,
                 cardFrontObjectPath: thumbnailFilename,
-                validUntil: templateData.validUntil,
+                validUntil: validUntilDate,
                 status: 'issued',
             },
         });
@@ -424,7 +515,13 @@ export const createIdCardService = (tx: any = prisma) => ({
      * List ID cards with filters
      */
     async list(institutionId: string, query: IdCardQueryInput) {
-        const { studentId, classId, sectionId, status, academicYear, page, limit } = query;
+        // Query params arrive as raw strings from the route (the schema isn't
+        // enforced on this handler), so coerce defensively.
+        const q = query as any;
+        const page = Math.max(1, Number(q.page) || 1);
+        const limit = Math.min(100, Math.max(1, Number(q.limit) || 20));
+        const search = typeof q.search === 'string' ? q.search.trim() : '';
+        const { studentId, classId, sectionId, status } = q;
         const skip = (page - 1) * limit;
 
         // Build where clause
@@ -432,7 +529,6 @@ export const createIdCardService = (tx: any = prisma) => ({
 
         if (studentId) where.studentId = studentId;
         if (status) where.status = status;
-        if (academicYear) where.academicYear = academicYear;
 
         if (classId || sectionId) {
             where.student = {
@@ -440,6 +536,17 @@ export const createIdCardService = (tx: any = prisma) => ({
                     ...(sectionId && { id: sectionId }),
                     ...(classId && { classId }),
                 },
+            };
+        }
+
+        // Free-text search over student name / admission number.
+        if (search) {
+            where.student = {
+                ...(where.student || {}),
+                OR: [
+                    { name: { contains: search } },
+                    { admissionNumber: { contains: search } },
+                ],
             };
         }
 
@@ -474,6 +581,10 @@ export const createIdCardService = (tx: any = prisma) => ({
 
         const idCardsWithUrls = await Promise.all(idCards.map(async (card: any) => {
             const result = { ...card };
+            // The UI reads student.admissionNo; the column is admissionNumber.
+            if (result.student) {
+                result.student = { ...result.student, admissionNo: result.student.admissionNumber };
+            }
             if (card.pdfObjectPath) {
                 result.pdfUrl = await getPresignedUrl(card.pdfObjectPath, 3600);
             }
@@ -524,6 +635,60 @@ export const createIdCardService = (tx: any = prisma) => ({
         }
 
         return idCard;
+    },
+
+    /**
+     * Update mutable fields of an ID card (status / validity).
+     */
+    async update(
+        id: string,
+        institutionId: string,
+        data: { status?: string; validUntil?: string | Date | null }
+    ) {
+        const existing = await tx.idCard.findFirst({ where: { id, institutionId } });
+        if (!existing) {
+            throw new NotFoundError('ID card not found');
+        }
+
+        const ALLOWED_STATUSES = ['draft', 'pending_approval', 'approved', 'printed', 'issued', 'cancelled'];
+        const patch: any = {};
+
+        if (data.status !== undefined) {
+            if (!ALLOWED_STATUSES.includes(data.status)) {
+                throw new BadRequestError(`Invalid status. Allowed: ${ALLOWED_STATUSES.join(', ')}`);
+            }
+            patch.status = data.status;
+        }
+        if (data.validUntil !== undefined) {
+            patch.validUntil = data.validUntil ? new Date(data.validUntil) : null;
+        }
+
+        if (Object.keys(patch).length === 0) {
+            return existing;
+        }
+
+        return tx.idCard.update({ where: { id }, data: patch });
+    },
+
+    /**
+     * Delete an ID card (and best-effort remove its storage objects).
+     */
+    async remove(id: string, institutionId: string) {
+        const existing = await tx.idCard.findFirst({ where: { id, institutionId } });
+        if (!existing) {
+            throw new NotFoundError('ID card not found');
+        }
+
+        // Best-effort storage cleanup — never block the delete on storage errors.
+        const objectPaths = [
+            existing.pdfObjectPath,
+            existing.cardFrontObjectPath,
+            existing.cardBackObjectPath,
+        ].filter(Boolean) as string[];
+        await Promise.allSettled(objectPaths.map((p) => deleteObject(p)));
+
+        await tx.idCard.delete({ where: { id } });
+        return { id, deleted: true };
     },
 
     /**

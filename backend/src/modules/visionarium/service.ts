@@ -19,9 +19,19 @@ export const service = {
         const limit = Math.min(50, Math.max(1, opts.limit || 20));
         const skip = (page - 1) * limit;
 
-        const where: Prisma.VisionariumArticleWhereInput = {};
+        const where: Prisma.VisionariumArticleWhereInput = {
+            translationOfId: null, // Return only canonical rows
+        };
 
-        if (opts.institutionId) where.institutionId = opts.institutionId;
+        if (opts.institutionId) {
+            where.OR = [
+                { institutionId: null },
+                { institutionId: opts.institutionId }
+            ];
+        } else {
+            where.institutionId = null; // Default to platform-only if no institution provided
+        }
+
         if (opts.category) where.category = opts.category as Prisma.VisionariumArticleWhereInput['category'];
         if (opts.language) where.language = opts.language as Prisma.VisionariumArticleWhereInput['language'];
         if (opts.issueId) where.issueId = opts.issueId;
@@ -36,7 +46,8 @@ export const service = {
                 include: {
                     authorUser: { select: { id: true, name: true } },
                     authorStudent: { select: { id: true, name: true } },
-                    issue: { select: { id: true, title: true, issueCode: true } },
+                    issue: { select: { id: true, titleEnglish: true, issueCode: true } },
+                    translations: { select: { id: true, language: true } },
                 },
             }),
             prisma.visionariumArticle.count({ where }),
@@ -52,6 +63,7 @@ export const service = {
                 authorUser: { select: { id: true, name: true } },
                 authorStudent: { select: { id: true, name: true } },
                 issue: true,
+                translations: { select: { id: true, language: true } },
             },
         });
     },
@@ -116,7 +128,10 @@ export const service = {
     async createIssue(data: any) {
         return prisma.visionariumIssue.create({
             data: {
-                title: data.title,
+                titleEnglish: data.titleEnglish,
+                titleHindi: data.titleHindi,
+                volume: data.volume,
+                number: data.number,
                 issueCode: data.issueCode,
                 coverImageUrl: data.coverImageUrl,
                 publishDate: new Date(data.publishDate),

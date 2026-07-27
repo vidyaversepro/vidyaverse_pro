@@ -102,7 +102,7 @@ export function BulkGenerateModal({
         queryKey: ['id-card-batch', batchId],
         queryFn: async () => {
             if (!batchId) return null;
-            const res = await api.get(`/id-card/batches/${batchId}`);
+            const res = await api.get(`/id-cards/batches/${batchId}`);
             return res.data;
         },
         enabled: !!batchId && isGenerating,

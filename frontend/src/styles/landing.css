@@ -462,6 +462,26 @@
     z-index: -1;
 }
 
+/* Dark comparison band (ComparisonSection) — navy gradient + faint grid lines.
+   The table inside uses white/translucent text, so this must stay dark in both
+   light and dark themes. */
+.grid-bg {
+    background-color: #0F172A;
+    background-image:
+        linear-gradient(135deg, rgba(230, 57, 70, 0.10) 0%, rgba(139, 92, 246, 0.10) 50%, rgba(37, 99, 235, 0.10) 100%),
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 100% 100%, 40px 40px, 40px 40px;
+    color: #F1F5F9;
+}
+
+/* Highlighted Vidyaverse column inside the comparison table. */
+.comparison-highlight {
+    background: linear-gradient(135deg, rgba(230, 57, 70, 0.16), rgba(139, 92, 246, 0.16));
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
 /* ========================================================================
    CTA GRADIENT SECTION
    ======================================================================== */

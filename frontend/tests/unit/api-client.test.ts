@@ -4,7 +4,8 @@ import { api } from '../../src/lib/api';
 describe('API Client', () => {
     describe('Configuration', () => {
         it('should have the correct base URL', () => {
-            expect(api.defaults.baseURL).toBe('/api/v1');
+            const expectedUrl = import.meta.env.VITE_API_URL || '/api/v1';
+            expect(api.defaults.baseURL).toBe(expectedUrl);
         });
 
         it('should set Content-Type to application/json', () => {
