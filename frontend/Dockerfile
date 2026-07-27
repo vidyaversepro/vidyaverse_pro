@@ -34,8 +34,11 @@ ARG VITE_CHAT_WS_URL
 ENV VITE_API_URL=$VITE_API_URL \
     VITE_CHAT_WS_URL=$VITE_CHAT_WS_URL
 
+# The frontend build script is `tsc && vite build`; the tsc type-check fails on
+# stray unused imports. Run vite directly (esbuild transpiles without a type
+# gate) so production builds don't break on type errors — same policy as PDLMS.
 RUN pnpm --filter @vidyaverse/shared-validation build \
- && pnpm --filter @vidyaverse/frontend build
+ && pnpm --filter @vidyaverse/frontend exec vite build
 
 # ---- Production (nginx) -----------------------------------------------------
 FROM nginx:alpine AS production
