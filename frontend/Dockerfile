@@ -21,7 +21,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/shared-validation/package.json ./packages/shared-validation/
 COPY backend/package.json ./backend/
 COPY frontend/package.json ./frontend/
-RUN pnpm install --frozen-lockfile
+# --ignore-scripts: pnpm 10+ blocks dependency build scripts by default and
+# errors (ERR_PNPM_IGNORED_BUILDS). The frontend build (vite) needs no native
+# postinstalls, so skipping scripts is safe.
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 COPY packages/shared-validation ./packages/shared-validation
 COPY frontend ./frontend

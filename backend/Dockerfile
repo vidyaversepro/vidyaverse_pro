@@ -23,7 +23,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/shared-validation/package.json ./packages/shared-validation/
 COPY backend/package.json ./backend/
 COPY frontend/package.json ./frontend/
-RUN pnpm install --frozen-lockfile
+# --ignore-scripts: pnpm 10+ blocks dependency build scripts by default and
+# errors (ERR_PNPM_IGNORED_BUILDS). bcryptjs is pure JS and sharp 0.33 ships
+# prebuilt binaries, so skipping scripts is safe; Prisma is generated below.
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Only the sources needed to build the backend.
 COPY packages/shared-validation ./packages/shared-validation
