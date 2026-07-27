@@ -13,7 +13,7 @@
 #   VITE_CHAT_WS_URL = wss://api.vidyaverse.vinstitution.com/api/v1/chat/ws
 
 # ---- Builder ----------------------------------------------------------------
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 RUN corepack enable
 

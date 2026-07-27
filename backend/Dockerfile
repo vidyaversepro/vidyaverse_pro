@@ -12,7 +12,7 @@
 # FRONTEND_URL, API_BASE_URL, PORT=3000, …) is injected by Coolify.
 
 # ---- Builder ----------------------------------------------------------------
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 # python3/make/g++ for native deps (bcrypt, sharp); openssl for Prisma.
 RUN apk add --no-cache python3 make g++ openssl
 WORKDIR /app
@@ -35,7 +35,7 @@ RUN pnpm --filter @vidyaverse/shared-validation build \
  && pnpm --filter @vidyaverse/backend build
 
 # ---- Production -------------------------------------------------------------
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 RUN apk add --no-cache openssl
 WORKDIR /app
 RUN corepack enable
