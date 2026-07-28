@@ -65,8 +65,11 @@ const plugins = env.OIDC_ENABLED
               // we must NOT pre-add a query here (would produce a double-`?`). The
               // login page detects the federated flow by the presence of client_id
               // and loops back to /oauth2/authorize after sign-in.
-              loginPage: '/login',
-              consentPage: '/oauth/consent',
+              // These MUST be absolute frontend URLs: baseURL is the API host
+              // (api.<domain>) which does not serve the login/consent UI, so a
+              // relative '/login' would resolve to api.<domain>/login → 401.
+              loginPage: `${frontendUrl}/login`,
+              consentPage: `${frontendUrl}/oauth/consent`,
               allowDynamicClientRegistration: false,
               requirePKCE: true,
               storeClientSecret: { hash: hashClientSecret },

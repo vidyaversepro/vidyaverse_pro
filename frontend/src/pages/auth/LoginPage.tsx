@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { signIn } from '@/lib/auth.client';
+import { signIn, AUTH_BASE } from '@/lib/auth.client';
 
 // Schema for Login
 const loginSchema = z.object({
@@ -57,7 +57,7 @@ export default function LoginPage() {
                         if (isOidcFlow) {
                             // Resume the OIDC flow: re-hit authorize (now authenticated)
                             // with the original query → Better Auth proceeds to consent.
-                            window.location.href = `/api/auth/oauth2/authorize?${searchParams.toString()}`;
+                            window.location.href = `${AUTH_BASE}/api/auth/oauth2/authorize?${searchParams.toString()}`;
                         } else if (returnTo) {
                             window.location.href = returnTo;
                         } else {

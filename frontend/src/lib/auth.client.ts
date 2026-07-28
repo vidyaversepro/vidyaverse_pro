@@ -10,4 +10,10 @@ export const authClient = createAuthClient({
     baseURL
 });
 
+// Origin of the Better Auth handler (the API host). The SPA and the backend are
+// separate Coolify apps on different domains and nginx here proxies no /api, so
+// any hand-built auth URL (OIDC authorize/consent) MUST be absolute — a relative
+// one resolves to the SPA and falls through to index.html.
+export const AUTH_BASE = baseURL;
+
 export const { signIn, signUp, signOut, useSession } = authClient;

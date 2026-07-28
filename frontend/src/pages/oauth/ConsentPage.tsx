@@ -4,7 +4,7 @@ import { Loader2, Shield, ExternalLink, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { useSession } from '@/lib/auth.client';
+import { useSession, AUTH_BASE } from '@/lib/auth.client';
 import { api } from '@/lib/api';
 import { PageLoader } from '@/lib/lazy-page';
 
@@ -21,10 +21,6 @@ interface ClientInfo {
     name: string;
     icon?: string | null;
 }
-
-// Better Auth base URL — same logic as auth.client.ts
-const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || '';
-const AUTH_BASE = apiUrl.endsWith('/api/v1') ? apiUrl.replace('/api/v1', '') : apiUrl;
 
 export default function ConsentPage() {
     const [searchParams] = useSearchParams();
