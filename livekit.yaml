@@ -1,12 +1,16 @@
+# LiveKit server config — production (self-hosted on the Coolify VPS).
+# Deployed as a standalone container on the `coolify` docker network, fronted by
+# Traefik for secure WebSocket (wss://livekit.vinstitution.com -> :7880).
+# Media uses a single muxed UDP port + TCP fallback, published on the host.
 port: 7880
 bind_addresses:
   - ""
 rtc:
   tcp_port: 7881
-  port_range_start: 50000
-  port_range_end: 60000
-  use_external_ip: false
-  enable_loopback_candidate: true
+  # Single muxed UDP port (avoids publishing a 10k-port range through Docker).
+  udp_port: 50000
+  # Advertise the VPS public IP in ICE candidates so browsers can reach media.
+  use_external_ip: true
 keys:
   6be81eac462eefbe0df8abfb9a22530deab34a52249dd93e: 6f2de52ab0e4f2a18530312a406d993458dd65c4bdb0dec7
 logging:
