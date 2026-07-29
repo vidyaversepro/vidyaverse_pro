@@ -8,6 +8,9 @@ import { env } from '../config/env.js';
 import { passwordResetEmail, welcomeEmail, verifyEmailEmail } from '../utils/email-templates.js';
 import { resolveOidcClaims } from '../modules/oidc/claims-resolver.js';
 import { hashClientSecret } from '../modules/oidc/client-secret-hash.js';
+import { normaliseEmail } from './email/normalise.js';
+import { AUTH_COOKIE_PREFIX } from './auth-cookies.js';
+import { syncUserMemberships } from '../modules/entitlements/capabilities/membership-sync.js';
 
 const frontendUrl = env.FRONTEND_URL || 'http://localhost:5173';
 
@@ -82,6 +85,13 @@ const baseConfig = {
             globalRole: { type: 'string' as const, returned: true },
         },
     },
+    advanced: {
+        // Distinct per app across the trio. Harmless while cookies stay host-scoped,
+        // but single logout needs all three under a common parent domain, where three
+        // identically-named cookies would collide. Vidyaverse is the IdP, so its
+        // cookie is the one that must remain unambiguous.
+        cookiePrefix: AUTH_COOKIE_PREFIX,
+    },
     trustedOrigins,
 } satisfies BetterAuthOptions;
 
@@ -132,6 +142,14 @@ export const auth = betterAuth({
     databaseHooks: {
         user: {
             create: {
+                // Store the address canonically. Harmless on MySQL (its collation is
+                // already case-insensitive) and load-bearing on Postgres, where
+                // `Foo@Bar.com` and `foo@bar.com` are distinct values — see
+                // lib/email/normalise.ts for why that would break account linking.
+                before: async (user) => {
+                    const email = normaliseEmail((user as { email: string }).email);
+                    return { data: { ...user, email } };
+                },
                 after: async (user) => {
                     // The welcome email now fires from emailVerification.afterEmailVerification
                     // instead of here, so a new signup receives the verification mail alone.
@@ -141,8 +159,13 @@ export const auth = betterAuth({
                     // Zero matches → no-op (admin links manually via PATCH /students/:id/link-user).
                     // Multiple matches → no-op + warn (ambiguous; don't link to a random sibling).
                     try {
+                        // parentEmail is entered by admins and bulk imports, so it is
+                        // normalised at write and backfilled to lowercase — which is
+                        // what lets this stay an indexed equality lookup. MySQL's
+                        // collation would forgive a mixed-case row; Postgres would not,
+                        // and the auto-link would quietly stop firing.
                         const matches = await prisma.student.findMany({
-                            where: { parentEmail: user.email, userId: null },
+                            where: { parentEmail: normaliseEmail(user.email), userId: null },
                             select: { id: true },
                         });
                         if (matches.length === 1) {
@@ -159,6 +182,18 @@ export const auth = betterAuth({
                         // Non-fatal — admin can still link manually
                         console.error('[auth] student auto-link failed:', err);
                     }
+                },
+            },
+        },
+        session: {
+            create: {
+                after: async (session) => {
+                    // Self-healing mirror: the authoritative refresh happens on the
+                    // membership-change path, but a missed event must not leave a
+                    // user unable to see institution access they are paying for.
+                    // Deliberately not awaited — a slow or unreachable entitlements
+                    // database must never delay or fail a login.
+                    void syncUserMemberships(session.userId);
                 },
             },
         },

@@ -44,6 +44,8 @@ import authRoutes from './modules/auth/auth.routes.js';
 import { opsRoutes } from './modules/ops/index.js';
 import { messagingModule } from './modules/messaging/index.js';
 import { paymentsModule } from './modules/payments/index.js';
+import emailWebhooks from './modules/notifications/email.webhooks.js';
+import { SESSION_COOKIE } from './lib/auth-cookies.js';
 import { inboundModule } from './modules/inbound/index.js';
 import { adminModule } from './modules/admin/index.js';
 import { entitlementsModule } from './modules/entitlements/index.js';
@@ -169,7 +171,7 @@ export async function buildApp() {
                     cookieAuth: {
                         type: 'apiKey',
                         in: 'cookie',
-                        name: 'better-auth.session_token',
+                        name: SESSION_COOKIE,
                         description: 'Session cookie set by Better Auth after sign-in',
                     },
                 },
@@ -210,6 +212,12 @@ export async function buildApp() {
         '/uploads/',                   // static assets (server-side render + <img>)
         '/api/v1/inbound/webhooks/',   // WhatsApp inbound webhook (raw-body HMAC)
         '/api/v1/payments/webhooks/',  // Razorpay / Cashfree webhooks (raw-body HMAC)
+        '/api/v1/email/webhooks/',     // Resend bounce/complaint webhook (raw-body Svix HMAC)
+        // Capability API. NOT public — it authenticates itself, accepting either a
+        // session cookie OR an OIDC access token (see capabilities/bearer-auth.ts).
+        // The global wall only understands cookies, so it would reject the relying
+        // parties' token calls before the route's own hook ever ran.
+        '/api/v1/entitlements/capabilities',
         '/api/v1/oauth/',              // public OAuth consent-branding lookup
     ];
     fastify.addHook('onRequest', async (request, reply) => {
@@ -346,6 +354,9 @@ export async function buildApp() {
     await fastify.register(opsRoutes, { prefix: '/api/ops' });
     await fastify.register(messagingModule);
     await fastify.register(paymentsModule);
+    // Public Resend delivery-event webhook (separate plugin => no auth hook,
+    // raw-body parsing for Svix signature verification).
+    await fastify.register(emailWebhooks, { prefix: '/api/v1/email/webhooks' });
     await fastify.register(inboundModule);
     await fastify.register(adminModule);
     await fastify.register(entitlementsModule);
