@@ -1,0 +1,148 @@
+// Entitlements — the trio's subscription authority.
+//
+// A SEPARATE datasource from the main Vidyaverse schema, deliberately:
+//   * it is the first thing to live on Postgres, so the migration proves itself on
+//     a new component where there is no data to move and no rollback risk;
+//   * it keeps its own module boundary, so it can be extracted into its own service
+//     later without untangling foreign keys from 131 ERP tables.
+//
+// It holds NO identity data. Subjects are referenced by opaque id only — the user
+// and institution tables stay in the app databases and are never joined to from here.
+//
+// Generate with:
+//   prisma generate --schema prisma/entitlements/schema.prisma
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../node_modules/.prisma/entitlements-client"
+  previewFeatures = ["postgresqlExtensions", "multiSchema"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("ENTITLEMENTS_DATABASE_URL")
+  schemas    = ["entitlements"]
+  extensions = [citext]
+}
+
+/// Which product a subscription grants access to. Vidyaverse itself is included so
+/// that hub-side paid features resolve through the same path as the two RPs.
+enum AppKey {
+  vidyaverse
+  pdlms
+  digiclassroom
+
+  @@schema("entitlements")
+}
+
+/// Ordered deliberately: comparison for "max tier across sources" relies on this
+/// declaration order, so NEVER reorder — append only.
+enum Tier {
+  free
+  basic
+  premium
+  enterprise
+
+  @@schema("entitlements")
+}
+
+/// Who holds the subscription. An institution subscription fans out to its members;
+/// a user subscription belongs to one person and follows them between institutions.
+enum SubjectKind {
+  user
+  institution
+
+  @@schema("entitlements")
+}
+
+enum SubscriptionStatus {
+  /// Paid and current.
+  active
+  /// Past expiry but inside the grace window — access continues, dunning runs.
+  grace
+  /// Grace exhausted. Retained for history and for restore-on-resubscribe.
+  expired
+  /// Ended early by the holder.
+  cancelled
+  /// Ended by us (non-payment, abuse). Distinct from cancelled for reporting.
+  suspended
+
+  @@schema("entitlements")
+}
+
+/// One purchased (or granted) right to use one app.
+///
+/// Access is the UNION of every active source, taking the MAX tier per app — never a
+/// hierarchy. "Institution primary, personal secondary" is a billing-attribution idea
+/// only; using it to compute access would let an institution on a lower tier strip
+/// features a student paid for personally.
+model Subscription {
+  id String @id @default(uuid()) @db.Uuid
+
+  subjectKind SubjectKind @map("subject_kind")
+  /// Opaque id from the owning app's database. Intentionally NOT a foreign key —
+  /// this schema is extractable and must not depend on the ERP tables.
+  subjectId   String      @map("subject_id") @db.VarChar(64)
+
+  app  AppKey
+  tier Tier
+
+  status SubscriptionStatus @default(active)
+
+  startedAt DateTime  @default(now()) @map("started_at") @db.Timestamptz(3)
+  /// Null means perpetual (used for comped and internal grants).
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz(3)
+  /// End of the grace window; set when the subscription lapses. Product rule is one
+  /// week, but it is stored per-row so a support exception does not need a code change.
+  graceUntil DateTime? @map("grace_until") @db.Timestamptz(3)
+
+  /// Extra capabilities granted on top of the tier (support exceptions, pilots).
+  featureGrants  String[] @default([]) @map("feature_grants")
+  /// Capabilities withheld despite the tier. Revokes always beat grants.
+  featureRevokes String[] @default([]) @map("feature_revokes")
+
+  /// Free-text provenance for support ("razorpay", "manual:comped", "trial").
+  source String @default("manual") @db.VarChar(64)
+  /// Payment-gateway identifier, when there is one. Unique so webhook retries cannot
+  /// create duplicate subscriptions for the same payment.
+  externalRef String? @unique @map("external_ref") @db.VarChar(255)
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  /// Resolution reads by (subject, app) constantly — this is the hot path.
+  @@index([subjectKind, subjectId, app])
+  /// Lapse sweeps scan by window; status first keeps the scan off active rows.
+  @@index([status, expiresAt])
+  @@index([status, graceUntil])
+  @@map("subscriptions")
+  @@schema("entitlements")
+}
+
+/// Membership fan-out: which institutions a user belongs to, mirrored from the IdP.
+///
+/// Mirrored rather than joined so entitlement resolution is a single-database read on
+/// the hot path, and so this schema stays extractable. Rows are refreshed from the
+/// `memberships[]` claim at login and by the membership webhook.
+model InstitutionMembership {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId        String @map("user_id") @db.VarChar(64)
+  institutionId String @map("institution_id") @db.VarChar(64)
+
+  /// False when the membership is revoked/suspended upstream — kept rather than
+  /// deleted so a re-admitted student's history survives.
+  active Boolean @default(true)
+
+  syncedAt DateTime @default(now()) @map("synced_at") @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([userId, institutionId])
+  @@index([userId, active])
+  @@map("institution_memberships")
+  @@schema("entitlements")
+}

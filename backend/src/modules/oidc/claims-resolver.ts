@@ -77,7 +77,11 @@ export async function resolveOidcClaims(
 
   if (wantsEntitlements) {
     const issuer = env.VIDYAVERSE_ISSUER || env.BETTER_AUTH_URL;
-    claims.entitlements_url = `${issuer.replace(/\/$/, '')}/api/v1/entitlements/me`;
+    // Points at the CROSS-APP capability endpoint, not `/entitlements/me`. The latter
+    // returns Vidyaverse's own institution-scoped ERP module gating, which is not
+    // what a relying party needs and would have told PDLMS and DigiClassroom nothing
+    // about their own features. The RP appends `?app=<its own key>`.
+    claims.entitlements_url = `${issuer.replace(/\/$/, '')}/api/v1/entitlements/capabilities`;
   }
 
   return claims;
