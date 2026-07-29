@@ -32,7 +32,12 @@ COPY backend ./backend
 # Build the shared package (consumed as dist) and generate the Prisma client.
 # The backend is intentionally NOT compiled — tsx runs it from source.
 RUN pnpm --filter @vidyaverse/shared-validation build \
- && pnpm --filter @vidyaverse/backend exec prisma generate
+ && pnpm --filter @vidyaverse/backend exec prisma generate \
+ # Entitlements is a second, separate datasource with its own generated client.
+ # `|| true` because it is an optional module: a build without it must still
+ # produce a working image, and the runtime loads the client lazily so its absence
+ # is only felt if the feature is actually enabled.
+ && (pnpm --filter @vidyaverse/backend exec prisma generate --schema prisma/entitlements/schema.prisma || true)
 
 # ---- Production -------------------------------------------------------------
 FROM node:22-alpine AS production
