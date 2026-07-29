@@ -4032,3 +4032,27 @@ enum AttemptStatus {
   submitted
   graded
 }
+
+/// Addresses that must not be mailed again, fed by Resend's bounce/complaint
+/// webhook. Vidyaverse is the identity provider, so its verification mail sits on
+/// the account-activation path — continuing to send at an address that hard-bounced
+/// burns sender reputation for every app in the trio, not just this one.
+///
+/// Only *permanent* failures land here. A soft bounce (full mailbox, greylisting)
+/// is transient and must stay sendable, or a temporary outage would lock users out
+/// of their own signup for good.
+model EmailSuppression {
+  id        String   @id @default(uuid()) @db.Char(36)
+  email     String   @unique @db.VarChar(255)
+  /// hard_bounce | complaint — why this address stopped being deliverable.
+  reason    String   @db.VarChar(50)
+  /// Provider-supplied diagnostic, kept verbatim for support triage.
+  detail    String?  @db.Text
+  /// Which provider reported it (resend), so a later transport swap is traceable.
+  source    String   @default("resend") @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([reason])
+  @@map("email_suppressions")
+}

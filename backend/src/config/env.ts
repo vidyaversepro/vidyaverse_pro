@@ -36,7 +36,22 @@ const envSchema = z.object({
     ENABLE_AI_ENHANCEMENT: z.string().transform((v) => v === 'true').default('true'),
     OPENCV_THRESHOLD: z.string().transform(Number).default('0.5'),
 
+    // Entitlements (Postgres). Its own datasource, separate from the MySQL ERP
+    // database: it is the first component to live on Postgres and keeps its own
+    // module boundary so it can be extracted into a service later. When unset the
+    // capability API is not registered, so existing environments are unaffected.
+    ENTITLEMENTS_DATABASE_URL: z.string().optional(),
+    /** Shared secret for HMAC-signing capability-invalidation webhooks to the RPs. */
+    ENTITLEMENTS_WEBHOOK_SECRET: z.string().optional(),
+
     // Email
+    // Resend is the preferred transport — it reports bounces and complaints, which
+    // shared SMTP does not. When RESEND_API_KEY is absent the mailer falls back to
+    // SMTP, so existing environments keep working untouched.
+    RESEND_API_KEY: z.string().optional(),
+    // Signing secret for the Resend event webhook (`whsec_…`). Without it the
+    // webhook refuses every request rather than trusting unsigned input.
+    RESEND_WEBHOOK_SECRET: z.string().optional(),
     SMTP_HOST: z.string().optional(),
     SMTP_PORT: z.string().transform(Number).optional(),
     SMTP_SECURE: z.string().transform((v) => v === 'true').default('false'),
