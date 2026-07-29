@@ -22,6 +22,7 @@ const RegisterPage = lazyPage(() => import('@/pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazyPage(() => import('@/pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazyPage(() => import('@/pages/auth/ResetPasswordPage'));
 const AdminSignupPage = lazyPage(() => import('@/pages/auth/AdminSignupPage'));
+const VerifyEmailPage = lazyPage(() => import('@/pages/auth/VerifyEmailPage'));
 
 // Dashboard
 const DashboardPage = lazyPage(() => import('@/pages/dashboard/DashboardPage'));
@@ -230,6 +231,11 @@ export default function App() {
                             </PublicRoute>
                         }
                     />
+                    {/* Deliberately NOT behind PublicRoute: autoSignInAfterVerification
+                        means a user who just clicked the link arrives here already
+                        signed in, and PublicRoute would bounce them before they see
+                        the confirmation. */}
+                    <Route path="/verify-email" element={<VerifyEmailPage />} />
                     <Route path="/oauth/consent" element={<ConsentPage />} />
 
                     {/* Admin Setup Route */}

@@ -5,7 +5,7 @@ import { oidcProvider } from 'better-auth/plugins/oidc-provider';
 import { prisma } from '../config/database.js';
 import { sendEmail } from '../utils/mailer.js';
 import { env } from '../config/env.js';
-import { passwordResetEmail, welcomeEmail } from '../utils/email-templates.js';
+import { passwordResetEmail, welcomeEmail, verifyEmailEmail } from '../utils/email-templates.js';
 import { resolveOidcClaims } from '../modules/oidc/claims-resolver.js';
 import { hashClientSecret } from '../modules/oidc/client-secret-hash.js';
 
@@ -31,7 +31,16 @@ const baseConfig = {
     database: prismaAdapter(prisma, { provider: 'mysql' }),
     emailAndPassword: {
         enabled: true,
-        autoSignIn: true,
+        // Vidyaverse is the identity provider for Book Buddy and Study Buddy, and
+        // those apps trust its `email_verified` claim to decide whether a federated
+        // identity may be linked to an existing local account. An unverified signup
+        // here would therefore be a route to claiming someone else's account
+        // downstream — so the address must be proven before the account is usable.
+        requireEmailVerification: true,
+        // Not auto-signed-in at signup (the account isn't usable yet);
+        // autoSignInAfterVerification below signs them in the instant they click
+        // the link, so the user still lands logged in with one click.
+        autoSignIn: false,
         sendResetPassword: async ({ user, token }: any) => {
             const resetLink = `${frontendUrl}/reset-password?token=${token}`;
             await sendEmail(
@@ -39,6 +48,33 @@ const baseConfig = {
                 'Reset Your Password - Vidyaverse Pro',
                 passwordResetEmail(user.name || 'there', resetLink)
             );
+        },
+    },
+    emailVerification: {
+        sendOnSignUp: true,
+        autoSignInAfterVerification: true,
+        expiresIn: 60 * 60, // 1 hour, matching the password-reset window
+        sendVerificationEmail: async ({ user, token }: any) => {
+            // Built explicitly rather than using the supplied `url`: better-auth's
+            // default callbackURL is relative and resolves against baseURL — the API
+            // host, which serves no UI. That is the same trap that broke the OIDC
+            // login hand-off, so the frontend origin is named outright here.
+            const callbackURL = encodeURIComponent(`${frontendUrl}/verify-email`);
+            const verifyLink = `${(env.BETTER_AUTH_URL || '').replace(/\/$/, '')}/api/auth/verify-email?token=${token}&callbackURL=${callbackURL}`;
+            await sendEmail(
+                user.email,
+                'Confirm your email address - Vidyaverse Pro',
+                verifyEmailEmail(user.name || 'there', verifyLink)
+            );
+        },
+        afterEmailVerification: async (user: any) => {
+            // Welcome lands only once the address is known to be real, so signup
+            // doesn't fire two emails into the same inbox at the same moment.
+            sendEmail(
+                user.email,
+                'Welcome to Vidyaverse Pro',
+                welcomeEmail(user.name || 'there')
+            ).catch((err) => console.error('[auth] welcome email failed:', err));
         },
     },
     user: {
@@ -97,14 +133,8 @@ export const auth = betterAuth({
         user: {
             create: {
                 after: async (user) => {
-                    // Welcome email — non-fatal; signup must not be blocked if mailer is down
-                    sendEmail(
-                        user.email,
-                        'Welcome to Vidyaverse Pro',
-                        welcomeEmail(user.name || 'there')
-                    ).catch((err) =>
-                        console.error('[auth] welcome email failed:', err)
-                    );
+                    // The welcome email now fires from emailVerification.afterEmailVerification
+                    // instead of here, so a new signup receives the verification mail alone.
 
                     // Auto-link: if exactly one Student row has parentEmail matching
                     // this new user's email and is not yet linked, set Student.userId.

@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { signUp } from '@/lib/auth.client';
-import { useAuthStore } from '@/stores/auth.store';
 
 const registerSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -39,7 +38,6 @@ const passwordRules = [
 export default function RegisterPage() {
     const navigate = useNavigate();
     const { toast } = useToast();
-    const { setAuth } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
     const [showPw, setShowPw] = useState(false);
 
@@ -63,12 +61,16 @@ export default function RegisterPage() {
                 password: data.password,
                 fetchOptions: {
                     onSuccess: () => {
-                        setAuth(true); // Maintain legacy UI state
+                        // Signup no longer creates a session — the address must be
+                        // confirmed first (requireEmailVerification on the backend).
+                        // Sending them to /dashboard here would just bounce off the
+                        // route guard with no explanation, so tell them to go and
+                        // check their inbox instead.
                         toast({
-                            title: 'Account created!',
-                            description: 'Welcome to Vidyaverse Pro',
+                            title: 'Check your inbox',
+                            description: `We sent a confirmation link to ${data.email}. Click it to activate your account.`,
                         });
-                        navigate('/dashboard');
+                        navigate(`/verify-email?sent=${encodeURIComponent(data.email)}`);
                     },
                     onError: (ctx: any) => {
                         toast({

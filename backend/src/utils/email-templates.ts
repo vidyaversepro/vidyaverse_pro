@@ -148,6 +148,27 @@ export function passwordResetEmail(userName: string, resetLink: string): string 
     );
 }
 
+/**
+ * Email-address verification.
+ *
+ * Vidyaverse is the OIDC identity provider for Book Buddy and Study Buddy, and
+ * its `email_verified` claim is what those apps trust when deciding whether a
+ * federated identity may be linked to an existing local account. Until this
+ * link is followed the claim stays false, so nothing downstream will link.
+ */
+export function verifyEmailEmail(name: string, verifyLink: string): string {
+    return emailLayout(
+        `${heading('Confirm your email address')}
+        ${para(`Hi <strong>${name || 'there'}</strong>,`)}
+        ${para('Please confirm this email address to activate your Vidyaverse Pro account. It is also the address that identifies you across Book Buddy and Study Buddy, so we need to be sure it reaches you.')}
+        ${ctaButton(verifyLink, 'Confirm Email Address')}
+        ${note('This link will expire in 1 hour for your security.')}
+        ${note("If you didn't create a Vidyaverse Pro account, you can safely ignore this email — no account will be activated.")}
+        ${fallbackLink(verifyLink)}`,
+        'Confirm your email address for Vidyaverse Pro'
+    );
+}
+
 /** Welcome / signup email. */
 export function welcomeEmail(name: string): string {
     const loginUrl = `${(env.FRONTEND_URL || 'https://vidyaverse.vinstitution.com').replace(/\/$/, '')}/login`;
