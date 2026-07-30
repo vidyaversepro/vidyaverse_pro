@@ -1,16 +1,17 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextIndex", "fullTextSearch"]
+  previewFeatures = ["postgresqlExtensions"]
   binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [citext]
 }
 
 model Institution {
-  id                             String                          @id @default(uuid()) @db.Char(36)
+  id                             String                          @id @default(uuid()) @db.VarChar(36)
   name                           String                          @db.VarChar(255)
   code                           String                          @unique @db.VarChar(50)
   institutionType                InstitutionType                 @default(SCHOOL) @map("institution_type")
@@ -146,8 +147,8 @@ model Institution {
 }
 
 model ChatConversation {
-  id            String            @id @default(uuid()) @db.Char(36)
-  institutionId String            @map("institution_id") @db.Char(36)
+  id            String            @id @default(uuid()) @db.VarChar(36)
+  institutionId String            @map("institution_id") @db.VarChar(36)
   type          ConversationType  @default(direct)
   name          String?           @db.VarChar(255)
   lastMessageAt DateTime?         @map("last_message_at")
@@ -160,9 +161,9 @@ model ChatConversation {
 }
 
 model ChatParticipant {
-  id             String           @id @default(uuid()) @db.Char(36)
-  conversationId String           @map("conversation_id") @db.Char(36)
-  userId         String           @map("user_id") @db.Char(36)
+  id             String           @id @default(uuid()) @db.VarChar(36)
+  conversationId String           @map("conversation_id") @db.VarChar(36)
+  userId         String           @map("user_id") @db.VarChar(36)
   isAdmin        Boolean          @default(false) @map("is_admin")
   joinedAt       DateTime         @default(now()) @map("joined_at")
   lastReadAt     DateTime?        @map("last_read_at")
@@ -170,14 +171,14 @@ model ChatParticipant {
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, userId])
-  @@index([userId], map: "chat_participants_user_id_fkey")
+  @@index([userId], map: "chat_participants_user_id_idx")
   @@map("chat_participants")
 }
 
 model ChatMessage {
-  id             String           @id @default(uuid()) @db.Char(36)
-  conversationId String           @map("conversation_id") @db.Char(36)
-  senderId       String           @map("sender_id") @db.Char(36)
+  id             String           @id @default(uuid()) @db.VarChar(36)
+  conversationId String           @map("conversation_id") @db.VarChar(36)
+  senderId       String           @map("sender_id") @db.VarChar(36)
   type           MessageType      @default(text)
   content        String           @db.Text
   metadata       Json?
@@ -187,30 +188,30 @@ model ChatMessage {
   conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender         User             @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
-  @@index([conversationId], map: "chat_messages_conversation_id_fkey")
-  @@index([senderId], map: "chat_messages_sender_id_fkey")
+  @@index([conversationId], map: "chat_messages_conversation_id_idx")
+  @@index([senderId], map: "chat_messages_sender_id_idx")
   @@map("chat_messages")
 }
 
 model CallSession {
-  id              String    @id @default(uuid()) @db.Char(36)
-  institutionId   String    @map("institution_id") @db.Char(36)
-  conversationId  String?   @map("conversation_id") @db.Char(36)
+  id              String    @id @default(uuid()) @db.VarChar(36)
+  institutionId   String    @map("institution_id") @db.VarChar(36)
+  conversationId  String?   @map("conversation_id") @db.VarChar(36)
   livekitRoomName String    @map("livekit_room_name") @db.VarChar(255)
   type            String    @default("video") @db.VarChar(20)
-  hostId          String    @map("host_id") @db.Char(36)
+  hostId          String    @map("host_id") @db.VarChar(36)
   startedAt       DateTime  @default(now()) @map("started_at")
   endedAt         DateTime? @map("ended_at")
   participants    Json
   host            User      @relation("HostedCalls", fields: [hostId], references: [id])
 
-  @@index([hostId], map: "call_sessions_host_id_fkey")
+  @@index([hostId], map: "call_sessions_host_id_idx")
   @@map("call_sessions")
 }
 
 model InstitutionAuthority {
-  id            String                   @id @default(uuid()) @db.Char(36)
-  institutionId String                   @map("institution_id") @db.Char(36)
+  id            String                   @id @default(uuid()) @db.VarChar(36)
+  institutionId String                   @map("institution_id") @db.VarChar(36)
   name          String                   @db.VarChar(255)
   designation   String                   @db.VarChar(255)
   roleType      InstitutionAuthorityRole @default(CUSTOM) @map("role_type")
@@ -228,8 +229,8 @@ model InstitutionAuthority {
 }
 
 model Branch {
-  id            String      @id @default(uuid()) @db.Char(36)
-  institutionId String      @map("institution_id") @db.Char(36)
+  id            String      @id @default(uuid()) @db.VarChar(36)
+  institutionId String      @map("institution_id") @db.VarChar(36)
   name          String      @db.VarChar(255)
   code          String      @db.VarChar(50)
   address       String?     @db.Text
@@ -248,8 +249,8 @@ model Branch {
 }
 
 model User {
-  id                        String                  @id @default(uuid()) @db.Char(36)
-  email                     String                  @unique @db.VarChar(255)
+  id                        String                  @id @default(uuid()) @db.VarChar(36)
+  email                     String                  @unique @db.Citext
   passwordHash              String?                 @map("password_hash") @db.VarChar(255)
   name                      String                  @db.VarChar(255)
   phone                     String?                 @db.VarChar(20)
@@ -307,9 +308,9 @@ model User {
 }
 
 model AdminInvitation {
-  id            String           @id @default(uuid()) @db.Char(36)
-  institutionId String           @map("institution_id") @db.Char(36)
-  email         String           @db.VarChar(255)
+  id            String           @id @default(uuid()) @db.VarChar(36)
+  institutionId String           @map("institution_id") @db.VarChar(36)
+  email         String           @db.Citext
   token         String           @unique @db.VarChar(255)
   expiresAt     DateTime         @map("expires_at")
   status        InvitationStatus @default(pending)
@@ -324,9 +325,9 @@ model AdminInvitation {
 }
 
 model UserInstitutionRole {
-  id                   String          @id @default(uuid()) @db.Char(36)
-  userId               String          @map("user_id") @db.Char(36)
-  institutionId        String          @map("institution_id") @db.Char(36)
+  id                   String          @id @default(uuid()) @db.VarChar(36)
+  userId               String          @map("user_id") @db.VarChar(36)
+  institutionId        String          @map("institution_id") @db.VarChar(36)
   role                 InstitutionRole
   assignedClasses      Json?           @map("assigned_classes")
   assignedSections     Json?           @map("assigned_sections")
@@ -344,9 +345,9 @@ model UserInstitutionRole {
 }
 
 model Class {
-  id                    String                  @id @default(uuid()) @db.Char(36)
-  institutionId         String                  @map("institution_id") @db.Char(36)
-  branchId              String?                 @map("branch_id") @db.Char(36)
+  id                    String                  @id @default(uuid()) @db.VarChar(36)
+  institutionId         String                  @map("institution_id") @db.VarChar(36)
+  branchId              String?                 @map("branch_id") @db.VarChar(36)
   name                  String                  @db.VarChar(100)
   displayOrder          Int                     @default(0) @map("display_order")
   streamsEnabled        Boolean                 @default(false) @map("streams_enabled")
@@ -369,9 +370,9 @@ model Class {
 }
 
 model Stream {
-  id            String      @id @default(uuid()) @db.Char(36)
-  institutionId String      @map("institution_id") @db.Char(36)
-  classId       String      @map("class_id") @db.Char(36)
+  id            String      @id @default(uuid()) @db.VarChar(36)
+  institutionId String      @map("institution_id") @db.VarChar(36)
+  classId       String      @map("class_id") @db.VarChar(36)
   name          String      @db.VarChar(100)
   description   String?     @db.Text
   displayOrder  Int         @default(0) @map("display_order")
@@ -382,20 +383,20 @@ model Stream {
   institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 
   @@unique([classId, name])
-  @@index([institutionId], map: "streams_institution_id_fkey")
+  @@index([institutionId], map: "streams_institution_id_idx")
   @@map("streams")
 }
 
 model Section {
-  id                   String              @id @default(uuid()) @db.Char(36)
-  institutionId        String              @map("institution_id") @db.Char(36)
-  classId              String              @map("class_id") @db.Char(36)
-  streamId             String?             @map("stream_id") @db.Char(36)
+  id                   String              @id @default(uuid()) @db.VarChar(36)
+  institutionId        String              @map("institution_id") @db.VarChar(36)
+  classId              String              @map("class_id") @db.VarChar(36)
+  streamId             String?             @map("stream_id") @db.VarChar(36)
   name                 String              @db.VarChar(50)
   expectedStudentCount Int                 @default(0) @map("expected_student_count")
   createdAt            DateTime            @default(now()) @map("created_at")
   updatedAt            DateTime            @updatedAt @map("updated_at")
-  classTeacherId       String?             @map("class_teacher_id") @db.Char(36)
+  classTeacherId       String?             @map("class_teacher_id") @db.VarChar(36)
   admissionSlots       AdmissionSlot[]
   attendanceSessions   AttendanceSession[]
   groupPhotos          GroupPhoto[]
@@ -407,15 +408,15 @@ model Section {
   students             Student[]
 
   @@unique([classId, streamId, name])
-  @@index([classTeacherId], map: "sections_class_teacher_id_fkey")
-  @@index([institutionId], map: "sections_institution_id_fkey")
-  @@index([streamId], map: "sections_stream_id_fkey")
+  @@index([classTeacherId], map: "sections_class_teacher_id_idx")
+  @@index([institutionId], map: "sections_institution_id_idx")
+  @@index([streamId], map: "sections_stream_id_idx")
   @@map("sections")
 }
 
 model AdmissionSlot {
   id             String     @id @default(cuid()) @db.Char(30)
-  sectionId      String     @map("section_id") @db.Char(36)
+  sectionId      String     @map("section_id") @db.VarChar(36)
   rollNo         Int        @map("roll_no")
   status         SlotStatus @default(EMPTY)
   token          String     @unique @default(cuid()) @db.VarChar(50)
@@ -432,10 +433,10 @@ model AdmissionSlot {
 }
 
 model Student {
-  id                      String                   @id @default(uuid()) @db.Char(36)
-  institutionId           String                   @map("institution_id") @db.Char(36)
-  sectionId               String                   @map("section_id") @db.Char(36)
-  branchId                String?                  @map("branch_id") @db.Char(36)
+  id                      String                   @id @default(uuid()) @db.VarChar(36)
+  institutionId           String                   @map("institution_id") @db.VarChar(36)
+  sectionId               String                   @map("section_id") @db.VarChar(36)
+  branchId                String?                  @map("branch_id") @db.VarChar(36)
   slotId                  String?                  @unique @map("slot_id") @db.Char(30)
   admissionNumber         String?                  @unique @map("admission_number") @db.VarChar(50)
   name                    String                   @db.VarChar(255)
@@ -452,7 +453,7 @@ model Student {
   caste                   String?                  @db.VarChar(100)
   religion                String?                  @db.VarChar(100)
   contact                 String?                  @db.VarChar(20)
-  parentEmail             String?                  @map("parent_email") @db.VarChar(255)
+  parentEmail             String?                  @map("parent_email") @db.Citext
   address                 String?                  @db.Text
   city                    String?                  @db.VarChar(100)
   state                   String?                  @db.VarChar(100)
@@ -477,7 +478,7 @@ model Student {
   photoUpdatedAt          DateTime?                @map("photo_updated_at")
   photoVersion            Int                      @default(0) @map("photo_version")
   thumbUrl                String?                  @map("thumb_url") @db.VarChar(500)
-  userId                  String?                  @unique @map("user_id") @db.Char(36)
+  userId                  String?                  @unique @map("user_id") @db.VarChar(36)
   rollNumber              String?                  @map("roll_number") @db.VarChar(50)
   attendanceLogs          AttendanceLog[]
   attendanceRecords       AttendanceRecord[]
@@ -514,17 +515,16 @@ model Student {
   @@index([photoHash])
   @@index([institutionId, status])
   @@index([institutionId, dataStatus])
-  @@fulltext([name, fatherName, motherName, admissionNumber])
   @@map("students")
 }
 
 model Template {
-  id                   String                @id @default(uuid()) @db.Char(36)
-  institutionId        String                @map("institution_id") @db.Char(36)
+  id                   String                @id @default(uuid()) @db.VarChar(36)
+  institutionId        String                @map("institution_id") @db.VarChar(36)
   name                 String                @db.VarChar(255)
   serviceType          ServiceType           @map("service_type")
   templateType         TemplateType          @default(html) @map("template_type")
-  content              String                @db.LongText
+  content              String                @db.Text
   cssStyles            String?               @map("css_styles") @db.Text
   widthMm              Decimal               @default(85.60) @map("width_mm") @db.Decimal(7, 2)
   heightMm             Decimal               @default(54.00) @map("height_mm") @db.Decimal(7, 2)
@@ -556,10 +556,10 @@ model Template {
 }
 
 model IdCard {
-  id                  String       @id @default(uuid()) @db.Char(36)
-  studentId           String       @map("student_id") @db.Char(36)
-  institutionId       String       @map("institution_id") @db.Char(36)
-  templateId          String?      @map("template_id") @db.Char(36)
+  id                  String       @id @default(uuid()) @db.VarChar(36)
+  studentId           String       @map("student_id") @db.VarChar(36)
+  institutionId       String       @map("institution_id") @db.VarChar(36)
+  templateId          String?      @map("template_id") @db.VarChar(36)
   cardNumber          String?      @map("card_number") @db.VarChar(50)
   validFrom           DateTime?    @map("valid_from") @db.Date
   validUntil          DateTime?    @map("valid_until") @db.Date
@@ -589,11 +589,11 @@ model IdCard {
 }
 
 model VisitingCard {
-  id            String             @id @default(uuid()) @db.Char(36)
-  studentId     String?            @map("student_id") @db.Char(36)
-  userId        String?            @map("user_id") @db.Char(36)
-  institutionId String             @map("institution_id") @db.Char(36)
-  templateId    String?            @map("template_id") @db.Char(36)
+  id            String             @id @default(uuid()) @db.VarChar(36)
+  studentId     String?            @map("student_id") @db.VarChar(36)
+  userId        String?            @map("user_id") @db.VarChar(36)
+  institutionId String             @map("institution_id") @db.VarChar(36)
+  templateId    String?            @map("template_id") @db.VarChar(36)
   cardNumber    String             @map("card_number") @db.VarChar(50)
   designation   String?            @db.VarChar(255)
   department    String?            @db.VarChar(255)
@@ -619,15 +619,15 @@ model VisitingCard {
   @@index([status])
   @@index([userId])
   @@index([studentId])
-  @@index([templateId], map: "visiting_cards_template_id_fkey")
+  @@index([templateId], map: "visiting_cards_template_id_idx")
   @@map("visiting_cards")
 }
 
 model GroupPhoto {
-  id                            String                     @id @default(uuid()) @db.Char(36)
-  institutionId                 String                     @map("institution_id") @db.Char(36)
-  sectionId                     String?                    @map("section_id") @db.Char(36)
-  classId                       String?                    @map("class_id") @db.Char(36)
+  id                            String                     @id @default(uuid()) @db.VarChar(36)
+  institutionId                 String                     @map("institution_id") @db.VarChar(36)
+  sectionId                     String?                    @map("section_id") @db.VarChar(36)
+  classId                       String?                    @map("class_id") @db.VarChar(36)
   name                          String                     @db.VarChar(255)
   eventName                     String?                    @map("event_name") @db.VarChar(255)
   eventDate                     DateTime?                  @map("event_date") @db.Date
@@ -661,14 +661,14 @@ model GroupPhoto {
   @@index([sectionId])
   @@index([processingStatus])
   @@index([perceptualHash])
-  @@index([classId], map: "group_photos_class_id_fkey")
+  @@index([classId], map: "group_photos_class_id_idx")
   @@map("group_photos")
 }
 
 model GroupPhotoExtraction {
-  id                 String     @id @default(uuid()) @db.Char(36)
-  groupPhotoId       String     @map("group_photo_id") @db.Char(36)
-  studentId          String?    @map("student_id") @db.Char(36)
+  id                 String     @id @default(uuid()) @db.VarChar(36)
+  groupPhotoId       String     @map("group_photo_id") @db.VarChar(36)
+  studentId          String?    @map("student_id") @db.VarChar(36)
   rowNumber          Int?       @map("row_number")
   positionInRow      Int?       @map("position_in_row")
   boundingBox        Json?      @map("bounding_box")
@@ -693,10 +693,10 @@ model GroupPhotoExtraction {
 }
 
 model Certificate {
-  id                  String             @id @default(uuid()) @db.Char(36)
-  institutionId       String             @map("institution_id") @db.Char(36)
-  studentId           String             @map("student_id") @db.Char(36)
-  templateId          String?            @map("template_id") @db.Char(36)
+  id                  String             @id @default(uuid()) @db.VarChar(36)
+  institutionId       String             @map("institution_id") @db.VarChar(36)
+  studentId           String             @map("student_id") @db.VarChar(36)
+  templateId          String?            @map("template_id") @db.VarChar(36)
   certificateType     CertificateType    @map("certificate_type")
   certificateNumber   String?            @map("certificate_number") @db.VarChar(50)
   title               String             @db.VarChar(255)
@@ -721,14 +721,14 @@ model Certificate {
   @@index([studentId])
   @@index([certificateType])
   @@index([status])
-  @@index([institutionId], map: "certificates_institution_id_fkey")
-  @@index([templateId], map: "certificates_template_id_fkey")
+  @@index([institutionId], map: "certificates_institution_id_idx")
+  @@index([templateId], map: "certificates_template_id_idx")
   @@map("certificates")
 }
 
 model ExamSchedule {
-  id            String             @id @default(uuid()) @db.Char(36)
-  institutionId String             @map("institution_id") @db.Char(36)
+  id            String             @id @default(uuid()) @db.VarChar(36)
+  institutionId String             @map("institution_id") @db.VarChar(36)
   examName      String             @map("exam_name") @db.VarChar(255)
   examType      ExamType           @default(internal) @map("exam_type")
   academicYear  String?            @map("academic_year") @db.VarChar(20)
@@ -750,8 +750,8 @@ model ExamSchedule {
 }
 
 model ExamSubject {
-  id              String       @id @default(uuid()) @db.Char(36)
-  examScheduleId  String       @map("exam_schedule_id") @db.Char(36)
+  id              String       @id @default(uuid()) @db.VarChar(36)
+  examScheduleId  String       @map("exam_schedule_id") @db.VarChar(36)
   subjectName     String       @map("subject_name") @db.VarChar(255)
   subjectCode     String?      @map("subject_code") @db.VarChar(50)
   examDate        DateTime     @map("exam_date") @db.Date
@@ -767,11 +767,11 @@ model ExamSubject {
 }
 
 model HallTicket {
-  id                String             @id @default(uuid()) @db.Char(36)
-  examScheduleId    String             @map("exam_schedule_id") @db.Char(36)
-  studentId         String             @map("student_id") @db.Char(36)
-  institutionId     String             @map("institution_id") @db.Char(36)
-  templateId        String?            @map("template_id") @db.Char(36)
+  id                String             @id @default(uuid()) @db.VarChar(36)
+  examScheduleId    String             @map("exam_schedule_id") @db.VarChar(36)
+  studentId         String             @map("student_id") @db.VarChar(36)
+  institutionId     String             @map("institution_id") @db.VarChar(36)
+  templateId        String?            @map("template_id") @db.VarChar(36)
   hallTicketNumber  String?            @map("hall_ticket_number") @db.VarChar(50)
   rollNumberForExam String?            @map("roll_number_for_exam") @db.VarChar(50)
   examCenter        String?            @map("exam_center") @db.VarChar(255)
@@ -793,14 +793,14 @@ model HallTicket {
   @@unique([institutionId, hallTicketNumber])
   @@index([studentId])
   @@index([status])
-  @@index([institutionId], map: "hall_tickets_institution_id_fkey")
-  @@index([templateId], map: "hall_tickets_template_id_fkey")
+  @@index([institutionId], map: "hall_tickets_institution_id_idx")
+  @@index([templateId], map: "hall_tickets_template_id_idx")
   @@map("hall_tickets")
 }
 
 model CalculationEngine {
-  id                   String               @id @default(uuid()) @db.Char(36)
-  institutionId        String               @map("institution_id") @db.Char(36)
+  id                   String               @id @default(uuid()) @db.VarChar(36)
+  institutionId        String               @map("institution_id") @db.VarChar(36)
   academicYear         String               @map("academic_year") @db.VarChar(20)
   cgpaFormula          String               @map("cgpa_formula") @db.Text
   percentageFormula    String               @map("percentage_formula") @db.Text
@@ -828,9 +828,9 @@ model CalculationEngine {
 }
 
 model Subject {
-  id                    String                  @id @default(uuid()) @db.Char(36)
-  institutionId         String                  @map("institution_id") @db.Char(36)
-  classId               String                  @map("class_id") @db.Char(36)
+  id                    String                  @id @default(uuid()) @db.VarChar(36)
+  institutionId         String                  @map("institution_id") @db.VarChar(36)
+  classId               String                  @map("class_id") @db.VarChar(36)
   subjectName           String                  @map("subject_name") @db.VarChar(255)
   subjectCode           String?                 @map("subject_code") @db.VarChar(50)
   subjectType           SubjectType             @default(theory) @map("subject_type")
@@ -843,15 +843,15 @@ model Subject {
   visionariumTestSeries VisionariumTestSeries[]
 
   @@index([classId])
-  @@index([institutionId], map: "subjects_institution_id_fkey")
+  @@index([institutionId], map: "subjects_institution_id_idx")
   @@map("subjects")
 }
 
 model Mark {
-  id                     String       @id @default(uuid()) @db.Char(36)
-  studentId              String       @map("student_id") @db.Char(36)
-  subjectId              String       @map("subject_id") @db.Char(36)
-  examScheduleId         String       @map("exam_schedule_id") @db.Char(36)
+  id                     String       @id @default(uuid()) @db.VarChar(36)
+  studentId              String       @map("student_id") @db.VarChar(36)
+  subjectId              String       @map("subject_id") @db.VarChar(36)
+  examScheduleId         String       @map("exam_schedule_id") @db.VarChar(36)
   theoryMaxMarks         Int?         @map("theory_max_marks")
   theoryObtainedMarks    Decimal?     @map("theory_obtained_marks") @db.Decimal(5, 2)
   practicalMaxMarks      Int?         @map("practical_max_marks")
@@ -863,8 +863,8 @@ model Mark {
   percentage             Decimal?     @db.Decimal(5, 2)
   grade                  String?      @db.VarChar(10)
   status                 MarkStatus   @default(draft)
-  enteredBy              String?      @map("entered_by") @db.Char(36)
-  approvedBy             String?      @map("approved_by") @db.Char(36)
+  enteredBy              String?      @map("entered_by") @db.VarChar(36)
+  approvedBy             String?      @map("approved_by") @db.VarChar(36)
   createdAt              DateTime     @default(now()) @map("created_at")
   updatedAt              DateTime     @updatedAt @map("updated_at")
   examSchedule           ExamSchedule @relation(fields: [examScheduleId], references: [id], onDelete: Cascade)
@@ -875,17 +875,17 @@ model Mark {
   @@index([studentId])
   @@index([examScheduleId])
   @@index([status])
-  @@index([subjectId], map: "marks_subject_id_fkey")
+  @@index([subjectId], map: "marks_subject_id_idx")
   @@map("marks")
 }
 
 model Marksheet {
-  id                        String            @id @default(uuid()) @db.Char(36)
-  studentId                 String            @map("student_id") @db.Char(36)
-  examScheduleId            String            @map("exam_schedule_id") @db.Char(36)
-  institutionId             String            @map("institution_id") @db.Char(36)
-  templateId                String            @map("template_id") @db.Char(36)
-  calculationEngineId       String            @map("calculation_engine_id") @db.Char(36)
+  id                        String            @id @default(uuid()) @db.VarChar(36)
+  studentId                 String            @map("student_id") @db.VarChar(36)
+  examScheduleId            String            @map("exam_schedule_id") @db.VarChar(36)
+  institutionId             String            @map("institution_id") @db.VarChar(36)
+  templateId                String            @map("template_id") @db.VarChar(36)
+  calculationEngineId       String            @map("calculation_engine_id") @db.VarChar(36)
   totalPercentage           Decimal?          @map("total_percentage") @db.Decimal(5, 2)
   cgpa                      Decimal?          @db.Decimal(4, 2)
   grade                     String?           @db.VarChar(10)
@@ -909,17 +909,17 @@ model Marksheet {
   @@unique([studentId, examScheduleId])
   @@index([studentId])
   @@index([examScheduleId])
-  @@index([calculationEngineId], map: "marksheets_calculation_engine_id_fkey")
-  @@index([institutionId], map: "marksheets_institution_id_fkey")
-  @@index([templateId], map: "marksheets_template_id_fkey")
+  @@index([calculationEngineId], map: "marksheets_calculation_engine_id_idx")
+  @@index([institutionId], map: "marksheets_institution_id_idx")
+  @@index([templateId], map: "marksheets_template_id_idx")
   @@map("marksheets")
 }
 
 model LibraryCard {
-  id                  String            @id @default(uuid()) @db.Char(36)
-  studentId           String            @map("student_id") @db.Char(36)
-  institutionId       String            @map("institution_id") @db.Char(36)
-  templateId          String            @map("template_id") @db.Char(36)
+  id                  String            @id @default(uuid()) @db.VarChar(36)
+  studentId           String            @map("student_id") @db.VarChar(36)
+  institutionId       String            @map("institution_id") @db.VarChar(36)
+  templateId          String            @map("template_id") @db.VarChar(36)
   libraryCardNumber   String            @map("library_card_number") @db.VarChar(50)
   issueDate           DateTime          @map("issue_date") @db.Date
   expiryDate          DateTime          @map("expiry_date") @db.Date
@@ -939,16 +939,16 @@ model LibraryCard {
   @@unique([institutionId, libraryCardNumber])
   @@index([studentId])
   @@index([status])
-  @@index([institutionId], map: "library_cards_institution_id_fkey")
-  @@index([templateId], map: "library_cards_template_id_fkey")
+  @@index([institutionId], map: "library_cards_institution_id_idx")
+  @@index([templateId], map: "library_cards_template_id_idx")
   @@map("library_cards")
 }
 
 model TransferCertificate {
-  id                    String                    @id @default(uuid()) @db.Char(36)
-  studentId             String                    @map("student_id") @db.Char(36)
-  institutionId         String                    @map("institution_id") @db.Char(36)
-  templateId            String?                   @map("template_id") @db.Char(36)
+  id                    String                    @id @default(uuid()) @db.VarChar(36)
+  studentId             String                    @map("student_id") @db.VarChar(36)
+  institutionId         String                    @map("institution_id") @db.VarChar(36)
+  templateId            String?                   @map("template_id") @db.VarChar(36)
   tcSerialNumber        String                    @map("tc_serial_number") @db.VarChar(50)
   admissionDate         DateTime                  @map("admission_date") @db.Date
   leavingDate           DateTime                  @map("leaving_date") @db.Date
@@ -964,10 +964,10 @@ model TransferCertificate {
   principalSignatureUrl String?                   @map("principal_signature_url") @db.VarChar(500)
   sealUrl               String?                   @map("seal_url") @db.VarChar(500)
   pdfUrl                String?                   @map("pdf_url") @db.VarChar(500)
-  issuedBy              String?                   @map("issued_by") @db.Char(36)
+  issuedBy              String?                   @map("issued_by") @db.VarChar(36)
   issuedAt              DateTime?                 @map("issued_at")
   duplicateIssued       Boolean                   @default(false) @map("duplicate_issued")
-  originalTcId          String?                   @map("original_tc_id") @db.Char(36)
+  originalTcId          String?                   @map("original_tc_id") @db.VarChar(36)
   status                TransferCertificateStatus @default(draft)
   locked                Boolean                   @default(false)
   createdAt             DateTime                  @default(now()) @map("created_at")
@@ -980,18 +980,18 @@ model TransferCertificate {
   @@index([studentId])
   @@index([tcSerialNumber])
   @@index([status])
-  @@index([institutionId], map: "transfer_certificates_institution_id_fkey")
-  @@index([templateId], map: "transfer_certificates_template_id_fkey")
+  @@index([institutionId], map: "transfer_certificates_institution_id_idx")
+  @@index([templateId], map: "transfer_certificates_template_id_idx")
   @@map("transfer_certificates")
 }
 
 model Approval {
-  id              String             @id @default(uuid()) @db.Char(36)
-  institutionId   String             @map("institution_id") @db.Char(36)
+  id              String             @id @default(uuid()) @db.VarChar(36)
+  institutionId   String             @map("institution_id") @db.VarChar(36)
   entityType      ApprovalEntityType @map("entity_type")
-  entityId        String             @map("entity_id") @db.Char(36)
-  submittedBy     String?            @map("submitted_by") @db.Char(36)
-  reviewedBy      String?            @map("reviewed_by") @db.Char(36)
+  entityId        String             @map("entity_id") @db.VarChar(36)
+  submittedBy     String?            @map("submitted_by") @db.VarChar(36)
+  reviewedBy      String?            @map("reviewed_by") @db.VarChar(36)
   status          ApprovalStatus
   reviewNotes     String?            @map("review_notes") @db.Text
   submittedAt     DateTime           @default(now()) @map("submitted_at")
@@ -1003,15 +1003,15 @@ model Approval {
   @@index([institutionId])
   @@index([entityType, entityId])
   @@index([status])
-  @@index([reviewedBy], map: "approvals_reviewed_by_fkey")
-  @@index([submittedBy], map: "approvals_submitted_by_fkey")
+  @@index([reviewedBy], map: "approvals_reviewed_by_idx")
+  @@index([submittedBy], map: "approvals_submitted_by_idx")
   @@map("approvals")
 }
 
 model AttendanceLog {
-  id              String      @id @default(uuid()) @db.Char(36)
-  studentId       String      @map("student_id") @db.Char(36)
-  institutionId   String      @map("institution_id") @db.Char(36)
+  id              String      @id @default(uuid()) @db.VarChar(36)
+  studentId       String      @map("student_id") @db.VarChar(36)
+  institutionId   String      @map("institution_id") @db.VarChar(36)
   attendanceDate  DateTime    @map("attendance_date") @db.Date
   attendanceTime  DateTime    @map("attendance_time") @db.Time(0)
   scanType        ScanType    @default(entry) @map("scan_type")
@@ -1030,12 +1030,12 @@ model AttendanceLog {
 }
 
 model JobExecution {
-  id              String      @id @default(uuid()) @db.Char(36)
+  id              String      @id @default(uuid()) @db.VarChar(36)
   jobId           String      @unique @map("job_id") @db.VarChar(255)
   jobType         JobType     @map("job_type")
-  institutionId   String      @map("institution_id") @db.Char(36)
-  sectionId       String?     @map("section_id") @db.Char(36)
-  initiatedBy     String?     @map("initiated_by") @db.Char(36)
+  institutionId   String      @map("institution_id") @db.VarChar(36)
+  sectionId       String?     @map("section_id") @db.VarChar(36)
+  initiatedBy     String?     @map("initiated_by") @db.VarChar(36)
   status          JobStatus   @default(queued)
   progress        Int         @default(0)
   totalItems      Int         @default(0) @map("total_items")
@@ -1059,12 +1059,12 @@ model JobExecution {
 }
 
 model AuditLog {
-  id            String       @id @default(uuid()) @db.Char(36)
+  id            String       @id @default(uuid()) @db.VarChar(36)
   action        String       @db.VarChar(100)
-  userId        String?      @map("user_id") @db.Char(36)
-  institutionId String?      @map("institution_id") @db.Char(36)
+  userId        String?      @map("user_id") @db.VarChar(36)
+  institutionId String?      @map("institution_id") @db.VarChar(36)
   entityType    String       @map("entity_type") @db.VarChar(100)
-  entityId      String       @map("entity_id") @db.Char(36)
+  entityId      String       @map("entity_id") @db.VarChar(36)
   changes       Json?
   ipAddress     String?      @map("ip_address") @db.VarChar(50)
   userAgent     String?      @map("user_agent") @db.Text
@@ -1081,7 +1081,7 @@ model AuditLog {
 }
 
 model ImageCache {
-  id             String              @id @default(uuid()) @db.Char(36)
+  id             String              @id @default(uuid()) @db.VarChar(36)
   perceptualHash String              @unique @map("perceptual_hash") @db.VarChar(64)
   qualityScore   Decimal             @map("quality_score") @db.Decimal(3, 2)
   isApproved     Boolean             @map("is_approved")
@@ -1098,7 +1098,7 @@ model ImageCache {
 }
 
 model SystemConfig {
-  id          String         @id @default(uuid()) @db.Char(36)
+  id          String         @id @default(uuid()) @db.VarChar(36)
   configKey   String         @unique @map("config_key") @db.VarChar(100)
   configValue String         @map("config_value") @db.Text
   dataType    ConfigDataType @default(string) @map("data_type")
@@ -1112,10 +1112,10 @@ model SystemConfig {
 }
 
 model Portfolio {
-  id            String             @id @default(uuid()) @db.Char(36)
-  studentId     String             @unique @map("student_id") @db.Char(36)
-  institutionId String             @map("institution_id") @db.Char(36)
-  templateId    String?            @map("template_id") @db.Char(36)
+  id            String             @id @default(uuid()) @db.VarChar(36)
+  studentId     String             @unique @map("student_id") @db.VarChar(36)
+  institutionId String             @map("institution_id") @db.VarChar(36)
+  templateId    String?            @map("template_id") @db.VarChar(36)
   title         String             @db.VarChar(255)
   bio           String?            @db.Text
   slug          String             @unique @db.VarChar(100)
@@ -1136,13 +1136,13 @@ model Portfolio {
   @@index([institutionId])
   @@index([slug])
   @@index([status])
-  @@index([templateId], map: "portfolios_template_id_fkey")
+  @@index([templateId], map: "portfolios_template_id_idx")
   @@map("portfolios")
 }
 
 model PortfolioSection {
-  id          String               @id @default(uuid()) @db.Char(36)
-  portfolioId String               @map("portfolio_id") @db.Char(36)
+  id          String               @id @default(uuid()) @db.VarChar(36)
+  portfolioId String               @map("portfolio_id") @db.VarChar(36)
   type        PortfolioSectionType
   title       String               @db.VarChar(100)
   content     Json
@@ -1157,9 +1157,9 @@ model PortfolioSection {
 }
 
 model Notification {
-  id            String           @id @default(uuid()) @db.Char(36)
-  userId        String           @map("user_id") @db.Char(36)
-  institutionId String           @map("institution_id") @db.Char(36)
+  id            String           @id @default(uuid()) @db.VarChar(36)
+  userId        String           @map("user_id") @db.VarChar(36)
+  institutionId String           @map("institution_id") @db.VarChar(36)
   title         String           @db.VarChar(100)
   message       String           @db.VarChar(500)
   type          NotificationType @default(info)
@@ -1177,8 +1177,8 @@ model Notification {
 }
 
 model NotificationTemplate {
-  id            String                   @id @default(uuid()) @db.Char(36)
-  institutionId String                   @map("institution_id") @db.Char(36)
+  id            String                   @id @default(uuid()) @db.VarChar(36)
+  institutionId String                   @map("institution_id") @db.VarChar(36)
   name          String                   @db.VarChar(100)
   type          NotificationTemplateType
   subject       String?                  @db.VarChar(255)
@@ -1194,8 +1194,8 @@ model NotificationTemplate {
 }
 
 model NotificationLog {
-  id            String                   @id @default(uuid()) @db.Char(36)
-  institutionId String                   @map("institution_id") @db.Char(36)
+  id            String                   @id @default(uuid()) @db.VarChar(36)
+  institutionId String                   @map("institution_id") @db.VarChar(36)
   type          NotificationTemplateType
   recipient     String                   @db.VarChar(255)
   recipientName String?                  @map("recipient_name") @db.VarChar(255)
@@ -1216,8 +1216,8 @@ model NotificationLog {
 }
 
 model ApprovalWorkflow {
-  id            String            @id @default(uuid()) @db.Char(36)
-  institutionId String            @map("institution_id") @db.Char(36)
+  id            String            @id @default(uuid()) @db.VarChar(36)
+  institutionId String            @map("institution_id") @db.VarChar(36)
   name          String            @db.VarChar(100)
   type          String            @db.VarChar(50)
   description   String?           @db.VarChar(500)
@@ -1234,15 +1234,15 @@ model ApprovalWorkflow {
 }
 
 model ApprovalRequest {
-  id            String           @id @default(uuid()) @db.Char(36)
-  institutionId String           @map("institution_id") @db.Char(36)
-  requesterId   String           @map("requester_id") @db.Char(36)
-  workflowId    String           @map("workflow_id") @db.Char(36)
+  id            String           @id @default(uuid()) @db.VarChar(36)
+  institutionId String           @map("institution_id") @db.VarChar(36)
+  requesterId   String           @map("requester_id") @db.VarChar(36)
+  workflowId    String           @map("workflow_id") @db.VarChar(36)
   type          String           @db.VarChar(50)
   title         String           @db.VarChar(255)
   description   String?          @db.Text
   entityType    String?          @map("entity_type") @db.VarChar(50)
-  entityId      String?          @map("entity_id") @db.Char(36)
+  entityId      String?          @map("entity_id") @db.VarChar(36)
   metadata      Json?
   priority      ApprovalPriority @default(normal)
   status        ApprovalStatus   @default(pending)
@@ -1260,20 +1260,20 @@ model ApprovalRequest {
   @@index([institutionId])
   @@index([requesterId])
   @@index([status])
-  @@index([workflowId], map: "approval_requests_workflow_id_fkey")
+  @@index([workflowId], map: "approval_requests_workflow_id_idx")
   @@map("approval_requests")
 }
 
 model ApprovalStep {
-  id             String             @id @default(uuid()) @db.Char(36)
-  requestId      String             @map("request_id") @db.Char(36)
+  id             String             @id @default(uuid()) @db.VarChar(36)
+  requestId      String             @map("request_id") @db.VarChar(36)
   stepNumber     Int                @map("step_number")
   name           String             @db.VarChar(100)
   approverRole   String             @map("approver_role") @db.VarChar(50)
-  approverUserId String?            @map("approver_user_id") @db.Char(36)
+  approverUserId String?            @map("approver_user_id") @db.VarChar(36)
   isRequired     Boolean            @default(true) @map("is_required")
   status         ApprovalStepStatus @default(pending)
-  approverId     String?            @map("approver_id") @db.Char(36)
+  approverId     String?            @map("approver_id") @db.VarChar(36)
   comments       String?            @db.Text
   conditions     Json?
   processedAt    DateTime?          @map("processed_at")
@@ -1282,17 +1282,17 @@ model ApprovalStep {
   request        ApprovalRequest    @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
   @@index([requestId])
-  @@index([approverId], map: "approval_steps_approver_id_fkey")
+  @@index([approverId], map: "approval_steps_approver_id_idx")
   @@map("approval_steps")
 }
 
 model AttendanceSession {
-  id            String                  @id @default(uuid()) @db.Char(36)
-  institutionId String                  @map("institution_id") @db.Char(36)
-  classId       String                  @map("class_id") @db.Char(36)
-  sectionId     String                  @map("section_id") @db.Char(36)
-  subjectId     String?                 @map("subject_id") @db.Char(36)
-  createdById   String                  @map("created_by_id") @db.Char(36)
+  id            String                  @id @default(uuid()) @db.VarChar(36)
+  institutionId String                  @map("institution_id") @db.VarChar(36)
+  classId       String                  @map("class_id") @db.VarChar(36)
+  sectionId     String                  @map("section_id") @db.VarChar(36)
+  subjectId     String?                 @map("subject_id") @db.VarChar(36)
+  createdById   String                  @map("created_by_id") @db.VarChar(36)
   date          DateTime                @db.Date
   type          AttendanceType          @default(class)
   startTime     String                  @map("start_time") @db.VarChar(5)
@@ -1311,21 +1311,21 @@ model AttendanceSession {
 
   @@index([institutionId])
   @@index([sectionId, date])
-  @@index([classId], map: "attendance_sessions_class_id_fkey")
-  @@index([createdById], map: "attendance_sessions_created_by_id_fkey")
-  @@index([subjectId], map: "attendance_sessions_subject_id_fkey")
+  @@index([classId], map: "attendance_sessions_class_id_idx")
+  @@index([createdById], map: "attendance_sessions_created_by_id_idx")
+  @@index([subjectId], map: "attendance_sessions_subject_id_idx")
   @@map("attendance_sessions")
 }
 
 model AttendanceRecord {
-  id            String                 @id @default(uuid()) @db.Char(36)
-  sessionId     String                 @map("session_id") @db.Char(36)
-  studentId     String                 @map("student_id") @db.Char(36)
+  id            String                 @id @default(uuid()) @db.VarChar(36)
+  sessionId     String                 @map("session_id") @db.VarChar(36)
+  studentId     String                 @map("student_id") @db.VarChar(36)
   status        AttendanceRecordStatus @default(present)
   remarks       String?                @db.VarChar(200)
   arrivalTime   String?                @map("arrival_time") @db.VarChar(5)
   checkInMethod String?                @map("check_in_method") @db.VarChar(20)
-  markedById    String?                @map("marked_by_id") @db.Char(36)
+  markedById    String?                @map("marked_by_id") @db.VarChar(36)
   markedAt      DateTime?              @map("marked_at")
   createdAt     DateTime               @default(now()) @map("created_at")
   markedBy      User?                  @relation(fields: [markedById], references: [id])
@@ -1334,14 +1334,14 @@ model AttendanceRecord {
 
   @@unique([sessionId, studentId])
   @@index([studentId])
-  @@index([markedById], map: "attendance_records_marked_by_id_fkey")
+  @@index([markedById], map: "attendance_records_marked_by_id_idx")
   @@map("attendance_records")
 }
 
 model StudentFormProgress {
-  id            String      @id @default(uuid()) @db.Char(36)
-  studentId     String      @unique @map("student_id") @db.Char(36)
-  institutionId String      @map("institution_id") @db.Char(36)
+  id            String      @id @default(uuid()) @db.VarChar(36)
+  studentId     String      @unique @map("student_id") @db.VarChar(36)
+  institutionId String      @map("institution_id") @db.VarChar(36)
   tabAcademic   Boolean     @default(false) @map("tab_academic")
   tabPersonal   Boolean     @default(false) @map("tab_personal")
   tabPhoto      Boolean     @default(false) @map("tab_photo")
@@ -1355,14 +1355,14 @@ model StudentFormProgress {
   institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   student       Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  @@index([institutionId], map: "student_form_progress_institution_id_fkey")
+  @@index([institutionId], map: "student_form_progress_institution_id_idx")
   @@map("student_form_progress")
 }
 
 model StudentOnboardingToken {
-  id            String         @id @default(uuid()) @db.Char(36)
-  studentId     String         @unique @map("student_id") @db.Char(36)
-  institutionId String         @map("institution_id") @db.Char(36)
+  id            String         @id @default(uuid()) @db.VarChar(36)
+  studentId     String         @unique @map("student_id") @db.VarChar(36)
+  institutionId String         @map("institution_id") @db.VarChar(36)
   token         String         @unique @db.VarChar(64)
   mode          OnboardingMode @default(selfservice)
   expiresAt     DateTime       @map("expires_at")
@@ -1375,12 +1375,12 @@ model StudentOnboardingToken {
 
   @@index([token])
   @@index([studentId])
-  @@index([institutionId], map: "student_onboarding_tokens_institution_id_fkey")
+  @@index([institutionId], map: "student_onboarding_tokens_institution_id_idx")
   @@map("student_onboarding_tokens")
 }
 
 model VisionariumIssue {
-  id            String               @id @default(uuid()) @db.Char(36)
+  id            String               @id @default(uuid()) @db.VarChar(36)
   issueCode     String               @unique @map("issue_code") @db.VarChar(50)
   coverImageUrl String?              @map("cover_image_url") @db.VarChar(500)
   publishDate   DateTime             @map("publish_date") @db.Date
@@ -1397,14 +1397,14 @@ model VisionariumIssue {
 }
 
 model VisionariumArticle {
-  id              String                   @id @default(uuid()) @db.Char(36)
-  institutionId   String?                  @map("institution_id") @db.Char(36)
-  authorUserId    String?                  @map("author_user_id") @db.Char(36)
-  authorStudentId String?                  @map("author_student_id") @db.Char(36)
-  issueId         String?                  @map("issue_id") @db.Char(36)
+  id              String                   @id @default(uuid()) @db.VarChar(36)
+  institutionId   String?                  @map("institution_id") @db.VarChar(36)
+  authorUserId    String?                  @map("author_user_id") @db.VarChar(36)
+  authorStudentId String?                  @map("author_student_id") @db.VarChar(36)
+  issueId         String?                  @map("issue_id") @db.VarChar(36)
   title           String                   @db.VarChar(255)
   slug            String                   @unique @db.VarChar(255)
-  body            String                   @db.LongText
+  body            String                   @db.Text
   summary         String?                  @db.Text
   language        VisionariumLanguage      @default(en)
   category        VisionariumSubject       @default(science)
@@ -1414,7 +1414,7 @@ model VisionariumArticle {
   updatedAt       DateTime                 @updatedAt @map("updated_at")
   articleType     VisionariumArticleType?  @map("article_type")
   perspective     VisionariumPerspective?
-  translationOfId String?                  @map("translation_of_id") @db.Char(36)
+  translationOfId String?                  @map("translation_of_id") @db.VarChar(36)
   socialPosts     SocialPost[]
   authorStudent   Student?                 @relation("StudentArticles", fields: [authorStudentId], references: [id])
   authorUser      User?                    @relation("UserArticles", fields: [authorUserId], references: [id])
@@ -1430,14 +1430,14 @@ model VisionariumArticle {
   @@index([category])
   @@index([status])
   @@index([language])
-  @@index([authorStudentId], map: "visionarium_articles_author_student_id_fkey")
-  @@index([issueId], map: "visionarium_articles_issue_id_fkey")
+  @@index([authorStudentId], map: "visionarium_articles_author_student_id_idx")
+  @@index([issueId], map: "visionarium_articles_issue_id_idx")
   @@map("visionarium_articles")
 }
 
 model VisionariumSchoolSubscription {
-  id            String          @id @default(uuid()) @db.Char(36)
-  institutionId String          @map("institution_id") @db.Char(36)
+  id            String          @id @default(uuid()) @db.VarChar(36)
+  institutionId String          @map("institution_id") @db.VarChar(36)
   plan          VisionariumPlan @default(basic)
   startsAt      DateTime        @map("starts_at")
   endsAt        DateTime        @map("ends_at")
@@ -1452,12 +1452,12 @@ model VisionariumSchoolSubscription {
 }
 
 model VisionariumTestSeries {
-  id            String                   @id @default(uuid()) @db.Char(36)
-  institutionId String                   @map("institution_id") @db.Char(36)
+  id            String                   @id @default(uuid()) @db.VarChar(36)
+  institutionId String                   @map("institution_id") @db.VarChar(36)
   title         String                   @db.VarChar(255)
   description   String?                  @db.Text
-  classId       String?                  @map("class_id") @db.Char(36)
-  subjectId     String?                  @map("subject_id") @db.Char(36)
+  classId       String?                  @map("class_id") @db.VarChar(36)
+  subjectId     String?                  @map("subject_id") @db.VarChar(36)
   language      VisionariumLanguage      @default(en)
   totalMarks    Int                      @map("total_marks")
   metadata      Json?
@@ -1470,14 +1470,14 @@ model VisionariumTestSeries {
 
   @@index([institutionId])
   @@index([classId])
-  @@index([subjectId], map: "visionarium_test_series_subject_id_fkey")
+  @@index([subjectId], map: "visionarium_test_series_subject_id_idx")
   @@map("visionarium_test_series")
 }
 
 model VisionariumTestAttempt {
-  id            String                @id @default(uuid()) @db.Char(36)
-  testSeriesId  String                @map("test_series_id") @db.Char(36)
-  studentId     String                @map("student_id") @db.Char(36)
+  id            String                @id @default(uuid()) @db.VarChar(36)
+  testSeriesId  String                @map("test_series_id") @db.VarChar(36)
+  studentId     String                @map("student_id") @db.VarChar(36)
   scoreObtained Decimal?              @map("score_obtained") @db.Decimal(5, 2)
   startedAt     DateTime              @default(now()) @map("started_at")
   completedAt   DateTime?             @map("completed_at")
@@ -1493,16 +1493,16 @@ model VisionariumTestAttempt {
 }
 
 model VisionariumSubmission {
-  id                String                      @id @default(uuid()) @db.Char(36)
-  institutionId     String                      @map("institution_id") @db.Char(36)
-  submittedByUserId String                      @map("submitted_by_user_id") @db.Char(36)
-  studentId         String?                     @map("student_id") @db.Char(36)
+  id                String                      @id @default(uuid()) @db.VarChar(36)
+  institutionId     String                      @map("institution_id") @db.VarChar(36)
+  submittedByUserId String                      @map("submitted_by_user_id") @db.VarChar(36)
+  studentId         String?                     @map("student_id") @db.VarChar(36)
   title             String                      @db.VarChar(255)
   submissionType    VisionariumSubmissionType   @default(article) @map("submission_type")
-  body              String?                     @db.LongText
+  body              String?                     @db.Text
   contentUrl        String?                     @map("content_url") @db.VarChar(500)
   status            VisionariumSubmissionStatus @default(submitted)
-  linkedArticleId   String?                     @map("linked_article_id") @db.Char(36)
+  linkedArticleId   String?                     @map("linked_article_id") @db.VarChar(36)
   createdAt         DateTime                    @default(now()) @map("created_at")
   updatedAt         DateTime                    @updatedAt @map("updated_at")
   institution       Institution                 @relation(fields: [institutionId], references: [id], onDelete: Cascade)
@@ -1513,17 +1513,17 @@ model VisionariumSubmission {
   @@index([institutionId])
   @@index([submittedByUserId])
   @@index([status])
-  @@index([linkedArticleId], map: "visionarium_submissions_linked_article_id_fkey")
-  @@index([studentId], map: "visionarium_submissions_student_id_fkey")
+  @@index([linkedArticleId], map: "visionarium_submissions_linked_article_id_idx")
+  @@index([studentId], map: "visionarium_submissions_student_id_idx")
   @@map("visionarium_submissions")
 }
 
 model SocialRelationship {
-  id                String                 @id @default(uuid()) @db.Char(36)
-  fromUserId        String                 @map("from_user_id") @db.Char(36)
-  toUserId          String                 @map("to_user_id") @db.Char(36)
+  id                String                 @id @default(uuid()) @db.VarChar(36)
+  fromUserId        String                 @map("from_user_id") @db.VarChar(36)
+  toUserId          String                 @map("to_user_id") @db.VarChar(36)
   relationshipType  SocialRelationshipType @map("relationship_type")
-  institutionId     String?                @map("institution_id") @db.Char(36)
+  institutionId     String?                @map("institution_id") @db.VarChar(36)
   sinceAcademicYear String?                @map("since_academic_year") @db.VarChar(20)
   createdAt         DateTime               @default(now()) @map("created_at")
   updatedAt         DateTime               @updatedAt @map("updated_at")
@@ -1539,9 +1539,9 @@ model SocialRelationship {
 }
 
 model SocialSaathiLink {
-  id              String           @id @default(uuid()) @db.Char(36)
-  requesterUserId String           @map("requester_user_id") @db.Char(36)
-  targetUserId    String           @map("target_user_id") @db.Char(36)
+  id              String           @id @default(uuid()) @db.VarChar(36)
+  requesterUserId String           @map("requester_user_id") @db.VarChar(36)
+  targetUserId    String           @map("target_user_id") @db.VarChar(36)
   status          SaathiLinkStatus @default(pending)
   context         SaathiContext    @default(other)
   message         String?          @db.VarChar(255)
@@ -1558,17 +1558,17 @@ model SocialSaathiLink {
 }
 
 model SocialPost {
-  id              String              @id @default(uuid()) @db.Char(36)
-  institutionId   String?             @map("institution_id") @db.Char(36)
-  authorUserId    String              @map("author_user_id") @db.Char(36)
-  authorStudentId String?             @map("author_student_id") @db.Char(36)
+  id              String              @id @default(uuid()) @db.VarChar(36)
+  institutionId   String?             @map("institution_id") @db.VarChar(36)
+  authorUserId    String              @map("author_user_id") @db.VarChar(36)
+  authorStudentId String?             @map("author_student_id") @db.VarChar(36)
   scope           SocialPostScope     @default(institution_only)
-  classId         String?             @map("class_id") @db.Char(36)
-  sectionId       String?             @map("section_id") @db.Char(36)
+  classId         String?             @map("class_id") @db.VarChar(36)
+  sectionId       String?             @map("section_id") @db.VarChar(36)
   title           String?             @db.VarChar(255)
   body            String              @db.Text
   mediaUrl        String?             @map("media_url") @db.VarChar(500)
-  linkedArticleId String?             @map("linked_article_id") @db.Char(36)
+  linkedArticleId String?             @map("linked_article_id") @db.VarChar(36)
   createdAt       DateTime            @default(now()) @map("created_at")
   updatedAt       DateTime            @updatedAt @map("updated_at")
   comments        SocialComment[]
@@ -1585,16 +1585,16 @@ model SocialPost {
   @@index([scope])
   @@index([classId])
   @@index([createdAt])
-  @@index([authorStudentId], map: "social_posts_author_student_id_fkey")
-  @@index([linkedArticleId], map: "social_posts_linked_article_id_fkey")
-  @@index([sectionId], map: "social_posts_section_id_fkey")
+  @@index([authorStudentId], map: "social_posts_author_student_id_idx")
+  @@index([linkedArticleId], map: "social_posts_linked_article_id_idx")
+  @@index([sectionId], map: "social_posts_section_id_idx")
   @@map("social_posts")
 }
 
 model SocialComment {
-  id           String     @id @default(uuid()) @db.Char(36)
-  postId       String     @map("post_id") @db.Char(36)
-  authorUserId String     @map("author_user_id") @db.Char(36)
+  id           String     @id @default(uuid()) @db.VarChar(36)
+  postId       String     @map("post_id") @db.VarChar(36)
+  authorUserId String     @map("author_user_id") @db.VarChar(36)
   body         String     @db.Text
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
@@ -1607,9 +1607,9 @@ model SocialComment {
 }
 
 model SocialReaction {
-  id           String             @id @default(uuid()) @db.Char(36)
-  postId       String             @map("post_id") @db.Char(36)
-  userId       String             @map("user_id") @db.Char(36)
+  id           String             @id @default(uuid()) @db.VarChar(36)
+  postId       String             @map("post_id") @db.VarChar(36)
+  userId       String             @map("user_id") @db.VarChar(36)
   reactionType SocialReactionType @default(prerna) @map("reaction_type")
   createdAt    DateTime           @default(now()) @map("created_at")
   post         SocialPost         @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -1632,7 +1632,7 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "sessions_userId_fkey")
+  @@index([userId], map: "sessions_userId_idx")
   @@map("sessions")
 }
 
@@ -1653,12 +1653,12 @@ model Account {
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([accountId, providerId])
-  @@index([userId], map: "accounts_userId_fkey")
+  @@index([userId], map: "accounts_userId_idx")
   @@map("accounts")
 }
 
 model Verification {
-  id         String    @id @default(uuid()) @db.Char(36)
+  id         String    @id @default(uuid()) @db.VarChar(36)
   identifier String
   value      String    @db.Text
   expiresAt  DateTime
@@ -1670,7 +1670,7 @@ model Verification {
 }
 
 model OauthApplication {
-  id           String             @id @default(uuid()) @db.Char(36)
+  id           String             @id @default(uuid()) @db.VarChar(36)
   name         String             @db.VarChar(255)
   icon         String?            @db.VarChar(500)
   metadata     String?            @db.Text
@@ -1679,7 +1679,7 @@ model OauthApplication {
   redirectUrls String             @map("redirect_urls") @db.Text
   type         String             @default("web") @db.VarChar(50)
   disabled     Boolean            @default(false)
-  userId       String?            @map("user_id") @db.Char(36)
+  userId       String?            @map("user_id") @db.VarChar(36)
   createdAt    DateTime           @default(now()) @map("created_at")
   updatedAt    DateTime           @updatedAt @map("updated_at")
   accessTokens OauthAccessToken[]
@@ -1691,13 +1691,13 @@ model OauthApplication {
 }
 
 model OauthAccessToken {
-  id                    String           @id @default(uuid()) @db.Char(36)
+  id                    String           @id @default(uuid()) @db.VarChar(36)
   accessToken           String           @unique @map("access_token") @db.VarChar(512)
   refreshToken          String           @unique @map("refresh_token") @db.VarChar(512)
   accessTokenExpiresAt  DateTime         @map("access_token_expires_at")
   refreshTokenExpiresAt DateTime         @map("refresh_token_expires_at")
   clientId              String           @map("client_id") @db.VarChar(255)
-  userId                String?          @map("user_id") @db.Char(36)
+  userId                String?          @map("user_id") @db.VarChar(36)
   scopes                String           @db.Text
   createdAt             DateTime         @default(now()) @map("created_at")
   updatedAt             DateTime         @updatedAt @map("updated_at")
@@ -1710,9 +1710,9 @@ model OauthAccessToken {
 }
 
 model OauthConsent {
-  id           String           @id @default(uuid()) @db.Char(36)
+  id           String           @id @default(uuid()) @db.VarChar(36)
   clientId     String           @map("client_id") @db.VarChar(255)
-  userId       String           @map("user_id") @db.Char(36)
+  userId       String           @map("user_id") @db.VarChar(36)
   scopes       String           @db.Text
   consentGiven Boolean          @default(true) @map("consent_given")
   createdAt    DateTime         @default(now()) @map("created_at")
@@ -1726,7 +1726,7 @@ model OauthConsent {
 }
 
 model Jwks {
-  id         String    @id @default(uuid()) @db.Char(36)
+  id         String    @id @default(uuid()) @db.VarChar(36)
   publicKey  String    @map("public_key") @db.Text
   privateKey String    @map("private_key") @db.Text
   createdAt  DateTime  @default(now()) @map("created_at")
@@ -1736,9 +1736,9 @@ model Jwks {
 }
 
 model IdCardBatch {
-  id               String      @id @default(uuid()) @db.Char(36)
-  institutionId    String      @map("institution_id") @db.Char(36)
-  templateId       String      @map("template_id") @db.Char(36)
+  id               String      @id @default(uuid()) @db.VarChar(36)
+  institutionId    String      @map("institution_id") @db.VarChar(36)
+  templateId       String      @map("template_id") @db.VarChar(36)
   totalRequested   Int         @map("total_requested")
   totalSucceeded   Int         @default(0) @map("total_succeeded")
   totalFailed      Int         @default(0) @map("total_failed")
@@ -1758,8 +1758,8 @@ model IdCardBatch {
 }
 
 model Guardian {
-  id                String                @id @default(uuid()) @db.Char(36)
-  institutionId     String                @map("institution_id") @db.Char(36)
+  id                String                @id @default(uuid()) @db.VarChar(36)
+  institutionId     String                @map("institution_id") @db.VarChar(36)
   firstName         String                @map("first_name") @db.VarChar(100)
   lastName          String?               @map("last_name") @db.VarChar(100)
   whatsappNumber    String                @map("whatsapp_number") @db.VarChar(20)
@@ -1782,10 +1782,10 @@ model Guardian {
 }
 
 model GuardianStudentLink {
-  id               String      @id @default(uuid()) @db.Char(36)
-  institutionId    String      @map("institution_id") @db.Char(36)
-  guardianId       String      @map("guardian_id") @db.Char(36)
-  studentId        String      @map("student_id") @db.Char(36)
+  id               String      @id @default(uuid()) @db.VarChar(36)
+  institutionId    String      @map("institution_id") @db.VarChar(36)
+  guardianId       String      @map("guardian_id") @db.VarChar(36)
+  studentId        String      @map("student_id") @db.VarChar(36)
   isPrimary        Boolean     @default(false) @map("is_primary")
   notifyAttendance Boolean     @default(true) @map("notify_attendance")
   notifyFees       Boolean     @default(true) @map("notify_fees")
@@ -1806,8 +1806,8 @@ model GuardianStudentLink {
 }
 
 model MessageTemplate {
-  id               String           @id @default(uuid()) @db.Char(36)
-  institutionId    String           @map("institution_id") @db.Char(36)
+  id               String           @id @default(uuid()) @db.VarChar(36)
+  institutionId    String           @map("institution_id") @db.VarChar(36)
   code             String           @db.VarChar(100)
   metaTemplateName String?          @map("meta_template_name") @db.VarChar(255)
   category         TemplateCategory
@@ -1830,10 +1830,10 @@ model MessageTemplate {
 }
 
 model Outbox {
-  id             String            @id @default(uuid()) @db.Char(36)
-  institutionId  String            @map("institution_id") @db.Char(36)
+  id             String            @id @default(uuid()) @db.VarChar(36)
+  institutionId  String            @map("institution_id") @db.VarChar(36)
   recipientType  RecipientType     @map("recipient_type")
-  recipientId    String            @map("recipient_id") @db.Char(36)
+  recipientId    String            @map("recipient_id") @db.VarChar(36)
   channel        OutboxChannel     @default(whatsapp)
   templateCode   String            @map("template_code") @db.VarChar(100)
   variables      Json?
@@ -1858,11 +1858,11 @@ model Outbox {
 }
 
 model Message {
-  id            String            @id @default(uuid()) @db.Char(36)
-  institutionId String            @map("institution_id") @db.Char(36)
-  outboxId      String?           @map("outbox_id") @db.Char(36)
-  guardianId    String?           @map("guardian_id") @db.Char(36)
-  staffId       String?           @map("staff_id") @db.Char(36)
+  id            String            @id @default(uuid()) @db.VarChar(36)
+  institutionId String            @map("institution_id") @db.VarChar(36)
+  outboxId      String?           @map("outbox_id") @db.VarChar(36)
+  guardianId    String?           @map("guardian_id") @db.VarChar(36)
+  staffId       String?           @map("staff_id") @db.VarChar(36)
   channel       OutboxChannel
   templateCode  String?           @map("template_code") @db.VarChar(100)
   waMessageId   String?           @map("wa_message_id") @db.VarChar(255)
@@ -1886,29 +1886,29 @@ model Message {
 }
 
 model DigestQueue {
-  id            String      @id @default(uuid()) @db.Char(36)
-  institutionId String      @map("institution_id") @db.Char(36)
-  guardianId    String      @map("guardian_id") @db.Char(36)
+  id            String      @id @default(uuid()) @db.VarChar(36)
+  institutionId String      @map("institution_id") @db.VarChar(36)
+  guardianId    String      @map("guardian_id") @db.VarChar(36)
   eventType     String      @map("event_type") @db.VarChar(100)
   eventPayload  Json        @map("event_payload")
   scheduledFor  DateTime    @map("scheduled_for")
   sentAt        DateTime?   @map("sent_at")
-  outboxId      String?     @map("outbox_id") @db.Char(36)
+  outboxId      String?     @map("outbox_id") @db.VarChar(36)
   createdAt     DateTime    @default(now()) @map("created_at")
   institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   outbox        Outbox?     @relation(fields: [outboxId], references: [id])
 
   @@index([institutionId])
   @@index([guardianId])
-  @@index([outboxId], map: "digest_queue_outbox_id_fkey")
+  @@index([outboxId], map: "digest_queue_outbox_id_idx")
   @@map("digest_queue")
 }
 
 model FeeStructure {
-  id               String       @id @default(uuid()) @db.Char(36)
-  institutionId    String       @map("institution_id") @db.Char(36)
+  id               String       @id @default(uuid()) @db.VarChar(36)
+  institutionId    String       @map("institution_id") @db.VarChar(36)
   academicYear     String       @map("academic_year") @db.VarChar(20)
-  classId          String?      @map("class_id") @db.Char(36)
+  classId          String?      @map("class_id") @db.VarChar(36)
   name             String       @db.VarChar(255)
   category         FeeCategory
   amount           Decimal      @db.Decimal(10, 2)
@@ -1928,10 +1928,10 @@ model FeeStructure {
 }
 
 model FeeInvoice {
-  id             String            @id @default(uuid()) @db.Char(36)
-  institutionId  String            @map("institution_id") @db.Char(36)
-  studentId      String            @map("student_id") @db.Char(36)
-  feeStructureId String?           @map("fee_structure_id") @db.Char(36)
+  id             String            @id @default(uuid()) @db.VarChar(36)
+  institutionId  String            @map("institution_id") @db.VarChar(36)
+  studentId      String            @map("student_id") @db.VarChar(36)
+  feeStructureId String?           @map("fee_structure_id") @db.VarChar(36)
   invoiceNumber  String            @map("invoice_number") @db.VarChar(100)
   amount         Decimal           @db.Decimal(10, 2)
   discount       Decimal           @default(0.00) @db.Decimal(10, 2)
@@ -1957,16 +1957,16 @@ model FeeInvoice {
   @@index([studentId])
   @@index([status])
   @@index([gatewayOrderId])
-  @@index([feeStructureId], map: "fee_invoices_fee_structure_id_fkey")
+  @@index([feeStructureId], map: "fee_invoices_fee_structure_id_idx")
   @@map("fee_invoices")
 }
 
 model FeePayment {
-  id               String           @id @default(uuid()) @db.Char(36)
-  institutionId    String           @map("institution_id") @db.Char(36)
-  invoiceId        String           @map("invoice_id") @db.Char(36)
+  id               String           @id @default(uuid()) @db.VarChar(36)
+  institutionId    String           @map("institution_id") @db.VarChar(36)
+  invoiceId        String           @map("invoice_id") @db.VarChar(36)
   amount           Decimal          @db.Decimal(10, 2)
-  paidByGuardianId String?          @map("paid_by_guardian_id") @db.Char(36)
+  paidByGuardianId String?          @map("paid_by_guardian_id") @db.VarChar(36)
   method           PaymentMethod
   gatewayProvider  GatewayProvider? @map("gateway_provider")
   gatewayPaymentId String?          @map("gateway_payment_id") @db.VarChar(255)
@@ -1986,9 +1986,9 @@ model FeePayment {
 }
 
 model InboundMedia {
-  id             String             @id @default(uuid()) @db.Char(36)
-  institutionId  String             @map("institution_id") @db.Char(36)
-  guardianId     String             @map("guardian_id") @db.Char(36)
+  id             String             @id @default(uuid()) @db.VarChar(36)
+  institutionId  String             @map("institution_id") @db.VarChar(36)
+  guardianId     String             @map("guardian_id") @db.VarChar(36)
   waMediaId      String             @unique @map("wa_media_id") @db.VarChar(255)
   objectPath     String?            @map("object_path") @db.VarChar(500)
   mediaType      MediaType          @map("media_type")
@@ -2013,10 +2013,10 @@ model InboundMedia {
 }
 
 model Conversation {
-  id                     String                @id @default(uuid()) @db.Char(36)
-  institutionId          String                @map("institution_id") @db.Char(36)
-  guardianId             String                @map("guardian_id") @db.Char(36)
-  studentId              String?               @map("student_id") @db.Char(36)
+  id                     String                @id @default(uuid()) @db.VarChar(36)
+  institutionId          String                @map("institution_id") @db.VarChar(36)
+  guardianId             String                @map("guardian_id") @db.VarChar(36)
+  studentId              String?               @map("student_id") @db.VarChar(36)
   lastIntent             String?               @map("last_intent") @db.VarChar(100)
   lastMessageAt          DateTime?             @map("last_message_at")
   messageCount           Int                   @default(0) @map("message_count")
@@ -2035,9 +2035,9 @@ model Conversation {
 }
 
 model ConversationMessage {
-  id             String           @id @default(uuid()) @db.Char(36)
-  institutionId  String           @map("institution_id") @db.Char(36)
-  conversationId String           @map("conversation_id") @db.Char(36)
+  id             String           @id @default(uuid()) @db.VarChar(36)
+  institutionId  String           @map("institution_id") @db.VarChar(36)
+  conversationId String           @map("conversation_id") @db.VarChar(36)
   direction      MessageDirection
   text           String           @db.VarChar(2000)
   intent         String?          @db.VarChar(100)
@@ -2051,16 +2051,16 @@ model ConversationMessage {
 }
 
 model FeePaymentClaim {
-  id                    String         @id @default(uuid()) @db.Char(36)
-  institutionId         String         @map("institution_id") @db.Char(36)
-  invoiceId             String         @map("invoice_id") @db.Char(36)
-  submittedByGuardianId String         @map("submitted_by_guardian_id") @db.Char(36)
+  id                    String         @id @default(uuid()) @db.VarChar(36)
+  institutionId         String         @map("institution_id") @db.VarChar(36)
+  invoiceId             String         @map("invoice_id") @db.VarChar(36)
+  submittedByGuardianId String         @map("submitted_by_guardian_id") @db.VarChar(36)
   objectPath            String         @map("object_path") @db.VarChar(500)
   mediaType             MediaType      @map("media_type")
   claimAmount           Decimal?       @map("claim_amount") @db.Decimal(10, 2)
   paymentMethodClaimed  PaymentMethod? @map("payment_method_claimed")
   status                FeeClaimStatus @default(pending_review)
-  reviewedBy            String?        @map("reviewed_by") @db.Char(36)
+  reviewedBy            String?        @map("reviewed_by") @db.VarChar(36)
   reviewedAt            DateTime?      @map("reviewed_at")
   rejectionReason       String?        @map("rejection_reason") @db.Text
   createdAt             DateTime       @default(now()) @map("created_at")
@@ -2075,8 +2075,8 @@ model FeePaymentClaim {
 }
 
 model TimetablePeriod {
-  id            String          @id @default(uuid()) @db.Char(36)
-  institutionId String          @map("institution_id") @db.Char(36)
+  id            String          @id @default(uuid()) @db.VarChar(36)
+  institutionId String          @map("institution_id") @db.VarChar(36)
   name          String          @db.VarChar(100)
   startTime     String          @map("start_time") @db.VarChar(5)
   endTime       String          @map("end_time") @db.VarChar(5)
@@ -2092,14 +2092,14 @@ model TimetablePeriod {
 }
 
 model TimetableSlot {
-  id            String          @id @default(uuid()) @db.Char(36)
-  institutionId String          @map("institution_id") @db.Char(36)
-  sectionId     String          @map("section_id") @db.Char(36)
+  id            String          @id @default(uuid()) @db.VarChar(36)
+  institutionId String          @map("institution_id") @db.VarChar(36)
+  sectionId     String          @map("section_id") @db.VarChar(36)
   dayOfWeek     DayOfWeek       @map("day_of_week")
-  periodId      String          @map("period_id") @db.Char(36)
+  periodId      String          @map("period_id") @db.VarChar(36)
   subjectName   String          @map("subject_name") @db.VarChar(255)
-  subjectId     String?         @map("subject_id") @db.Char(36)
-  teacherId     String?         @map("teacher_id") @db.Char(36)
+  subjectId     String?         @map("subject_id") @db.VarChar(36)
+  teacherId     String?         @map("teacher_id") @db.VarChar(36)
   room          String?         @db.VarChar(100)
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
@@ -2110,17 +2110,17 @@ model TimetableSlot {
   @@index([institutionId])
   @@index([sectionId])
   @@index([teacherId])
-  @@index([periodId], map: "timetable_slots_period_id_fkey")
+  @@index([periodId], map: "timetable_slots_period_id_idx")
   @@map("timetable_slots")
 }
 
 model Substitution {
-  id                  String             @id @default(uuid()) @db.Char(36)
-  institutionId       String             @map("institution_id") @db.Char(36)
-  slotId              String             @map("slot_id") @db.Char(36)
+  id                  String             @id @default(uuid()) @db.VarChar(36)
+  institutionId       String             @map("institution_id") @db.VarChar(36)
+  slotId              String             @map("slot_id") @db.VarChar(36)
   date                DateTime           @db.Date
-  originalTeacherId   String?            @map("original_teacher_id") @db.Char(36)
-  substituteTeacherId String             @map("substitute_teacher_id") @db.Char(36)
+  originalTeacherId   String?            @map("original_teacher_id") @db.VarChar(36)
+  substituteTeacherId String             @map("substitute_teacher_id") @db.VarChar(36)
   reason              String?            @db.Text
   status              SubstitutionStatus @default(planned)
   createdAt           DateTime           @default(now()) @map("created_at")
@@ -2130,13 +2130,13 @@ model Substitution {
   @@index([institutionId])
   @@index([date])
   @@index([substituteTeacherId])
-  @@index([slotId], map: "substitutions_slot_id_fkey")
+  @@index([slotId], map: "substitutions_slot_id_idx")
   @@map("substitutions")
 }
 
 model LedgerAccount {
-  id            String            @id @default(uuid()) @db.Char(36)
-  institutionId String            @map("institution_id") @db.Char(36)
+  id            String            @id @default(uuid()) @db.VarChar(36)
+  institutionId String            @map("institution_id") @db.VarChar(36)
   code          String            @db.VarChar(50)
   name          String            @db.VarChar(255)
   type          LedgerAccountType
@@ -2153,17 +2153,17 @@ model LedgerAccount {
 }
 
 model JournalEntry {
-  id              String        @id @default(uuid()) @db.Char(36)
-  institutionId   String        @map("institution_id") @db.Char(36)
+  id              String        @id @default(uuid()) @db.VarChar(36)
+  institutionId   String        @map("institution_id") @db.VarChar(36)
   voucherNumber   String        @map("voucher_number") @db.VarChar(50)
   entryDate       DateTime      @map("entry_date") @db.Date
   type            VoucherType   @default(journal)
   narration       String?       @db.Text
   totalAmount     Decimal       @map("total_amount") @db.Decimal(14, 2)
   referenceType   String?       @map("reference_type") @db.VarChar(50)
-  referenceId     String?       @map("reference_id") @db.Char(36)
+  referenceId     String?       @map("reference_id") @db.VarChar(36)
   status          JournalStatus @default(posted)
-  createdByUserId String?       @map("created_by_user_id") @db.Char(36)
+  createdByUserId String?       @map("created_by_user_id") @db.VarChar(36)
   createdAt       DateTime      @default(now()) @map("created_at")
   institution     Institution   @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   lines           JournalLine[]
@@ -2175,10 +2175,10 @@ model JournalEntry {
 }
 
 model JournalLine {
-  id            String       @id @default(uuid()) @db.Char(36)
-  institutionId String       @map("institution_id") @db.Char(36)
-  entryId       String       @map("entry_id") @db.Char(36)
-  accountId     String       @map("account_id") @db.Char(36)
+  id            String       @id @default(uuid()) @db.VarChar(36)
+  institutionId String       @map("institution_id") @db.VarChar(36)
+  entryId       String       @map("entry_id") @db.VarChar(36)
+  accountId     String       @map("account_id") @db.VarChar(36)
   debit         Decimal      @default(0.00) @db.Decimal(14, 2)
   credit        Decimal      @default(0.00) @db.Decimal(14, 2)
   createdAt     DateTime     @default(now()) @map("created_at")
@@ -2191,8 +2191,8 @@ model JournalLine {
 }
 
 model StaffMember {
-  id               String            @id @default(uuid()) @db.Char(36)
-  institutionId    String            @map("institution_id") @db.Char(36)
+  id               String            @id @default(uuid()) @db.VarChar(36)
+  institutionId    String            @map("institution_id") @db.VarChar(36)
   employeeCode     String            @map("employee_code") @db.VarChar(50)
   firstName        String            @map("first_name") @db.VarChar(255)
   lastName         String?           @map("last_name") @db.VarChar(255)
@@ -2203,7 +2203,7 @@ model StaffMember {
   email            String?           @db.VarChar(255)
   phone            String?           @db.VarChar(20)
   status           StaffStatus       @default(active)
-  userId           String?           @map("user_id") @db.Char(36)
+  userId           String?           @map("user_id") @db.VarChar(36)
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
   leaveRequests    LeaveRequest[]
@@ -2218,9 +2218,9 @@ model StaffMember {
 }
 
 model SalaryStructure {
-  id              String      @id @default(uuid()) @db.Char(36)
-  institutionId   String      @map("institution_id") @db.Char(36)
-  staffId         String      @map("staff_id") @db.Char(36)
+  id              String      @id @default(uuid()) @db.VarChar(36)
+  institutionId   String      @map("institution_id") @db.VarChar(36)
+  staffId         String      @map("staff_id") @db.VarChar(36)
   effectiveFrom   DateTime    @map("effective_from") @db.Date
   basic           Decimal     @db.Decimal(12, 2)
   hra             Decimal     @default(0.00) @db.Decimal(12, 2)
@@ -2242,9 +2242,9 @@ model SalaryStructure {
 }
 
 model Payslip {
-  id              String        @id @default(uuid()) @db.Char(36)
-  institutionId   String        @map("institution_id") @db.Char(36)
-  staffId         String        @map("staff_id") @db.Char(36)
+  id              String        @id @default(uuid()) @db.VarChar(36)
+  institutionId   String        @map("institution_id") @db.VarChar(36)
+  staffId         String        @map("staff_id") @db.VarChar(36)
   month           Int
   year            Int
   grossEarnings   Decimal       @map("gross_earnings") @db.Decimal(12, 2)
@@ -2265,16 +2265,16 @@ model Payslip {
 }
 
 model LeaveRequest {
-  id               String      @id @default(uuid()) @db.Char(36)
-  institutionId    String      @map("institution_id") @db.Char(36)
-  staffId          String      @map("staff_id") @db.Char(36)
+  id               String      @id @default(uuid()) @db.VarChar(36)
+  institutionId    String      @map("institution_id") @db.VarChar(36)
+  staffId          String      @map("staff_id") @db.VarChar(36)
   type             LeaveType   @default(casual)
   fromDate         DateTime    @map("from_date") @db.Date
   toDate           DateTime    @map("to_date") @db.Date
   days             Int
   reason           String?     @db.Text
   status           LeaveStatus @default(pending)
-  reviewedByUserId String?     @map("reviewed_by_user_id") @db.Char(36)
+  reviewedByUserId String?     @map("reviewed_by_user_id") @db.VarChar(36)
   reviewedAt       DateTime?   @map("reviewed_at")
   createdAt        DateTime    @default(now()) @map("created_at")
   updatedAt        DateTime    @updatedAt @map("updated_at")
@@ -2287,8 +2287,8 @@ model LeaveRequest {
 }
 
 model TransportRoute {
-  id            String             @id @default(uuid()) @db.Char(36)
-  institutionId String             @map("institution_id") @db.Char(36)
+  id            String             @id @default(uuid()) @db.VarChar(36)
+  institutionId String             @map("institution_id") @db.VarChar(36)
   name          String             @db.VarChar(255)
   code          String             @db.VarChar(50)
   description   String?            @db.Text
@@ -2311,9 +2311,9 @@ model TransportRoute {
 }
 
 model TransportStop {
-  id            String         @id @default(uuid()) @db.Char(36)
-  institutionId String         @map("institution_id") @db.Char(36)
-  routeId       String         @map("route_id") @db.Char(36)
+  id            String         @id @default(uuid()) @db.VarChar(36)
+  institutionId String         @map("institution_id") @db.VarChar(36)
+  routeId       String         @map("route_id") @db.VarChar(36)
   name          String         @db.VarChar(255)
   sequence      Int            @default(0)
   pickupTime    String?        @map("pickup_time") @db.VarChar(5)
@@ -2329,11 +2329,11 @@ model TransportStop {
 }
 
 model StudentTransport {
-  id            String                  @id @default(uuid()) @db.Char(36)
-  institutionId String                  @map("institution_id") @db.Char(36)
-  studentId     String                  @map("student_id") @db.Char(36)
-  routeId       String                  @map("route_id") @db.Char(36)
-  stopId        String?                 @map("stop_id") @db.Char(36)
+  id            String                  @id @default(uuid()) @db.VarChar(36)
+  institutionId String                  @map("institution_id") @db.VarChar(36)
+  studentId     String                  @map("student_id") @db.VarChar(36)
+  routeId       String                  @map("route_id") @db.VarChar(36)
+  stopId        String?                 @map("stop_id") @db.VarChar(36)
   type          TransportAssignmentType @default(both)
   isActive      Boolean                 @default(true) @map("is_active")
   createdAt     DateTime                @default(now()) @map("created_at")
@@ -2347,9 +2347,9 @@ model StudentTransport {
 }
 
 model TransportTrip {
-  id            String                  @id @default(uuid()) @db.Char(36)
-  institutionId String                  @map("institution_id") @db.Char(36)
-  routeId       String                  @map("route_id") @db.Char(36)
+  id            String                  @id @default(uuid()) @db.VarChar(36)
+  institutionId String                  @map("institution_id") @db.VarChar(36)
+  routeId       String                  @map("route_id") @db.VarChar(36)
   tripDate      DateTime                @map("trip_date") @db.Date
   direction     TransportAssignmentType @default(pickup)
   status        TransportTripStatus     @default(scheduled)
@@ -2368,21 +2368,21 @@ model TransportTrip {
 }
 
 model Enquiry {
-  id                 String            @id @default(uuid()) @db.Char(36)
-  institutionId      String            @map("institution_id") @db.Char(36)
+  id                 String            @id @default(uuid()) @db.VarChar(36)
+  institutionId      String            @map("institution_id") @db.VarChar(36)
   enquiryNumber      String            @map("enquiry_number") @db.VarChar(50)
   studentName        String            @map("student_name") @db.VarChar(255)
   guardianName       String?           @map("guardian_name") @db.VarChar(255)
   phone              String            @db.VarChar(20)
   email              String?           @db.VarChar(255)
   classInterested    String?           @map("class_interested") @db.VarChar(255)
-  classId            String?           @map("class_id") @db.Char(36)
+  classId            String?           @map("class_id") @db.VarChar(36)
   source             EnquirySource     @default(other)
   status             EnquiryStatus     @default(new)
-  assignedToUserId   String?           @map("assigned_to_user_id") @db.Char(36)
+  assignedToUserId   String?           @map("assigned_to_user_id") @db.VarChar(36)
   followUpAt         DateTime?         @map("follow_up_at")
   notes              String?           @db.Text
-  convertedStudentId String?           @map("converted_student_id") @db.Char(36)
+  convertedStudentId String?           @map("converted_student_id") @db.VarChar(36)
   createdAt          DateTime          @default(now()) @map("created_at")
   updatedAt          DateTime          @updatedAt @map("updated_at")
   institution        Institution       @relation(fields: [institutionId], references: [id], onDelete: Cascade)
@@ -2397,12 +2397,12 @@ model Enquiry {
 }
 
 model EnquiryActivity {
-  id              String              @id @default(uuid()) @db.Char(36)
-  institutionId   String              @map("institution_id") @db.Char(36)
-  enquiryId       String              @map("enquiry_id") @db.Char(36)
+  id              String              @id @default(uuid()) @db.VarChar(36)
+  institutionId   String              @map("institution_id") @db.VarChar(36)
+  enquiryId       String              @map("enquiry_id") @db.VarChar(36)
   type            EnquiryActivityType @default(note)
   description     String              @db.Text
-  createdByUserId String?             @map("created_by_user_id") @db.Char(36)
+  createdByUserId String?             @map("created_by_user_id") @db.VarChar(36)
   createdAt       DateTime            @default(now()) @map("created_at")
   enquiry         Enquiry             @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
   institution     Institution         @relation(fields: [institutionId], references: [id], onDelete: Cascade)
@@ -2413,8 +2413,8 @@ model EnquiryActivity {
 }
 
 model HostelBlock {
-  id            String       @id @default(uuid()) @db.Char(36)
-  institutionId String       @map("institution_id") @db.Char(36)
+  id            String       @id @default(uuid()) @db.VarChar(36)
+  institutionId String       @map("institution_id") @db.VarChar(36)
   name          String       @db.VarChar(255)
   code          String       @db.VarChar(50)
   type          HostelType   @default(boys)
@@ -2433,9 +2433,9 @@ model HostelBlock {
 }
 
 model HostelRoom {
-  id            String            @id @default(uuid()) @db.Char(36)
-  institutionId String            @map("institution_id") @db.Char(36)
-  blockId       String            @map("block_id") @db.Char(36)
+  id            String            @id @default(uuid()) @db.VarChar(36)
+  institutionId String            @map("institution_id") @db.VarChar(36)
+  blockId       String            @map("block_id") @db.VarChar(36)
   roomNumber    String            @map("room_number") @db.VarChar(50)
   floor         Int               @default(0)
   capacity      Int               @default(1)
@@ -2456,10 +2456,10 @@ model HostelRoom {
 }
 
 model HostelAllotment {
-  id            String          @id @default(uuid()) @db.Char(36)
-  institutionId String          @map("institution_id") @db.Char(36)
-  roomId        String          @map("room_id") @db.Char(36)
-  studentId     String          @map("student_id") @db.Char(36)
+  id            String          @id @default(uuid()) @db.VarChar(36)
+  institutionId String          @map("institution_id") @db.VarChar(36)
+  roomId        String          @map("room_id") @db.VarChar(36)
+  studentId     String          @map("student_id") @db.VarChar(36)
   bedNumber     String?         @map("bed_number") @db.VarChar(20)
   status        AllotmentStatus @default(active)
   allottedAt    DateTime        @default(now()) @map("allotted_at")
@@ -2476,9 +2476,9 @@ model HostelAllotment {
 }
 
 model MessBill {
-  id            String         @id @default(uuid()) @db.Char(36)
-  institutionId String         @map("institution_id") @db.Char(36)
-  studentId     String         @map("student_id") @db.Char(36)
+  id            String         @id @default(uuid()) @db.VarChar(36)
+  institutionId String         @map("institution_id") @db.VarChar(36)
+  studentId     String         @map("student_id") @db.VarChar(36)
   billMonth     String         @map("bill_month") @db.VarChar(7)
   amount        Decimal        @db.Decimal(10, 2)
   status        MessBillStatus @default(pending)
@@ -2495,8 +2495,8 @@ model MessBill {
 }
 
 model InventoryCategory {
-  id            String          @id @default(uuid()) @db.Char(36)
-  institutionId String          @map("institution_id") @db.Char(36)
+  id            String          @id @default(uuid()) @db.VarChar(36)
+  institutionId String          @map("institution_id") @db.VarChar(36)
   name          String          @db.VarChar(255)
   type          InventoryType   @default(consumable)
   createdAt     DateTime        @default(now()) @map("created_at")
@@ -2510,9 +2510,9 @@ model InventoryCategory {
 }
 
 model InventoryItem {
-  id            String             @id @default(uuid()) @db.Char(36)
-  institutionId String             @map("institution_id") @db.Char(36)
-  categoryId    String             @map("category_id") @db.Char(36)
+  id            String             @id @default(uuid()) @db.VarChar(36)
+  institutionId String             @map("institution_id") @db.VarChar(36)
+  categoryId    String             @map("category_id") @db.VarChar(36)
   name          String             @db.VarChar(255)
   sku           String?            @db.VarChar(100)
   unit          String             @default("pcs") @db.VarChar(50)
@@ -2533,14 +2533,14 @@ model InventoryItem {
 }
 
 model StockTransaction {
-  id            String        @id @default(uuid()) @db.Char(36)
-  institutionId String        @map("institution_id") @db.Char(36)
-  itemId        String        @map("item_id") @db.Char(36)
+  id            String        @id @default(uuid()) @db.VarChar(36)
+  institutionId String        @map("institution_id") @db.VarChar(36)
+  itemId        String        @map("item_id") @db.VarChar(36)
   type          StockTxnType
   quantity      Int
   balanceAfter  Int           @map("balance_after")
   reason        String?       @db.VarChar(500)
-  performedBy   String?       @map("performed_by") @db.Char(36)
+  performedBy   String?       @map("performed_by") @db.VarChar(36)
   createdAt     DateTime      @default(now()) @map("created_at")
   institution   Institution   @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   item          InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
@@ -2552,9 +2552,9 @@ model StockTransaction {
 }
 
 model HealthRecord {
-  id            String      @id @default(uuid()) @db.Char(36)
-  institutionId String      @map("institution_id") @db.Char(36)
-  studentId     String      @map("student_id") @db.Char(36)
+  id            String      @id @default(uuid()) @db.VarChar(36)
+  institutionId String      @map("institution_id") @db.VarChar(36)
+  studentId     String      @map("student_id") @db.VarChar(36)
   bloodGroup    String?     @map("blood_group") @db.VarChar(10)
   allergies     String?     @db.Text
   conditions    String?     @db.Text
@@ -2571,9 +2571,9 @@ model HealthRecord {
 }
 
 model ClinicVisit {
-  id               String      @id @default(uuid()) @db.Char(36)
-  institutionId    String      @map("institution_id") @db.Char(36)
-  studentId        String      @map("student_id") @db.Char(36)
+  id               String      @id @default(uuid()) @db.VarChar(36)
+  institutionId    String      @map("institution_id") @db.VarChar(36)
+  studentId        String      @map("student_id") @db.VarChar(36)
   visitDate        DateTime    @default(now()) @map("visit_date")
   symptoms         String?     @db.Text
   diagnosis        String?     @db.Text
@@ -2590,9 +2590,9 @@ model ClinicVisit {
 }
 
 model VaccinationRecord {
-  id               String      @id @default(uuid()) @db.Char(36)
-  institutionId    String      @map("institution_id") @db.Char(36)
-  studentId        String      @map("student_id") @db.Char(36)
+  id               String      @id @default(uuid()) @db.VarChar(36)
+  institutionId    String      @map("institution_id") @db.VarChar(36)
+  studentId        String      @map("student_id") @db.VarChar(36)
   vaccineName      String      @map("vaccine_name") @db.VarChar(255)
   dateAdministered DateTime?   @map("date_administered") @db.Date
   nextDue          DateTime?   @map("next_due") @db.Date
@@ -2607,8 +2607,8 @@ model VaccinationRecord {
 }
 
 model VisitorLog {
-  id            String        @id @default(uuid()) @db.Char(36)
-  institutionId String        @map("institution_id") @db.Char(36)
+  id            String        @id @default(uuid()) @db.VarChar(36)
+  institutionId String        @map("institution_id") @db.VarChar(36)
   visitorName   String        @map("visitor_name") @db.VarChar(255)
   phone         String?       @db.VarChar(20)
   purpose       String?       @db.VarChar(500)
@@ -2627,9 +2627,9 @@ model VisitorLog {
 }
 
 model GatePass {
-  id            String       @id @default(uuid()) @db.Char(36)
-  institutionId String       @map("institution_id") @db.Char(36)
-  studentId     String       @map("student_id") @db.Char(36)
+  id            String       @id @default(uuid()) @db.VarChar(36)
+  institutionId String       @map("institution_id") @db.VarChar(36)
+  studentId     String       @map("student_id") @db.VarChar(36)
   type          GatePassType @default(early_leave)
   reason        String?      @db.Text
   approvedBy    String?      @map("approved_by") @db.VarChar(255)
@@ -2645,9 +2645,9 @@ model GatePass {
 }
 
 model CceAssessment {
-  id            String      @id @default(uuid()) @db.Char(36)
-  institutionId String      @map("institution_id") @db.Char(36)
-  sectionId     String      @map("section_id") @db.Char(36)
+  id            String      @id @default(uuid()) @db.VarChar(36)
+  institutionId String      @map("institution_id") @db.VarChar(36)
+  sectionId     String      @map("section_id") @db.VarChar(36)
   subjectName   String      @map("subject_name") @db.VarChar(255)
   name          String      @db.VarChar(255)
   termType      CceTermType @map("term_type")
@@ -2667,10 +2667,10 @@ model CceAssessment {
 }
 
 model CceMark {
-  id            String        @id @default(uuid()) @db.Char(36)
-  institutionId String        @map("institution_id") @db.Char(36)
-  assessmentId  String        @map("assessment_id") @db.Char(36)
-  studentId     String        @map("student_id") @db.Char(36)
+  id            String        @id @default(uuid()) @db.VarChar(36)
+  institutionId String        @map("institution_id") @db.VarChar(36)
+  assessmentId  String        @map("assessment_id") @db.VarChar(36)
+  studentId     String        @map("student_id") @db.VarChar(36)
   marksObtained Decimal       @map("marks_obtained") @db.Decimal(6, 2)
   grade         String?       @db.VarChar(4)
   remarks       String?       @db.Text
@@ -2686,13 +2686,13 @@ model CceMark {
 }
 
 model Assignment {
-  id            String                 @id @default(uuid()) @db.Char(36)
-  institutionId String                 @map("institution_id") @db.Char(36)
-  sectionId     String                 @map("section_id") @db.Char(36)
+  id            String                 @id @default(uuid()) @db.VarChar(36)
+  institutionId String                 @map("institution_id") @db.VarChar(36)
+  sectionId     String                 @map("section_id") @db.VarChar(36)
   subjectName   String                 @map("subject_name") @db.VarChar(255)
   title         String                 @db.VarChar(255)
   description   String?                @db.Text
-  assignedBy    String?                @map("assigned_by") @db.Char(36)
+  assignedBy    String?                @map("assigned_by") @db.VarChar(36)
   dueDate       DateTime?              @map("due_date")
   maxMarks      Decimal?               @map("max_marks") @db.Decimal(6, 2)
   attachmentUrl String?                @map("attachment_url") @db.VarChar(500)
@@ -2709,10 +2709,10 @@ model Assignment {
 }
 
 model AssignmentSubmission {
-  id            String           @id @default(uuid()) @db.Char(36)
-  institutionId String           @map("institution_id") @db.Char(36)
-  assignmentId  String           @map("assignment_id") @db.Char(36)
-  studentId     String           @map("student_id") @db.Char(36)
+  id            String           @id @default(uuid()) @db.VarChar(36)
+  institutionId String           @map("institution_id") @db.VarChar(36)
+  assignmentId  String           @map("assignment_id") @db.VarChar(36)
+  studentId     String           @map("student_id") @db.VarChar(36)
   content       String?          @db.Text
   attachmentUrl String?          @map("attachment_url") @db.VarChar(500)
   marksObtained Decimal?         @map("marks_obtained") @db.Decimal(6, 2)
@@ -2732,8 +2732,8 @@ model AssignmentSubmission {
 }
 
 model Notice {
-  id            String         @id @default(uuid()) @db.Char(36)
-  institutionId String         @map("institution_id") @db.Char(36)
+  id            String         @id @default(uuid()) @db.VarChar(36)
+  institutionId String         @map("institution_id") @db.VarChar(36)
   title         String         @db.VarChar(255)
   body          String         @db.Text
   audience      NoticeAudience @default(all)
@@ -2753,8 +2753,8 @@ model Notice {
 }
 
 model CalendarEvent {
-  id            String      @id @default(uuid()) @db.Char(36)
-  institutionId String      @map("institution_id") @db.Char(36)
+  id            String      @id @default(uuid()) @db.VarChar(36)
+  institutionId String      @map("institution_id") @db.VarChar(36)
   title         String      @db.VarChar(255)
   description   String?     @db.Text
   eventType     EventType   @default(event) @map("event_type")
@@ -2771,12 +2771,12 @@ model CalendarEvent {
 }
 
 model SavedReport {
-  id            String      @id @default(uuid()) @db.Char(36)
-  institutionId String      @map("institution_id") @db.Char(36)
+  id            String      @id @default(uuid()) @db.VarChar(36)
+  institutionId String      @map("institution_id") @db.VarChar(36)
   name          String      @db.VarChar(255)
   reportType    String      @map("report_type") @db.VarChar(100)
   config        Json?
-  createdBy     String?     @map("created_by") @db.Char(36)
+  createdBy     String?     @map("created_by") @db.VarChar(36)
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
   institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
@@ -2786,8 +2786,8 @@ model SavedReport {
 }
 
 model Alumni {
-  id                  String      @id @default(uuid()) @db.Char(36)
-  institutionId       String      @map("institution_id") @db.Char(36)
+  id                  String      @id @default(uuid()) @db.VarChar(36)
+  institutionId       String      @map("institution_id") @db.VarChar(36)
   name                String      @db.VarChar(255)
   email               String?     @db.VarChar(255)
   phone               String?     @db.VarChar(20)
@@ -2807,8 +2807,8 @@ model Alumni {
 }
 
 model AlumniEvent {
-  id            String      @id @default(uuid()) @db.Char(36)
-  institutionId String      @map("institution_id") @db.Char(36)
+  id            String      @id @default(uuid()) @db.VarChar(36)
+  institutionId String      @map("institution_id") @db.VarChar(36)
   title         String      @db.VarChar(255)
   description   String?     @db.Text
   eventDate     DateTime    @map("event_date") @db.Date
@@ -2823,8 +2823,8 @@ model AlumniEvent {
 }
 
 model PlacementDrive {
-  id                  String                 @id @default(uuid()) @db.Char(36)
-  institutionId       String                 @map("institution_id") @db.Char(36)
+  id                  String                 @id @default(uuid()) @db.VarChar(36)
+  institutionId       String                 @map("institution_id") @db.VarChar(36)
   companyName         String                 @map("company_name") @db.VarChar(255)
   role                String                 @db.VarChar(255)
   packageLpa          Decimal?               @map("package_lpa") @db.Decimal(8, 2)
@@ -2842,10 +2842,10 @@ model PlacementDrive {
 }
 
 model PlacementApplication {
-  id            String                     @id @default(uuid()) @db.Char(36)
-  institutionId String                     @map("institution_id") @db.Char(36)
-  driveId       String                     @map("drive_id") @db.Char(36)
-  studentId     String                     @map("student_id") @db.Char(36)
+  id            String                     @id @default(uuid()) @db.VarChar(36)
+  institutionId String                     @map("institution_id") @db.VarChar(36)
+  driveId       String                     @map("drive_id") @db.VarChar(36)
+  studentId     String                     @map("student_id") @db.VarChar(36)
   status        PlacementApplicationStatus @default(applied)
   appliedAt     DateTime                   @default(now()) @map("applied_at")
   notes         String?                    @db.Text
@@ -2861,8 +2861,8 @@ model PlacementApplication {
 }
 
 model BiometricDevice {
-  id            String           @id @default(uuid()) @db.Char(36)
-  institutionId String           @map("institution_id") @db.Char(36)
+  id            String           @id @default(uuid()) @db.VarChar(36)
+  institutionId String           @map("institution_id") @db.VarChar(36)
   name          String           @db.VarChar(255)
   deviceCode    String           @map("device_code") @db.VarChar(100)
   location      String?          @db.VarChar(255)
@@ -2880,11 +2880,11 @@ model BiometricDevice {
 }
 
 model BiometricPunch {
-  id            String          @id @default(uuid()) @db.Char(36)
-  institutionId String          @map("institution_id") @db.Char(36)
-  deviceId      String          @map("device_id") @db.Char(36)
+  id            String          @id @default(uuid()) @db.VarChar(36)
+  institutionId String          @map("institution_id") @db.VarChar(36)
+  deviceId      String          @map("device_id") @db.VarChar(36)
   personType    PunchPersonType @map("person_type")
-  personId      String          @map("person_id") @db.Char(36)
+  personId      String          @map("person_id") @db.VarChar(36)
   punchTime     DateTime        @default(now()) @map("punch_time")
   direction     PunchDirection  @default(in)
   createdAt     DateTime        @default(now()) @map("created_at")
@@ -2899,9 +2899,9 @@ model BiometricPunch {
 }
 
 model StaffAttendance {
-  id             String                @id @default(uuid()) @db.Char(36)
-  institutionId  String                @map("institution_id") @db.Char(36)
-  staffId        String                @map("staff_id") @db.Char(36)
+  id             String                @id @default(uuid()) @db.VarChar(36)
+  institutionId  String                @map("institution_id") @db.VarChar(36)
+  staffId        String                @map("staff_id") @db.VarChar(36)
   attendanceDate DateTime              @map("attendance_date") @db.Date
   status         StaffAttendanceStatus @default(present)
   checkIn        DateTime?             @map("check_in")
@@ -2916,9 +2916,9 @@ model StaffAttendance {
 }
 
 model FeeConcession {
-  id            String           @id @default(uuid()) @db.Char(36)
-  institutionId String           @map("institution_id") @db.Char(36)
-  studentId     String           @map("student_id") @db.Char(36)
+  id            String           @id @default(uuid()) @db.VarChar(36)
+  institutionId String           @map("institution_id") @db.VarChar(36)
+  studentId     String           @map("student_id") @db.VarChar(36)
   name          String           @db.VarChar(255)
   type          ConcessionType   @default(scholarship)
   amount        Decimal?         @db.Decimal(10, 2)
@@ -2935,9 +2935,9 @@ model FeeConcession {
 }
 
 model FeeInstallmentPlan {
-  id              String           @id @default(uuid()) @db.Char(36)
-  institutionId   String           @map("institution_id") @db.Char(36)
-  studentId       String           @map("student_id") @db.Char(36)
+  id              String           @id @default(uuid()) @db.VarChar(36)
+  institutionId   String           @map("institution_id") @db.VarChar(36)
+  studentId       String           @map("student_id") @db.VarChar(36)
   totalAmount     Decimal          @map("total_amount") @db.Decimal(10, 2)
   numInstallments Int              @map("num_installments")
   academicYear    String           @map("academic_year") @db.VarChar(20)
@@ -2952,9 +2952,9 @@ model FeeInstallmentPlan {
 }
 
 model FeeInstallment {
-  id            String             @id @default(uuid()) @db.Char(36)
-  institutionId String             @map("institution_id") @db.Char(36)
-  planId        String             @map("plan_id") @db.Char(36)
+  id            String             @id @default(uuid()) @db.VarChar(36)
+  institutionId String             @map("institution_id") @db.VarChar(36)
+  planId        String             @map("plan_id") @db.VarChar(36)
   installmentNo Int                @map("installment_no")
   amount        Decimal            @db.Decimal(10, 2)
   dueDate       DateTime           @map("due_date") @db.Date
@@ -2972,9 +2972,9 @@ model FeeInstallment {
 }
 
 model LiveClass {
-  id            String            @id @default(uuid()) @db.Char(36)
-  institutionId String            @map("institution_id") @db.Char(36)
-  sectionId     String            @map("section_id") @db.Char(36)
+  id            String            @id @default(uuid()) @db.VarChar(36)
+  institutionId String            @map("institution_id") @db.VarChar(36)
+  sectionId     String            @map("section_id") @db.VarChar(36)
   subjectName   String            @map("subject_name") @db.VarChar(255)
   title         String            @db.VarChar(255)
   platform      LiveClassPlatform @default(meet)
@@ -2982,7 +2982,7 @@ model LiveClass {
   recordingUrl  String?           @map("recording_url") @db.VarChar(500)
   scheduledAt   DateTime          @map("scheduled_at")
   durationMins  Int               @default(45) @map("duration_mins")
-  hostId        String?           @map("host_id") @db.Char(36)
+  hostId        String?           @map("host_id") @db.VarChar(36)
   status        LiveClassStatus   @default(scheduled)
   createdAt     DateTime          @default(now()) @map("created_at")
   updatedAt     DateTime          @updatedAt @map("updated_at")
@@ -2995,8 +2995,8 @@ model LiveClass {
 }
 
 model QuestionBankItem {
-  id            String             @id @default(uuid()) @db.Char(36)
-  institutionId String             @map("institution_id") @db.Char(36)
+  id            String             @id @default(uuid()) @db.VarChar(36)
+  institutionId String             @map("institution_id") @db.VarChar(36)
   subject       String             @db.VarChar(100)
   topic         String?            @db.VarChar(150)
   classLevel    String?            @map("class_level") @db.VarChar(20)
@@ -3017,9 +3017,9 @@ model QuestionBankItem {
 }
 
 model OnlineTest {
-  id            String              @id @default(uuid()) @db.Char(36)
-  institutionId String              @map("institution_id") @db.Char(36)
-  sectionId     String?             @map("section_id") @db.Char(36)
+  id            String              @id @default(uuid()) @db.VarChar(36)
+  institutionId String              @map("institution_id") @db.VarChar(36)
+  sectionId     String?             @map("section_id") @db.VarChar(36)
   title         String              @db.VarChar(255)
   description   String?             @db.Text
   subject       String?             @db.VarChar(100)
@@ -3040,10 +3040,10 @@ model OnlineTest {
 }
 
 model OnlineTestAttempt {
-  id            String        @id @default(uuid()) @db.Char(36)
-  institutionId String        @map("institution_id") @db.Char(36)
-  testId        String        @map("test_id") @db.Char(36)
-  studentId     String        @map("student_id") @db.Char(36)
+  id            String        @id @default(uuid()) @db.VarChar(36)
+  institutionId String        @map("institution_id") @db.VarChar(36)
+  testId        String        @map("test_id") @db.VarChar(36)
+  studentId     String        @map("student_id") @db.VarChar(36)
   answers       Json?
   score         Int?
   maxScore      Int           @default(0) @map("max_score")
@@ -4042,8 +4042,8 @@ enum AttemptStatus {
 /// is transient and must stay sendable, or a temporary outage would lock users out
 /// of their own signup for good.
 model EmailSuppression {
-  id        String   @id @default(uuid()) @db.Char(36)
-  email     String   @unique @db.VarChar(255)
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  email     String   @unique @db.Citext
   /// hard_bounce | complaint — why this address stopped being deliverable.
   reason    String   @db.VarChar(50)
   /// Provider-supplied diagnostic, kept verbatim for support triage.
