@@ -12,6 +12,11 @@ build/
 .env.local
 .env.*.local
 backend/.env
+# any local env backup, whatever the suffix
+.env.bak*
+*.env.bak*
+backend/.env.*
+!backend/.env.example
 
 # IDE
 .vscode/

@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { env } from './env.js';
 import { logger } from '../utils/logger.js';
+import { superAdminGuard } from './super-admin-guard.js';
 
 declare global {
     // eslint-disable-next-line no-var
@@ -8,7 +9,7 @@ declare global {
 }
 
 const prismaClientSingleton = () => {
-    return new PrismaClient({
+    const client = new PrismaClient({
         log: env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
         datasources: {
             db: {
@@ -16,6 +17,10 @@ const prismaClientSingleton = () => {
             },
         },
     });
+    // Guards the platform-owner role across every User write, whatever the call
+    // site. The database enforces the same rules in a trigger.
+    client.$use(superAdminGuard());
+    return client;
 };
 
 export const prisma = globalThis.prisma ?? prismaClientSingleton();
