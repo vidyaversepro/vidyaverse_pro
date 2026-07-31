@@ -104,3 +104,13 @@ vidyaverse smtp.txt
 db-dump*
 TEST_ACCOUNTS.md
 update-password*.ts
+
+# secret-bearing artifacts (gitleaks 2026-08)
+.backups/
+*.dump
+*.bak
+*.bak-*
+.env.bak*
+*-dump.md
+vidyaverse-pro-dump.md
+templates_audit_dump.md
