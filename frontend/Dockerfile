@@ -31,8 +31,10 @@ COPY frontend ./frontend
 
 ARG VITE_API_URL
 ARG VITE_CHAT_WS_URL
+ARG VITE_SENTRY_DSN
 ENV VITE_API_URL=$VITE_API_URL \
-    VITE_CHAT_WS_URL=$VITE_CHAT_WS_URL
+    VITE_CHAT_WS_URL=$VITE_CHAT_WS_URL \
+    VITE_SENTRY_DSN=$VITE_SENTRY_DSN
 
 # The frontend build script is `tsc && vite build`; the tsc type-check fails on
 # stray unused imports. Run vite directly (esbuild transpiles without a type

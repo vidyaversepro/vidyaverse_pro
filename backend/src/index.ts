@@ -1,3 +1,5 @@
+import './instrument.js';
+import * as Sentry from '@sentry/node';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
@@ -82,6 +84,15 @@ export async function buildApp() {
             level: env.NODE_ENV === 'production' ? 'info' : 'debug',
         },
         bodyLimit: env.MAX_UPLOAD_SIZE_MB * 1024 * 1024,
+    });
+
+    // Capture unhandled route errors to Sentry/GlitchTip (no-op without SENTRY_DSN).
+    Sentry.setupFastifyErrorHandler(fastify);
+
+    // Deliberately throws so error tracking can be verified end-to-end. Public
+    // (no auth preHandler). Safe to remove once GlitchTip wiring is confirmed.
+    fastify.get('/debug-sentry', async () => {
+        throw new Error('GlitchTip test error — vidyaverse-backend (safe to ignore)');
     });
 
     // Inline Zod validator — replaces fastify-type-provider-zod (incompatible with Fastify v4).

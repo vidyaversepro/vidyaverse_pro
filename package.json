@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Comprehensive Educational Management Platform",
   "private": true,
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "dev": "concurrently -k -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
     "dev:all": "pnpm run dev",
