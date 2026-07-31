@@ -10,5 +10,17 @@ if (process.env.SENTRY_DSN) {
     environment: process.env.NODE_ENV || 'production',
     // Errors are tracked in GlitchTip; performance tracing is left off.
     tracesSampleRate: 0,
+    // Don't report expected client errors (401/403/404/validation, etc.) — only
+    // genuine 5xx server faults. Fastify/http-errors carry a numeric statusCode.
+    beforeSend(event, hint) {
+      const err = hint?.originalException as
+        | { statusCode?: number; status?: number }
+        | undefined;
+      const status = err?.statusCode ?? err?.status;
+      if (typeof status === 'number' && status >= 400 && status < 500) {
+        return null;
+      }
+      return event;
+    },
   });
 }
