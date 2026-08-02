@@ -69,9 +69,11 @@ const testimonials = [
 function StatCard({ stat }: { stat: typeof stats[0] }) {
     const counter = useCounter(stat.target, stat.suffix);
     return (
-        <div ref={counter.ref} className="glass-stat-card">
-            <stat.icon size={36} className="mx-auto mb-3 text-white" />
-            <div className="text-3xl sm:text-4xl font-bold text-white mb-1">
+        <div ref={counter.ref} className="indic-tile text-center p-5" style={{ background: 'rgb(255 255 255 / 0.06)', borderColor: 'rgb(var(--gold-rgb) / 0.25)' }}>
+            <span className="indic-icon-plinth w-14 h-14 mx-auto mb-3">
+                <stat.icon size={26} className="relative z-10" />
+            </span>
+            <div className="text-3xl sm:text-4xl text-white mb-1" style={{ fontFamily: 'var(--font-display)' }}>
                 {counter.display}
             </div>
             <div className="text-sm text-white/80 font-medium">{stat.label}</div>
@@ -89,12 +91,8 @@ export default function StatsSection() {
 
     return (
         <>
-            {/* Stats — gradient bg with glass counter cards (DigiClassroom pattern) */}
-            <section
-                id="testimonials"
-                className="py-20"
-                style={{ background: 'linear-gradient(135deg, #E63946 0%, #8B5CF6 50%, #2563EB 100%)' }}
-            >
+            {/* Stats — deep Indic band with icon-plinth counter tiles */}
+            <section id="testimonials" className="indic-section--deep py-20">
                 <div className="max-w-7xl mx-auto px-6">
                     <motion.div
                         initial={{ opacity: 0, y: 28 }}
@@ -103,7 +101,7 @@ export default function StatsSection() {
                         transition={{ duration: 0.6 }}
                         className="text-center mb-12"
                     >
-                        <h2 className="text-3xl sm:text-5xl font-bold text-white tracking-tight mb-4">
+                        <h2 className="text-3xl sm:text-5xl text-white mb-4">
                             Built to Run Everything
                         </h2>
                         <p className="text-lg text-white/80 max-w-3xl mx-auto">
@@ -127,8 +125,8 @@ export default function StatsSection() {
                 </div>
             </section>
 
-            {/* Testimonials (DigiClassroom carousel pattern) */}
-            <section className="section-padding">
+            {/* Testimonials */}
+            <section className="indic-section py-20">
                 <div className="max-w-5xl mx-auto px-6">
                     <motion.div
                         initial={{ opacity: 0, y: 28 }}
@@ -137,54 +135,36 @@ export default function StatsSection() {
                         transition={{ duration: 0.6 }}
                         className="text-center mb-12"
                     >
-                        <p className="section-overline">Built With Educators</p>
-                        <h2
-                            className="text-3xl sm:text-5xl font-bold tracking-tight"
-                            style={{ color: 'var(--text-primary)' }}
-                        >
-                            Designed with our{' '}
-                            <span className="gradient-text-educational">founding cohort</span>
+                        <span className="indic-eyebrow mb-4">Built With Educators</span>
+                        <h2 className="text-3xl sm:text-5xl mt-4">
+                            Designed with our founding cohort
                         </h2>
-                        <p className="text-sm mt-3" style={{ color: 'var(--text-tertiary)' }}>
+                        <p className="text-sm mt-3 indic-muted">
                             Illustrative voices from design-partner interviews · launching 2026
                         </p>
                     </motion.div>
 
                     <div className="relative">
-                        <div className="testimonial-card p-8 md:p-12 text-center">
+                        <div className="indic-tile p-8 md:p-12 text-center">
                             <div className="flex justify-center mb-6">
                                 {[...Array(testimonials[current].stars)].map((_, i) => (
-                                    <Star key={i} size={22} className="text-yellow-400 fill-yellow-400" />
+                                    <Star key={i} size={22} style={{ color: 'var(--gold)', fill: 'var(--gold)' }} />
                                 ))}
                             </div>
 
-                            <Quote
-                                size={36}
-                                className="mx-auto mb-4 opacity-15"
-                                style={{ color: 'var(--primary)' }}
-                            />
+                            <Quote size={36} className="mx-auto mb-4 opacity-15" style={{ color: 'var(--accent-strong)' }} />
 
-                            <blockquote
-                                className="text-lg sm:text-xl italic leading-relaxed mb-8 max-w-3xl mx-auto"
-                                style={{ color: 'var(--text-secondary)' }}
-                            >
+                            <blockquote className="text-lg sm:text-xl italic leading-relaxed mb-8 max-w-3xl mx-auto indic-muted">
                                 "{testimonials[current].quote}"
                             </blockquote>
 
                             <div className="flex items-center justify-center gap-4">
-                                <div
-                                    className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl"
-                                    style={{ background: 'linear-gradient(135deg, var(--primary), var(--accent-purple))' }}
-                                >
+                                <span className="indic-icon-plinth w-14 h-14 text-xl">
                                     {testimonials[current].name[0]}
-                                </div>
+                                </span>
                                 <div className="text-left">
-                                    <div className="font-bold" style={{ color: 'var(--text-primary)' }}>
-                                        {testimonials[current].name}
-                                    </div>
-                                    <div className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                                        {testimonials[current].role}
-                                    </div>
+                                    <div className="font-bold">{testimonials[current].name}</div>
+                                    <div className="text-sm indic-muted">{testimonials[current].role}</div>
                                 </div>
                             </div>
                         </div>
@@ -197,7 +177,7 @@ export default function StatsSection() {
                                     onClick={() => setCurrent(i)}
                                     className="w-3 h-3 rounded-full transition-all duration-300"
                                     style={{
-                                        background: i === current ? 'var(--primary)' : 'var(--border)',
+                                        background: i === current ? 'var(--accent-strong)' : 'rgb(var(--temple-stone-rgb) / 0.3)',
                                         transform: i === current ? 'scale(1.3)' : 'scale(1)',
                                     }}
                                     aria-label={`Testimonial ${i + 1}`}

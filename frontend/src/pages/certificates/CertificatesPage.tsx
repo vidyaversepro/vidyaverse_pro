@@ -27,7 +27,7 @@ const certificateTypeColors: Record<string, string> = {
     completion: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
     sports: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
     cultural: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
-    appreciation: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+    appreciation: 'bg-[var(--peacock-teal)]/10 text-[var(--peacock-teal)] dark:bg-[var(--peacock-teal)]/20 dark:text-[var(--teal-light)]',
     custom: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
 };
 

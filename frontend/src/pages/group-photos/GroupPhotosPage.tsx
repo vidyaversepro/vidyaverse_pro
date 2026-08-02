@@ -124,7 +124,7 @@ export default function GroupPhotosPage() {
                             onChange={handleUpload}
                             disabled={isUploading}
                         />
-                        <Button className="bg-gradient-to-r from-blue-600 to-cyan-600" disabled={isUploading}>
+                        <Button className="bg-gradient-to-r from-blue-600 to-[var(--peacock-teal)]" disabled={isUploading}>
                             {isUploading ? (
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             ) : (
@@ -140,7 +140,7 @@ export default function GroupPhotosPage() {
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 {[
                     { label: 'Total Photos', value: data?.pagination?.total || 0, icon: ImageIcon, color: 'from-[#E63946] to-[#C41E3A]' },
-                    { label: 'Faces Detected', value: '-', icon: Users, color: 'from-blue-500 to-cyan-500' },
+                    { label: 'Faces Detected', value: '-', icon: Users, color: 'from-blue-500 to-[var(--peacock-teal)]' },
                     { label: 'Matched', value: '-', icon: Check, color: 'from-green-500 to-emerald-500' },
                     { label: 'Pending Review', value: '-', icon: Scan, color: 'from-amber-500 to-orange-500' },
                 ].map((stat) => (

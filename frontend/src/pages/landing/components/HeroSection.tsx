@@ -1,35 +1,16 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Zap, Brain, Target, TrendingUp } from 'lucide-react';
-import { useRef, useCallback, useEffect } from 'react';
-
-const fadeUp = (delay: number) => ({
-    initial: { opacity: 0, y: 28 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] },
-});
+import { ArrowRight, Play, Zap, Target, TrendingUp, Brain, ChevronDown } from 'lucide-react';
+import { useRef, useCallback } from 'react';
+import { MandalaSVG } from '@/design/indic/motifs/mandala-svgs';
 
 const heroStats = [
-    { label: 'Integrated Modules', value: '47', icon: Target, color: 'from-red-500 to-orange-500' },
-    { label: 'Parent Channel', value: 'WhatsApp', icon: TrendingUp, color: 'from-green-500 to-emerald-500' },
-    { label: 'One Secure Login', value: 'SSO', icon: Brain, color: 'from-purple-500 to-indigo-500' },
-    { label: 'Setup Time', value: '10 min', icon: Zap, color: 'from-blue-500 to-cyan-500' },
+    { label: 'Integrated Modules', value: '47', icon: Target },
+    { label: 'Parent Channel', value: 'WhatsApp', icon: TrendingUp },
+    { label: 'One Secure Login', value: 'SSO', icon: Brain },
+    { label: 'Setup Time', value: '10 min', icon: Zap },
 ];
 
 export default function HeroSection() {
-    const heroRef = useRef<HTMLDivElement>(null);
-
-    /* Parallax on scroll (DigiClassroom pattern) */
-    useEffect(() => {
-        const handleScroll = () => {
-            if (heroRef.current) {
-                const scrolled = window.pageYOffset;
-                heroRef.current.style.transform = `translateY(${scrolled * 0.3}px)`;
-            }
-        };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
     const visualRef = useRef<HTMLDivElement>(null);
 
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -47,106 +28,67 @@ export default function HeroSection() {
     }, []);
 
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-            {/* Parallax gradient background (DigiClassroom pattern) */}
-            <div
-                ref={heroRef}
-                className="absolute inset-0"
-                style={{
-                    background: 'linear-gradient(135deg, rgba(230,57,70,0.06) 0%, rgba(139,92,246,0.06) 50%, rgba(37,99,235,0.06) 100%)',
-                    willChange: 'transform',
-                }}
-            />
-            <div
-                className="absolute inset-0"
-                style={{ background: 'var(--bg)', opacity: 0.4, backdropFilter: 'blur(2px)' }}
-            />
+        <section className="indic-hero-canvas relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+            <div className="rangoli-texture" />
 
-            {/* Soft gradient blobs */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div
-                    className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full blur-3xl opacity-[0.07] animate-float"
-                    style={{ background: 'radial-gradient(circle, var(--primary), transparent)' }}
-                />
-                <div
-                    className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full blur-3xl opacity-[0.05]"
-                    style={{ background: 'radial-gradient(circle, var(--accent-purple), transparent)', animationDelay: '2s' }}
-                />
+            {/* Slowly breathing lotus mandala, the trio's shared hero motif */}
+            <div className="mandala-wrapper mandala-breathe">
+                <MandalaSVG />
             </div>
 
-            <div className="relative z-10 text-center px-4 sm:px-6 max-w-6xl mx-auto">
-                {/* Hero badge (DigiClassroom pattern) */}
-                <motion.div {...fadeUp(0.1)} className="mb-8">
-                    <div className="hero-badge">
-                        <Zap size={14} style={{ color: 'var(--primary)' }} className="animate-pulse-vg" />
-                        <span>Launching 2026 · Founding cohort now open</span>
-                    </div>
-                </motion.div>
+            <div className="relative z-10 text-center px-4 sm:px-6 max-w-6xl mx-auto py-16">
+                {/* Hero badge */}
+                <div className="mb-6 mt-8">
+                    <span className="indic-eyebrow indic-rise">
+                        <Zap className="h-4 w-4" /> Launching 2026 · Founding cohort now open
+                    </span>
+                </div>
 
                 {/* Headline */}
-                <motion.h1
-                    {...fadeUp(0.2)}
-                    className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.08] mb-6"
-                    style={{ color: 'var(--text-primary)' }}
-                >
-                    <span className="gradient-text-red">Vidyaverse Pro</span>
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl leading-[1.08] mb-6 indic-rise indic-delay-1">
+                    <span className="gradient-text-indic-soft">Vidyaverse</span>
                     <br />
-                    <span className="text-4xl sm:text-5xl font-semibold">The Operating System for Modern Institutions.</span>
-                </motion.h1>
+                    <span className="text-3xl sm:text-4xl lg:text-5xl">The Operating System for Modern Institutions</span>
+                </h1>
+
+                <p
+                    className="font-deva text-lg md:text-xl mb-2 font-semibold tracking-wide indic-rise indic-delay-2"
+                    style={{ color: 'var(--accent-strong)' }}
+                >
+                    विद्या · एक मंच, समग्र संस्थान
+                </p>
 
                 {/* Subtitle */}
-                <motion.p
-                    {...fadeUp(0.35)}
-                    className="text-lg sm:text-xl max-w-3xl mx-auto mb-12 leading-relaxed"
-                    style={{ color: 'var(--text-secondary)' }}
-                >
+                <p className="indic-muted text-lg sm:text-xl max-w-3xl mx-auto mb-12 leading-relaxed indic-rise indic-delay-2">
                     Run your entire campus from one system — <strong>academics</strong>, <strong>fees</strong>,
                     <em> attendance</em>, <em>transport</em>, documents, and AI-powered <strong>WhatsApp updates</strong> to
                     every parent. 47 modules, one login.
-                </motion.p>
+                </p>
 
                 {/* CTAs */}
-                <motion.div
-                    {...fadeUp(0.5)}
-                    className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
-                >
-                    <a href="/register" className="btn-primary-landing text-lg px-8 py-4">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16 indic-rise indic-delay-3">
+                    <a href="/register" className="indic-cta indic-cta--primary w-full sm:w-auto text-lg">
                         Join the Founding Cohort
-                        <ArrowRight size={20} className="ml-1" />
+                        <ArrowRight size={20} />
                     </a>
-                    <a href="#modules" className="btn-secondary-landing text-lg px-8 py-4">
-                        <Play size={18} className="mr-1" />
+                    <a href="#modules" className="indic-cta indic-cta--ghost w-full sm:w-auto text-lg">
+                        <Play size={18} />
                         Explore the Platform
                     </a>
-                </motion.div>
+                </div>
 
-                {/* Hero stats (DigiClassroom glass grid pattern) */}
-                <motion.div
-                    {...fadeUp(0.65)}
-                    className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-16"
-                >
-                    {heroStats.map((stat, i) => (
-                        <div
-                            key={i}
-                            className="glass-card text-center p-4 transition-all duration-300 hover:scale-105 cursor-default"
-                        >
-                            <stat.icon
-                                size={28}
-                                className={`mx-auto mb-2 animate-pulse-vg`}
-                                style={{ color: 'var(--primary)' }}
-                            />
-                            <div
-                                className="text-2xl font-bold mb-1"
-                                style={{ color: 'var(--text-primary)' }}
-                            >
-                                {stat.value}
-                            </div>
-                            <div className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
-                                {stat.label}
-                            </div>
+                {/* Hero stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-16">
+                    {heroStats.map((stat) => (
+                        <div key={stat.label} className="indic-tile text-center p-4">
+                            <span className="indic-icon-plinth w-11 h-11 mx-auto mb-2">
+                                <stat.icon className="h-5 w-5" />
+                            </span>
+                            <div className="indic-stat__value text-2xl">{stat.value}</div>
+                            <div className="indic-muted text-xs font-medium">{stat.label}</div>
                         </div>
                     ))}
-                </motion.div>
+                </div>
 
                 {/* 3D Floating Dashboard Mockup */}
                 <motion.div
@@ -158,90 +100,75 @@ export default function HeroSection() {
                         ref={visualRef}
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
-                        className="mx-auto max-w-4xl rounded-2xl overflow-hidden"
-                        style={{
-                            transition: 'transform 0.4s ease-out',
-                            willChange: 'transform',
-                            boxShadow: '0 32px 80px rgba(230,57,70,0.1), 0 0 0 1px var(--border)',
-                            background: 'var(--bg-surface)',
-                        }}
+                        className="indic-tile mx-auto max-w-4xl rounded-2xl overflow-hidden p-0"
+                        style={{ transition: 'transform 0.4s ease-out', willChange: 'transform' }}
                     >
+                        {/* Window chrome */}
                         <div
-                            className="p-1 rounded-2xl"
-                            style={{ background: 'linear-gradient(135deg, rgba(230,57,70,0.08), rgba(37,99,235,0.08))' }}
+                            className="flex items-center gap-2 px-4 py-3"
+                            style={{ borderBottom: '1px solid rgb(var(--temple-stone-rgb) / 0.18)' }}
                         >
-                            <div className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
-                                {/* Window chrome */}
-                                <div
-                                    className="flex items-center gap-2 px-4 py-3"
-                                    style={{ borderBottom: '1px solid var(--border-light)' }}
+                            <div className="w-3 h-3 rounded-full" style={{ background: 'var(--accent-strong)' }} />
+                            <div className="w-3 h-3 rounded-full" style={{ background: 'var(--gold)' }} />
+                            <div className="w-3 h-3 rounded-full" style={{ background: 'var(--peacock-teal)' }} />
+                            <div
+                                className="ml-4 flex-1 h-7 rounded-lg max-w-xs"
+                                style={{ background: 'rgb(var(--accent-primary-rgb) / 0.08)' }}
+                            />
+                        </div>
+                        {/* Dashboard content */}
+                        <div className="p-6 grid grid-cols-4 gap-4">
+                            {[
+                                { label: 'Attendance', emoji: '✅', rgbVar: '--accent-strong-rgb' },
+                                { label: 'Fees', emoji: '💳', rgbVar: '--lotus-pink-rgb' },
+                                { label: 'Timetable', emoji: '📅', rgbVar: '--indigo-deep-rgb' },
+                                { label: 'WhatsApp', emoji: '💬', rgbVar: '--peacock-teal-rgb' },
+                            ].map((item, i) => (
+                                <motion.div
+                                    key={item.label}
+                                    initial={{ opacity: 0, scale: 0.85 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 1.1 + i * 0.12, ease: [0.16, 1, 0.3, 1] }}
+                                    className="flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-300 hover:scale-105"
+                                    style={{
+                                        background: 'rgb(var(--accent-primary-rgb) / 0.04)',
+                                        border: '1px solid rgb(var(--temple-stone-rgb) / 0.16)',
+                                    }}
                                 >
-                                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                                    <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
                                     <div
-                                        className="ml-4 flex-1 h-7 rounded-lg max-w-xs"
-                                        style={{ background: 'var(--bg-surface)' }}
-                                    ></div>
-                                </div>
-                                {/* Dashboard content */}
-                                <div className="p-6 grid grid-cols-4 gap-4">
-                                    {[
-                                        { label: 'Attendance', emoji: '✅', color: '#E63946' },
-                                        { label: 'Fees', emoji: '💳', color: '#8B5CF6' },
-                                        { label: 'Timetable', emoji: '📅', color: '#2563EB' },
-                                        { label: 'WhatsApp', emoji: '💬', color: '#10B981' },
-                                    ].map((item, i) => (
-                                        <motion.div
-                                            key={item.label}
-                                            initial={{ opacity: 0, scale: 0.85 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ delay: 1.1 + i * 0.12, ease: [0.16, 1, 0.3, 1] }}
-                                            className="flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-300 hover:scale-105"
-                                            style={{
-                                                background: 'var(--bg-surface)',
-                                                border: '1px solid var(--border-light)',
-                                            }}
-                                        >
-                                            <div
-                                                className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
-                                                style={{
-                                                    background: `${item.color}15`,
-                                                }}
-                                            >
-                                                {item.emoji}
-                                            </div>
-                                            <span
-                                                className="text-xs font-medium"
-                                                style={{ color: 'var(--text-secondary)' }}
-                                            >
-                                                {item.label}
-                                            </span>
-                                        </motion.div>
-                                    ))}
-                                    {/* Progress bars */}
-                                    <div className="col-span-4 grid grid-cols-3 gap-3 mt-2">
-                                        {[75, 50, 90].map((w, i) => (
-                                            <motion.div
-                                                key={i}
-                                                initial={{ scaleX: 0 }}
-                                                animate={{ scaleX: 1 }}
-                                                transition={{ delay: 1.5 + i * 0.15, duration: 0.7 }}
-                                                className="h-6 rounded-lg origin-left"
-                                                style={{
-                                                    background: `linear-gradient(90deg, ${['var(--primary)', 'var(--accent-purple)', 'var(--accent-blue)'][i]
-                                                        }, transparent)`,
-                                                    opacity: 0.12,
-                                                    width: `${w}%`,
-                                                }}
-                                            />
-                                        ))}
+                                        className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+                                        style={{ background: `rgb(var(${item.rgbVar}) / 0.15)` }}
+                                    >
+                                        {item.emoji}
                                     </div>
-                                </div>
+                                    <span className="indic-muted text-xs font-medium">{item.label}</span>
+                                </motion.div>
+                            ))}
+                            {/* Progress bars */}
+                            <div className="col-span-4 grid grid-cols-3 gap-3 mt-2">
+                                {[75, 50, 90].map((w, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ scaleX: 0 }}
+                                        animate={{ scaleX: 1 }}
+                                        transition={{ delay: 1.5 + i * 0.15, duration: 0.7 }}
+                                        className="h-6 rounded-lg origin-left"
+                                        style={{
+                                            background: `linear-gradient(90deg, ${['var(--accent-strong)', 'var(--lotus-pink)', 'var(--peacock-teal)'][i]
+                                                }, transparent)`,
+                                            opacity: 0.16,
+                                            width: `${w}%`,
+                                        }}
+                                    />
+                                ))}
                             </div>
                         </div>
                     </div>
                 </motion.div>
+            </div>
+
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 indic-float">
+                <ChevronDown className="w-7 h-7" style={{ color: 'rgb(var(--accent-strong-rgb) / 0.6)' }} />
             </div>
         </section>
     );

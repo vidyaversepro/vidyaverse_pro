@@ -17,7 +17,7 @@ const capabilities = [
 
 export default function WhatsAppComms() {
     return (
-        <section id="communication" className="section-padding">
+        <section id="communication" className="indic-section py-20">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                     {/* Left: copy */}
@@ -27,12 +27,11 @@ export default function WhatsAppComms() {
                         viewport={{ once: true, margin: '-60px' }}
                         transition={{ duration: 0.6 }}
                     >
-                        <p className="section-overline">Parent Communication</p>
-                        <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mb-5" style={{ color: 'var(--text-primary)' }}>
-                            Your back office, now{' '}
-                            <span className="gradient-text-educational">on every parent&apos;s phone.</span>
+                        <span className="indic-eyebrow mb-4">Parent Communication</span>
+                        <h2 className="text-3xl sm:text-5xl mt-4 mb-5">
+                            Your back office, now on every parent&apos;s phone.
                         </h2>
-                        <p className="text-lg mb-8 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                        <p className="text-lg mb-8 leading-relaxed indic-muted">
                             Every other ERP stops at the dashboard. Vidyaverse closes the last mile —
                             reaching parents where they already are, on WhatsApp, with the alerts and
                             payments they actually open.
@@ -47,12 +46,12 @@ export default function WhatsAppComms() {
                                     transition={{ duration: 0.4, delay: i * 0.08 }}
                                     className="flex items-start gap-3"
                                 >
-                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(37,211,102,0.12)', color: '#1DA851' }}>
+                                    <span className="indic-icon-plinth w-10 h-10 shrink-0">
                                         <c.icon size={20} />
-                                    </div>
+                                    </span>
                                     <div>
-                                        <h4 className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>{c.title}</h4>
-                                        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{c.desc}</p>
+                                        <h4 className="font-bold text-sm mb-1">{c.title}</h4>
+                                        <p className="text-xs leading-relaxed indic-muted">{c.desc}</p>
                                     </div>
                                 </motion.div>
                             ))}

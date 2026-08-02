@@ -31,45 +31,35 @@ const newWay = [
 
 export default function ProblemSection() {
     return (
-        <section className="section-padding section-surface" id="problem-solution">
+        <section className="indic-section py-20" id="problem-solution">
             <div className="max-w-6xl mx-auto px-6">
                 <motion.div {...fadeUp} className="text-center mb-16">
-                    <p className="section-overline">The Difference</p>
-                    <h2
-                        className="text-3xl sm:text-5xl font-bold tracking-tight"
-                        style={{ color: 'var(--text-primary)' }}
-                    >
-                        Stop Juggling. Start{' '}
-                        <span className="gradient-text">Simplifying.</span>
+                    <span className="indic-eyebrow mb-4">The Difference</span>
+                    <h2 className="text-3xl sm:text-5xl mt-4">
+                        Stop Juggling. Start Simplifying.
                     </h2>
                 </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* OLD WAY */}
-                    <motion.div
-                        {...fadeUp}
-                        className="feature-card comparison-old p-8"
-                    >
+                    <motion.div {...fadeUp} className="indic-tile p-8">
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-6">
                                 <div
-                                    className="icon-gradient w-12 h-12"
-                                    style={{ background: 'linear-gradient(135deg, #EF4444, #DC2626)' }}
+                                    className="w-12 h-12 rounded-xl flex items-center justify-center text-lg"
+                                    style={{
+                                        background: 'rgb(var(--bark-rgb) / 0.12)',
+                                        color: 'var(--bark)',
+                                    }}
                                 >
-                                    <span className="relative z-10 text-lg">✕</span>
+                                    ✕
                                 </div>
-                                <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                                    Without Vidyaverse
-                                </h3>
+                                <h3 className="text-xl">Without Vidyaverse</h3>
                             </div>
                             <ul className="space-y-4">
                                 {oldWay.map((item, i) => (
-                                    <li
-                                        key={i}
-                                        className="flex items-center gap-3 text-sm"
-                                        style={{ color: 'var(--text-secondary)' }}
-                                    >
-                                        <item.icon size={18} className="text-red-400 shrink-0" />
+                                    <li key={i} className="flex items-center gap-3 text-sm indic-muted">
+                                        <item.icon size={18} className="shrink-0" style={{ color: 'var(--bark)' }} />
                                         {item.text}
                                     </li>
                                 ))}
@@ -81,28 +71,18 @@ export default function ProblemSection() {
                     <motion.div
                         {...fadeUp}
                         transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                        className="feature-card comparison-new p-8"
+                        className="indic-tile p-8"
+                        style={{ borderColor: 'rgb(var(--accent-primary-rgb) / 0.35)' }}
                     >
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-6">
-                                <div
-                                    className="icon-gradient w-12 h-12"
-                                    style={{ background: 'linear-gradient(135deg, var(--primary), var(--accent-purple))' }}
-                                >
-                                    <span className="relative z-10 text-lg">✓</span>
-                                </div>
-                                <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                                    With Vidyaverse
-                                </h3>
+                                <span className="indic-icon-plinth w-12 h-12 text-lg">✓</span>
+                                <h3 className="text-xl">With Vidyaverse</h3>
                             </div>
                             <ul className="space-y-4">
                                 {newWay.map((item, i) => (
-                                    <li
-                                        key={i}
-                                        className="flex items-center gap-3 text-sm font-medium"
-                                        style={{ color: 'var(--text-primary)' }}
-                                    >
-                                        <item.icon size={18} style={{ color: 'var(--primary)' }} className="shrink-0" />
+                                    <li key={i} className="flex items-center gap-3 text-sm font-medium">
+                                        <item.icon size={18} className="shrink-0" style={{ color: 'var(--accent-strong)' }} />
                                         {item.text}
                                     </li>
                                 ))}

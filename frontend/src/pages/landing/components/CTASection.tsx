@@ -9,7 +9,7 @@ const assurance = [
 
 export default function CTASection() {
     return (
-        <section className="py-24 cta-gradient-bg">
+        <section className="indic-section--deep py-24">
             <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 28 }}
@@ -17,7 +17,7 @@ export default function CTASection() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h2 className="text-3xl sm:text-5xl font-bold text-white tracking-tight mb-6">
+                    <h2 className="text-3xl sm:text-5xl text-white mb-6">
                         Run Your Whole Institution on One Platform
                     </h2>
                     <p className="text-lg text-white/85 max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -26,11 +26,11 @@ export default function CTASection() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                        <a href="/register" className="btn-white-landing text-lg px-10 py-4">
+                        <a href="/register" className="indic-cta text-lg px-10 py-4" style={{ background: '#FFFFFF', color: 'var(--night-ink)' }}>
                             Join the Founding Cohort
                             <ArrowRight size={20} />
                         </a>
-                        <a href="#modules" className="btn-outline-white text-lg px-10 py-4">
+                        <a href="#modules" className="indic-cta indic-cta--ghost text-lg px-10 py-4">
                             Explore the Platform
                         </a>
                     </div>

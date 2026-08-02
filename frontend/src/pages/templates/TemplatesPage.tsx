@@ -45,13 +45,13 @@ const serviceTypeIcons: Record<string, React.ElementType> = {
 const serviceTypeColors: Record<string, string> = {
     id_card: 'from-[#E63946] to-[#C41E3A]',
     certificate: 'from-amber-500 to-orange-500',
-    group_photo: 'from-blue-500 to-cyan-500',
+    group_photo: 'from-blue-500 to-[var(--peacock-teal)]',
     hall_ticket: 'from-red-500 to-pink-500',
     marksheet: 'from-emerald-500 to-green-500',
     library_card: 'from-indigo-500 to-blue-500',
     transfer_certificate: 'from-gray-500 to-slate-500',
     portfolio: 'from-pink-500 to-rose-500',
-    visiting_card: 'from-violet-500 to-purple-600',
+    visiting_card: 'from-[var(--lotus-pink)] to-purple-600',
 };
 
 export default function TemplatesPage() {

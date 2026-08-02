@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
+import { MandalaMark } from '@/design/indic/motifs/mandala-mark';
 
 const navLinks = [
     { label: 'Modules', href: '#modules' },
@@ -23,18 +24,23 @@ export default function Navbar() {
 
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-nav shadow-md' : 'bg-transparent'
-                }`}
+            className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md transition-all duration-300"
+            style={{
+                background: scrolled ? 'rgb(var(--parchment-rgb) / 0.9)' : 'rgb(var(--parchment-rgb) / 0.55)',
+                borderBottom: scrolled ? '1px solid rgb(var(--temple-stone-rgb) / 0.22)' : '1px solid transparent',
+                boxShadow: scrolled ? '0 4px 20px rgb(var(--night-ink-rgb) / 0.06)' : 'none',
+            }}
         >
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                {/* Official Logo */}
-                <a href="#" className="flex items-center shrink-0">
-                    <img
-                        src="/vidyaverse-logo.png"
-                        alt="Vidyaverse"
-                        className="h-10 w-auto"
-                        style={{ maxWidth: '180px' }}
-                    />
+                {/* Brand */}
+                <a href="#" className="flex items-center gap-2.5 shrink-0">
+                    <MandalaMark size={36} />
+                    <span
+                        className="text-xl tracking-tight text-[color:var(--night-ink)] dark:text-[color:var(--ivory-cream)]"
+                        style={{ fontFamily: 'var(--font-display)' }}
+                    >
+                        Vidyaverse
+                    </span>
                 </a>
 
                 {/* Desktop nav */}
@@ -43,8 +49,7 @@ export default function Navbar() {
                         <li key={link.href}>
                             <a
                                 href={link.href}
-                                className="text-sm font-medium transition-all duration-300 hover:text-[var(--primary)]"
-                                style={{ color: 'var(--text-secondary)' }}
+                                className="text-sm font-semibold indic-muted hover:text-[color:var(--accent-strong)] dark:hover:text-[color:var(--accent-primary-dark)] transition-colors duration-200"
                             >
                                 {link.label}
                             </a>
@@ -56,32 +61,34 @@ export default function Navbar() {
                 <div className="hidden md:flex items-center gap-3">
                     <button
                         onClick={toggleTheme}
-                        className="theme-toggle-btn"
+                        className="p-2 rounded-full indic-muted hover:bg-[color:var(--accent-soft)] dark:hover:bg-white/5 transition-colors"
                         aria-label="Toggle theme"
                     >
                         {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
                     </button>
                     <a
                         href="/login"
-                        className="text-sm font-medium px-4 py-2 rounded-full transition-all duration-300 hover:text-[var(--primary)]"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="text-sm font-semibold indic-muted hover:text-[color:var(--accent-strong)] dark:hover:text-[color:var(--accent-primary-dark)] px-4 py-2 transition-colors"
                     >
                         Log In
                     </a>
-                    <a href="/register" className="btn-primary-landing text-sm px-5 py-2.5">
+                    <a href="/register" className="indic-cta indic-cta--primary !min-h-0 !py-2.5 !px-5 text-sm">
                         Get Started
                     </a>
                 </div>
 
                 {/* Mobile */}
                 <div className="flex md:hidden items-center gap-2">
-                    <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle theme">
+                    <button
+                        onClick={toggleTheme}
+                        className="p-2 rounded-full indic-muted hover:bg-[color:var(--accent-soft)] dark:hover:bg-white/5 transition-colors"
+                        aria-label="Toggle theme"
+                    >
                         {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
                     </button>
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="p-2 rounded-lg"
-                        style={{ color: 'var(--text-primary)' }}
+                        className="p-2 rounded-lg indic-muted hover:bg-[color:var(--accent-soft)] dark:hover:bg-white/5 transition-colors"
                         aria-label="Toggle menu"
                     >
                         {mobileOpen ? <X size={22} /> : <Menu size={22} />}
@@ -98,7 +105,10 @@ export default function Navbar() {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                         className="md:hidden overflow-hidden"
-                        style={{ background: 'var(--bg)', borderTop: '1px solid var(--border-light)' }}
+                        style={{
+                            background: 'var(--parchment)',
+                            borderTop: '1px solid rgb(var(--temple-stone-rgb) / 0.22)',
+                        }}
                     >
                         <div className="px-6 py-4 flex flex-col gap-3">
                             {navLinks.map((link) => (
@@ -106,17 +116,16 @@ export default function Navbar() {
                                     key={link.href}
                                     href={link.href}
                                     onClick={() => setMobileOpen(false)}
-                                    className="text-sm font-medium py-2"
-                                    style={{ color: 'var(--text-secondary)' }}
+                                    className="text-sm font-semibold indic-muted py-2"
                                 >
                                     {link.label}
                                 </a>
                             ))}
-                            <hr style={{ borderColor: 'var(--border-light)' }} />
-                            <a href="/login" className="text-sm font-medium py-2" style={{ color: 'var(--text-secondary)' }}>
+                            <hr className="indic-rule" />
+                            <a href="/login" className="text-sm font-semibold indic-muted py-2">
                                 Log In
                             </a>
-                            <a href="/register" className="btn-primary-landing text-sm py-3 text-center">
+                            <a href="/register" className="indic-cta indic-cta--primary text-sm py-3 justify-center">
                                 Get Started
                             </a>
                         </div>

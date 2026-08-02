@@ -1,0 +1,42 @@
+/* ============================================================
+   INDIC → shadcn BRIDGE (Vidyaverse)
+
+   App-local wiring, deliberately NOT part of the synced design system: it maps
+   this app's Indic accent (kumkum) onto the shadcn semantic tokens that every
+   existing ui/ primitive already consumes via `hsl(var(--primary))`.
+
+   Because tailwind.config.ts already maps primary/ring/accent to
+   `hsl(var(--x))`, these few lines re-accent every Button, Badge, Input focus
+   ring, Tabs indicator and Card border across all 108 pages — without touching
+   a single component.
+
+   ⚠ These values MUST stay bare "H S% L%" channel triplets. Tailwind compiles
+   `bg-primary/50` into `hsl(var(--primary) / 0.5)`. If anyone "simplifies"
+   --primary to a full colour (#C0392B or hsl(6 63% 46%)), every opacity
+   modifier across the codebase silently produces an invalid colour and the
+   declaration is dropped — with no build error.
+
+   Must be imported AFTER index.css so it overrides the base crimson.
+   ============================================================ */
+
+:root {
+  --primary: var(--accent-primary-hsl);
+  --ring: var(--accent-primary-hsl);
+  --accent: var(--accent-soft-hsl);
+  --accent-foreground: var(--accent-contrast-hsl);
+}
+
+/* Kumkum is already a deep pigment (46% lightness); on the near-black dashboard
+   surface it reads as dried blood rather than vermilion, so dark mode uses the
+   lifted accent. */
+.dark {
+  --primary: var(--accent-primary-dark-hsl);
+  --ring: var(--accent-primary-dark-hsl);
+}
+
+/* Note on the landing scope: `.landing-root` used to declare its own
+   `--primary: #E63946` — a FULL COLOUR under the same name shadcn uses for a
+   channel triplet. Any shadcn primitive rendered inside the landing compiled
+   `bg-primary/50` to `hsl(#E63946 / 0.5)` and had the declaration dropped
+   silently. That token is now named `--brand`, so `--primary` means one thing
+   everywhere and this bridge reaches the landing too. */

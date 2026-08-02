@@ -41,9 +41,9 @@ const rows = [
 ];
 
 function CellIcon({ bad, good }: { bad?: boolean; good?: boolean; neutral?: boolean }) {
-    if (good) return <Check size={16} className="text-emerald-400 flex-shrink-0" />;
-    if (bad) return <X size={16} className="text-red-400/70 flex-shrink-0" />;
-    return <Minus size={16} className="text-white/30 flex-shrink-0" />;
+    if (good) return <Check size={16} className="flex-shrink-0" style={{ color: 'var(--gold)' }} />;
+    if (bad) return <X size={16} className="text-white/25 flex-shrink-0" />;
+    return <Minus size={16} className="text-white/25 flex-shrink-0" />;
 }
 
 const rowVariants = {
@@ -57,7 +57,7 @@ const rowVariants = {
 
 export default function ComparisonSection() {
     return (
-        <section id="comparison" className="relative py-28 sm:py-36 grid-bg">
+        <section id="comparison" className="indic-section--deep relative py-28 sm:py-36">
             <div className="max-w-5xl mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -66,12 +66,9 @@ export default function ComparisonSection() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16"
                 >
-                    <span className="text-cyan-400 text-sm font-semibold tracking-widest uppercase mb-4 block">
-                        The Difference
-                    </span>
-                    <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-                        Why Vidyaverse Pro{' '}
-                        <span className="gradient-text">Wins</span>
+                    <span className="indic-eyebrow mb-4">The Difference</span>
+                    <h2 className="text-3xl sm:text-5xl mt-4">
+                        Why Vidyaverse Pro <span className="gradient-text-indic">Wins</span>
                     </h2>
                 </motion.div>
 
@@ -82,8 +79,11 @@ export default function ComparisonSection() {
                                 <th className="text-left text-white/40 text-sm font-medium p-4 w-[140px]">Feature</th>
                                 <th className="text-left text-white/50 text-sm font-medium p-4">Traditional ERPs</th>
                                 <th className="text-left text-sm font-bold p-4 relative">
-                                    <div className="comparison-highlight rounded-t-2xl px-4 py-2 -mx-4 -my-2">
-                                        <span className="gradient-text font-extrabold">Vidyaverse Pro</span>
+                                    <div
+                                        className="rounded-t-2xl px-4 py-2 -mx-4 -my-2"
+                                        style={{ background: 'rgb(var(--gold-rgb) / 0.12)', borderBottom: '2px solid var(--gold)' }}
+                                    >
+                                        <span className="gradient-text-indic font-extrabold">Vidyaverse Pro</span>
                                     </div>
                                 </th>
                                 <th className="text-left text-white/50 text-sm font-medium p-4">Manual Process</th>
@@ -107,7 +107,7 @@ export default function ComparisonSection() {
                                         </div>
                                     </td>
                                     <td className="p-4 relative">
-                                        <div className="comparison-highlight px-4 py-1 -mx-4 -my-1 rounded-lg">
+                                        <div className="px-4 py-1 -mx-4 -my-1 rounded-lg" style={{ background: 'rgb(var(--gold-rgb) / 0.08)' }}>
                                             <div className="flex items-center gap-2 text-sm text-white font-medium">
                                                 <CellIcon good={row.vidyaverse.good} /> {row.vidyaverse.text}
                                             </div>

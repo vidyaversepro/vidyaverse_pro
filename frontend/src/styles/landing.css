@@ -5,42 +5,59 @@
    Light-mode default · Dark-mode toggle
    ============================================================================ */
 
-/* ---------- THEME VARIABLES (LIGHT) ---------- */
+/* ---------- THEME VARIABLES (LIGHT) ----------
+
+   Every value below is now an Indic pigment from the vendored design system
+   (design/indic/indic-tokens.css + indic-app.css). The names are kept because
+   the landing's ~14 components consume them — re-pointing the VARIABLES
+   re-skins the whole landing at once, which is far better leverage than
+   editing every call site and keeps this diff reviewable.
+
+   The mapping is chosen so the landing keeps its own character rather than
+   becoming a copy of PDLMS: kumkum leads, gold and saffron give warm support,
+   and peacock-teal/indigo carry the cool half. The six `--accent-*` hues that
+   used to be raw Tailwind values (#2563EB, #8B5CF6, #06B6D4 …) now name
+   pigments, so a category colour can never drift outside the palette. */
 .landing-root {
-    --primary: #E63946;
-    --primary-dark: #C41E3A;
-    --primary-light: #FF6B6B;
-    --accent-blue: #2563EB;
-    --accent-purple: #8B5CF6;
-    --accent-orange: #F97316;
-    --accent-cyan: #06B6D4;
-    --accent-emerald: #10B981;
-    --accent-pink: #EC4899;
+    --brand: var(--kumkum);
+    --brand-dark: var(--accent-strong);
+    --brand-light: var(--saffron);
 
-    --bg: #FFFFFF;
-    --bg-surface: #F9FAFB;
-    --bg-elevated: #FFFFFF;
-    --text-primary: #111827;
-    --text-secondary: #6B7280;
-    --text-tertiary: #9CA3AF;
-    --border: #E5E7EB;
-    --border-light: #F3F4F6;
+    --accent-blue: var(--indigo-ink);
+    --accent-purple: var(--lotus-deep);
+    --accent-orange: var(--deep-saffron);
+    --accent-cyan: var(--peacock-teal);
+    --accent-emerald: var(--teal-light);
+    --accent-pink: var(--lotus-pink);
 
-    /* Glassmorphism tokens (DigiClassroom pattern) */
-    --glass-bg: rgba(255, 255, 255, 0.25);
-    --glass-bg-hover: rgba(255, 255, 255, 0.35);
-    --glass-border: rgba(255, 255, 255, 0.18);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --bg: var(--parchment);
+    --bg-surface: var(--ivory-cream);
+    --bg-elevated: var(--parchment);
+    --text-primary: var(--night-ink);
+    /* Warm inks, not neutral greys — ≈7.7:1 and ≈4.9:1 on parchment. A grey
+       secondary is a large part of why the old landing read as generic SaaS
+       even where the brand colour was already applied. */
+    --text-secondary: var(--bark);
+    --text-tertiary: var(--clay-mid);
+    --border: rgb(var(--temple-stone-rgb) / 0.24);
+    --border-light: rgb(var(--temple-stone-rgb) / 0.14);
+
+    /* Glass, warmed. Pure-white glass over a parchment canvas reads as a
+       smear; tinting it with parchment keeps the frosting inside the palette. */
+    --glass-bg: rgb(var(--parchment-rgb) / 0.55);
+    --glass-bg-hover: rgb(var(--parchment-rgb) / 0.72);
+    --glass-border: rgb(var(--gold-rgb) / 0.22);
+    --glass-shadow: 0 8px 32px 0 rgb(var(--accent-strong-rgb) / 0.12);
     --glass-blur: blur(12px);
 
-    /* Shadows */
-    --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.06);
-    --shadow-card-hover: 0 20px 40px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
-    --shadow-glow-red: 0 0 20px rgba(230, 57, 70, 0.3);
-    --shadow-glow-blue: 0 0 20px rgba(37, 99, 235, 0.3);
-    --shadow-glow-purple: 0 0 20px rgba(139, 92, 246, 0.3);
+    /* Shadows — warm-tinted rather than neutral black. */
+    --shadow-card: 0 2px 16px rgb(var(--accent-strong-rgb) / 0.07);
+    --shadow-card-hover: 0 20px 40px rgb(var(--accent-strong-rgb) / 0.14);
+    --shadow-lg: 0 12px 40px rgb(var(--accent-strong-rgb) / 0.12);
+    --shadow-xl: 0 20px 60px rgb(var(--indigo-deep-rgb) / 0.16);
+    --shadow-glow-red: 0 0 20px rgb(var(--accent-primary-rgb) / 0.32);
+    --shadow-glow-blue: 0 0 20px rgb(var(--peacock-teal-rgb) / 0.3);
+    --shadow-glow-purple: 0 0 20px rgb(var(--lotus-deep-rgb) / 0.3);
 
     --radius: 20px;
     --radius-sm: 12px;
@@ -48,7 +65,7 @@
     --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-body);
     background: var(--bg);
     color: var(--text-primary);
     overflow-x: hidden;
@@ -56,28 +73,35 @@
     transition: background var(--transition), color var(--transition);
 }
 
-/* ---------- DARK MODE ---------- */
-.landing-root.dark {
-    --primary: #FF4757;
-    --primary-dark: #E63946;
-    --primary-light: #FF8A80;
+/* ---------- DARK MODE ----------
+   Driven by `.dark` on <html>, set by App.tsx from the Zustand theme store.
+   This used to be `.landing-root.dark`, toggled by a SEPARATE React context
+   with its own localStorage key — so the marketing page and the dashboard
+   could disagree about the theme, and a token resolved differently inside vs
+   outside this element. One signal now. */
+.dark .landing-root {
+    /* Kumkum at 46% lightness goes to dried-blood on night-ink; the lifted
+       accent is the same hue read correctly against a dark surface. */
+    --brand: var(--accent-primary-dark);
+    --brand-dark: var(--kumkum);
+    --brand-light: var(--gold);
 
-    --bg: #0F172A;
-    --bg-surface: #1E293B;
-    --bg-elevated: #253449;
-    --text-primary: #F1F5F9;
-    --text-secondary: #94A3B8;
-    --text-tertiary: #64748B;
-    --border: #334155;
-    --border-light: #1E293B;
+    --bg: var(--night-ink);
+    --bg-surface: var(--navy-deep);
+    --bg-elevated: var(--slate-blue);
+    --text-primary: var(--ivory-cream);
+    --text-secondary: rgb(var(--ivory-cream-rgb) / 0.72);
+    --text-tertiary: rgb(var(--ivory-cream-rgb) / 0.5);
+    --border: rgb(var(--gold-rgb) / 0.16);
+    --border-light: rgb(var(--gold-rgb) / 0.1);
 
-    --glass-bg: rgba(0, 0, 0, 0.25);
-    --glass-bg-hover: rgba(0, 0, 0, 0.35);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-    --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.2);
-    --shadow-card-hover: 0 20px 40px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.3);
+    --glass-bg: rgb(var(--night-ink-rgb) / 0.5);
+    --glass-bg-hover: rgb(var(--night-ink-rgb) / 0.68);
+    --glass-border: rgb(var(--gold-rgb) / 0.14);
+    --glass-shadow: 0 8px 32px 0 rgb(0 0 0 / 0.45);
+    --shadow-card: 0 2px 16px rgb(0 0 0 / 0.3);
+    --shadow-card-hover: 0 20px 40px rgb(0 0 0 / 0.45);
+    --shadow-lg: 0 12px 40px rgb(0 0 0 / 0.4);
 }
 
 /* ---------- RESETS ---------- */
@@ -91,7 +115,7 @@
    GRADIENT TEXT
    ======================================================================== */
 .gradient-text {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent-purple) 100%);
+    background: linear-gradient(135deg, var(--brand) 0%, var(--accent-purple) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -138,7 +162,7 @@
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
 }
 
-.landing-root.dark .glass-nav {
+.dark .landing-root .glass-nav {
     background: rgba(15, 23, 42, 0.8);
     border-bottom-color: rgba(255, 255, 255, 0.08);
 }
@@ -162,7 +186,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+    background: linear-gradient(135deg, var(--brand), var(--accent-blue));
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -180,7 +204,7 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--accent-blue), var(--accent-purple));
+    background: linear-gradient(90deg, var(--brand), var(--accent-blue), var(--accent-purple));
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -194,7 +218,7 @@
     box-shadow: var(--shadow-card-hover);
 }
 
-.landing-root.dark .feature-card {
+.dark .landing-root .feature-card {
     background: linear-gradient(145deg, #1f2937, #111827);
     border-color: rgba(255, 255, 255, 0.06);
 }
@@ -238,7 +262,7 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 1rem 2.25rem;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
     color: #fff;
     font-weight: 600;
     font-size: 1rem;
@@ -305,7 +329,7 @@
     gap: 0.5rem;
     padding: 1rem 2.5rem;
     background: #fff;
-    color: var(--primary-dark);
+    color: var(--brand-dark);
     font-weight: 700;
     font-size: 1.1rem;
     border-radius: 50px;
@@ -361,8 +385,8 @@
 }
 
 .theme-toggle-btn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: var(--brand);
+    color: var(--brand);
     box-shadow: var(--shadow-glow-red);
 }
 
@@ -382,7 +406,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--primary);
+    color: var(--brand);
     margin-bottom: 0.75rem;
 }
 
@@ -404,7 +428,7 @@
     color: var(--text-secondary);
 }
 
-.landing-root.dark .hero-badge {
+.dark .landing-root .hero-badge {
     background: linear-gradient(135deg, rgba(255, 71, 87, 0.12), rgba(37, 99, 235, 0.12));
     border-color: rgba(255, 71, 87, 0.2);
 }
@@ -416,7 +440,7 @@
     font-size: 3rem;
     font-weight: 800;
     line-height: 1;
-    background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+    background: linear-gradient(135deg, var(--brand), var(--accent-blue));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -458,7 +482,7 @@
     position: absolute;
     inset: -2px;
     border-radius: calc(var(--radius) + 2px);
-    background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+    background: linear-gradient(135deg, var(--brand), var(--accent-purple));
     z-index: -1;
 }
 
@@ -507,7 +531,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
     color: #fff;
     font-weight: 700;
     font-size: 1.1rem;
@@ -620,7 +644,7 @@
     box-shadow: var(--shadow-card-hover);
 }
 
-.landing-root.dark .testimonial-card {
+.dark .landing-root .testimonial-card {
     background: rgba(31, 41, 55, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.08);
 }

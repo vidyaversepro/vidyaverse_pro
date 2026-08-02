@@ -43,7 +43,7 @@ export const QUICK_ACTIONS: QuickAction[] = [
     {
         label: 'View Templates',
         icon: FileText,
-        color: 'from-blue-500 to-cyan-500',
+        color: 'from-blue-500 to-[var(--peacock-teal)]',
         href: '/app/templates',
     },
     {

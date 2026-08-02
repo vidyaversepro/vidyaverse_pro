@@ -16,7 +16,7 @@ const typeConfig: Record<string, { icon: typeof Bell; color: string; bg: string 
     info: { icon: Info, color: 'text-blue-500', bg: 'bg-blue-500/10' },
     alert: { icon: Zap, color: 'text-red-500', bg: 'bg-red-500/10' },
     activity: { icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    update: { icon: CheckCheck, color: 'text-violet-500', bg: 'bg-violet-500/10' },
+    update: { icon: CheckCheck, color: 'text-[var(--lotus-pink)]', bg: 'bg-[var(--lotus-pink)]/10' },
 };
 
 function timeAgo(dateStr: string): string {
