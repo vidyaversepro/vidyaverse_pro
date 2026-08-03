@@ -51,6 +51,7 @@ import { SESSION_COOKIE } from './lib/auth-cookies.js';
 import { inboundModule } from './modules/inbound/index.js';
 import { adminModule } from './modules/admin/index.js';
 import { entitlementsModule } from './modules/entitlements/index.js';
+import { academicModule } from './modules/academic/index.js';
 import { admissionsModule } from './modules/admissions/index.js';
 import { transportModule } from './modules/transport/index.js';
 import { hrModule } from './modules/hr/index.js';
@@ -229,6 +230,7 @@ export async function buildApp() {
         // The global wall only understands cookies, so it would reject the relying
         // parties' token calls before the route's own hook ever ran.
         '/api/v1/entitlements/capabilities',
+        '/api/v1/academic/my-class',   // Class/Section resolution — same self-authenticating story, see modules/academic/routes.ts
         '/api/v1/oauth/',              // public OAuth consent-branding lookup
     ];
     fastify.addHook('onRequest', async (request, reply) => {
@@ -371,6 +373,7 @@ export async function buildApp() {
     await fastify.register(inboundModule);
     await fastify.register(adminModule);
     await fastify.register(entitlementsModule);
+    await fastify.register(academicModule);
     await fastify.register(admissionsModule);
     await fastify.register(transportModule);
     await fastify.register(hrModule);
