@@ -58,6 +58,7 @@ import NotificationBell from '@/components/layout/NotificationBell';
 import UserProfileDropdown from '@/components/layout/UserProfileDropdown';
 import HamburgerButton from '@/components/layout/HamburgerButton';
 import InstitutionSwitcher from '@/components/layout/InstitutionSwitcher';
+import { MandalaMark } from '@/design/indic/motifs/mandala-mark';
 
 type SidebarItem = { label: string; icon: typeof LayoutDashboard; href: string; module?: string };
 
@@ -153,8 +154,7 @@ export default function DashboardLayout() {
             {/* ─── Sidebar ─── */}
             <aside
                 className={cn(
-                    'fixed left-0 top-0 z-40 h-screen flex flex-col transition-all duration-300 ease-in-out',
-                    'bg-white dark:bg-gray-900 border-r border-gray-200/80 dark:border-gray-800',
+                    'sidebar-indic sidebar-toran-top fixed left-0 top-0 z-40 h-screen flex flex-col transition-all duration-300 ease-in-out',
                     /* Desktop Width */
                     'max-lg:w-64',
                     sidebarOpen ? 'lg:w-64' : 'lg:w-[72px]',
@@ -163,7 +163,7 @@ export default function DashboardLayout() {
                 )}
             >
                 {/* Logo */}
-                <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200/80 dark:border-gray-800 shrink-0 overflow-hidden">
+                <div className="flex h-16 items-center justify-between px-4 border-b border-black/5 dark:border-white/10 shrink-0 overflow-hidden">
                     <Link to={homeLink} className={cn('flex items-center gap-2.5 transition-all outline-none', sidebarOpen ? 'w-auto opacity-100' : 'w-0 opacity-0 overflow-hidden')}>
                         <img src="/vidyaverse-logo.png" alt="Vidyaverse" className="h-7 min-w-max" />
                     </Link>
@@ -171,9 +171,7 @@ export default function DashboardLayout() {
                     {/* Collapsed Logo view */}
                     {!sidebarOpen && (
                         <div className="hidden lg:flex w-full items-center justify-center">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E63946] to-[#C41E3A] flex items-center justify-center font-bold text-white shadow-sm">
-                                V
-                            </div>
+                            <MandalaMark size={32} />
                         </div>
                     )}
 
@@ -198,12 +196,10 @@ export default function DashboardLayout() {
                                     className={cn(
                                         'flex items-center px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group outline-none',
                                         sidebarOpen ? 'justify-start gap-3' : 'justify-center lg:px-0',
-                                        isActive
-                                            ? 'bg-red-50 text-[#E63946] dark:bg-red-950/40 dark:text-red-400 shadow-sm'
-                                            : 'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/60 dark:hover:text-gray-200'
+                                        isActive ? 'sidebar-indic-active' : 'sidebar-indic-inactive'
                                     )}
                                 >
-                                    <item.icon className={cn('w-5 h-5 shrink-0 transition-colors', isActive ? 'text-[#E63946] dark:text-red-400' : 'group-hover:text-gray-900 dark:group-hover:text-white')} />
+                                    <item.icon className="w-5 h-5 shrink-0 transition-colors" />
                                     <span
                                         className={cn(
                                             'transition-all duration-300 whitespace-nowrap overflow-hidden',
@@ -236,7 +232,7 @@ export default function DashboardLayout() {
                 </TooltipProvider>
 
                 {/* User & Logout */}
-                <div className="border-t border-gray-200/80 dark:border-gray-800 p-3 shrink-0">
+                <div className="border-t border-black/5 dark:border-white/10 p-3 shrink-0">
                     <button
                         onClick={handleLogout}
                         className={cn(
