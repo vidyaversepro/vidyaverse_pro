@@ -69,6 +69,7 @@ model Institution {
   clinicVisits                   ClinicVisit[]
   conversationMessages           ConversationMessage[]
   conversations                  Conversation[]
+  curriculumScopes               InstitutionCurriculumScope[]
   digestQueue                    DigestQueue[]
   enquiries                      Enquiry[]
   enquiryActivities              EnquiryActivity[]
@@ -144,6 +145,33 @@ model Institution {
   @@index([subscriptionStatus, subscriptionTier])
   @@index([isActive])
   @@map("institutions")
+}
+
+/// An institute's curriculum scope for the shared cross-repo taxonomy (Taxonomy
+/// Service, own datasource -- see prisma/taxonomy/schema.prisma). Lives here, not
+/// there, because this is institution data (who the institute is, what it teaches),
+/// not classification data (what the tree looks like) -- Vidyaverse already owns
+/// Institution identity, so this is the one source of truth rather than splitting
+/// institution data across two services.
+///
+/// Stores resolved SUBJECT-level (or PAPER/SUBJECT_PAPER, per domain) taxonomy node
+/// ids directly -- the onboarding/settings picker's Board->Medium->Class selection
+/// expands to concrete leaf ids at save time, so a read at request time (every
+/// scoped RAG search, in both PDLMS and DigiClassroom) is O(1), never a tree-walk.
+/// taxonomyNodeId is intentionally NOT a foreign key -- it lives in a different
+/// Postgres datasource, so referential integrity across them can't be enforced by
+/// Postgres and isn't attempted here.
+model InstitutionCurriculumScope {
+  id             String      @id @default(uuid()) @db.VarChar(36)
+  institutionId  String      @map("institution_id") @db.VarChar(36)
+  institution    Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  taxonomyNodeId String      @map("taxonomy_node_id") @db.VarChar(36)
+  createdAt      DateTime    @default(now()) @map("created_at")
+  createdBy      String?     @map("created_by") @db.VarChar(36)
+
+  @@unique([institutionId, taxonomyNodeId])
+  @@index([institutionId])
+  @@map("institution_curriculum_scopes")
 }
 
 model ChatConversation {

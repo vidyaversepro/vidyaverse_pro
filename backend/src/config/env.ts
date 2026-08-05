@@ -44,6 +44,16 @@ const envSchema = z.object({
     /** Shared secret for HMAC-signing capability-invalidation webhooks to the RPs. */
     ENTITLEMENTS_WEBHOOK_SECRET: z.string().optional(),
 
+    // Taxonomy (Postgres). Same opt-in, separate-datasource shape as entitlements —
+    // the shared book-classification tree PDLMS and DigiClassroom both read from.
+    // When unset the taxonomy API is not registered.
+    TAXONOMY_DATABASE_URL: z.string().optional(),
+    /** Shared secret the relying parties (PDLMS/DCP backends) present to call the
+     *  taxonomy read/write API server-to-server — this is reference data, not a
+     *  per-user resource, so it is not gated behind an OIDC access token like
+     *  capabilities is. */
+    TAXONOMY_SERVICE_API_KEY: z.string().optional(),
+
     // Email
     // Resend is the preferred transport — it reports bounces and complaints, which
     // shared SMTP does not. When RESEND_API_KEY is absent the mailer falls back to

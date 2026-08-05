@@ -51,6 +51,7 @@ import { SESSION_COOKIE } from './lib/auth-cookies.js';
 import { inboundModule } from './modules/inbound/index.js';
 import { adminModule } from './modules/admin/index.js';
 import { entitlementsModule } from './modules/entitlements/index.js';
+import { taxonomyModule } from './modules/taxonomy/index.js';
 import { academicModule } from './modules/academic/index.js';
 import { admissionsModule } from './modules/admissions/index.js';
 import { transportModule } from './modules/transport/index.js';
@@ -231,7 +232,19 @@ export async function buildApp() {
         // parties' token calls before the route's own hook ever ran.
         '/api/v1/entitlements/capabilities',
         '/api/v1/academic/my-class',   // Class/Section resolution — same self-authenticating story, see modules/academic/routes.ts
+        '/api/v1/academic/my-curriculum-scope', // Institute curriculum scope pull — same self-authenticating story, see modules/academic/curriculum-scope.routes.ts
+        // NOT public: /api/v1/academic/institutions/:id/curriculum-scope (admin CRUD)
+        // relies on session-or-token auth PLUS requireRole — it must still pass
+        // through this wall's exemption (it self-authenticates the same way) but the
+        // role check inside the route is what actually gates it.
+        '/api/v1/academic/institutions/',
         '/api/v1/oauth/',              // public OAuth consent-branding lookup
+        // Taxonomy API. NOT public — it authenticates itself, accepting either a
+        // shared service API key (PDLMS/DCP backends) OR a Vidyaverse admin session
+        // (see modules/taxonomy/service-auth.ts). The global wall only understands
+        // cookies, so a server-to-server API-key call would be rejected before the
+        // route's own hook ever ran.
+        '/api/v1/taxonomy/',
     ];
     fastify.addHook('onRequest', async (request, reply) => {
         // CORS preflight carries no credentials — must pass.
@@ -373,6 +386,7 @@ export async function buildApp() {
     await fastify.register(inboundModule);
     await fastify.register(adminModule);
     await fastify.register(entitlementsModule);
+    await fastify.register(taxonomyModule);
     await fastify.register(academicModule);
     await fastify.register(admissionsModule);
     await fastify.register(transportModule);

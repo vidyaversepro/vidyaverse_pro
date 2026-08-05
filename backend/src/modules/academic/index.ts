@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import academicRoutes from './routes.js';
+import curriculumScopeRoutes from './curriculum-scope.routes.js';
 import { logger } from '../../utils/logger.js';
 
 export async function academicModule(app: FastifyInstance) {
@@ -8,5 +9,10 @@ export async function academicModule(app: FastifyInstance) {
     // unlike entitlements' separate Postgres datasource — there is only one source
     // of truth here and it is always configured).
     app.register(academicRoutes, { prefix: '/api/v1/academic' });
-    logger.info('[academic] profile API registered');
+
+    // Institute curriculum scope for the shared cross-repo taxonomy — what
+    // PDLMS/DigiClassroom pull to pre-scope a student's retrieval.
+    app.register(curriculumScopeRoutes, { prefix: '/api/v1/academic' });
+
+    logger.info('[academic] profile API + curriculum scope registered');
 }

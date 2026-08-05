@@ -1,0 +1,160 @@
+// Taxonomy — the shared book-classification tree PDLMS and DigiClassroom both read
+// from, so a book ingested by either app is categorized identically and retrieval can
+// be scoped to it (not just ranked by semantic similarity).
+//
+// A SEPARATE datasource from the main Vidyaverse schema, deliberately, mirroring the
+// entitlements datasource (prisma/entitlements/schema.prisma):
+//   * it holds NO identity data — books are referenced by opaque (app, bookId), never
+//     joined to either RP's own tables;
+//   * it keeps its own module boundary so it can be extracted into its own service
+//     later without untangling foreign keys from the ERP tables.
+//
+// Institute curriculum-scope selection is NOT here — it lives in the main Vidyaverse
+// schema (InstitutionCurriculumScope), because it is institution data, not taxonomy
+// data. This schema only holds the classification tree and which books sit where in
+// it.
+//
+// Generate with:
+//   prisma generate --schema prisma/taxonomy/schema.prisma
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../node_modules/.prisma/taxonomy-client"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TAXONOMY_DATABASE_URL")
+  schemas  = ["taxonomy"]
+}
+
+/// The five top-level classification domains from the trio taxonomy spec.
+enum TaxonomyDomain {
+  school
+  college
+  competitive
+  entrance
+  misc
+
+  @@schema("taxonomy")
+}
+
+/// Every node position the five domain branches can hold. Deliberately one flat enum
+/// rather than one per domain — a node's domain field already disambiguates, and a
+/// flat enum means adding a new domain later never means adding a new Prisma model.
+enum TaxonomyNodeType {
+  // School Education: Board -> State (State Board only) -> Medium -> Class -> Subject
+  board
+  state
+  medium
+  class
+  subject
+
+  // College Education: Degree -> RegulatoryBody -> YearSemester -> Subject -> Paper
+  degree
+  regulatory_body
+  year_semester
+  paper
+
+  // Competitive Exam Prep: Sector -> Exam -> SubjectPaper
+  sector
+  exam_competitive
+  subject_paper
+
+  // Entrance Exam Prep: TargetStage -> Exam -> Subject
+  target_stage
+  exam_entrance
+
+  // Misc: flat tags, no fixed hierarchy
+  tag
+
+  @@schema("taxonomy")
+}
+
+/// Which app's book identity a BookTaxonomyLink.bookId refers to.
+enum TaxonomyApp {
+  pdlms
+  digiclassroom
+
+  @@schema("taxonomy")
+}
+
+/// One node in the classification tree. Self-referential — a single tree per domain,
+/// not five separate tables, so new branches are addable as seed data rather than
+/// migrations.
+///
+/// Stops at Subject/Paper, deliberately not Book or Chapter: Book already exists as a
+/// real row in each RP's own database (making it a taxonomy node too would create a
+/// second source of truth for the same thing), and chapter-level data is already
+/// chunk-level Qdrant payload (`chapter_title`) in both apps.
+model TaxonomyNode {
+  id       String           @id @default(uuid()) @db.Uuid
+  domain   TaxonomyDomain
+  nodeType TaxonomyNodeType @map("node_type")
+
+  name String
+  /// URL/filter-safe identifier, unique among siblings (e.g. "cbse", "class-10").
+  slug String
+
+  parentId String?        @map("parent_id") @db.Uuid
+  parent   TaxonomyNode?  @relation("TaxonomyTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children TaxonomyNode[] @relation("TaxonomyTree")
+
+  /// Full root-to-here path, denormalized and maintained on write (see tree-service),
+  /// so resolving "every ancestor of this node" or "is X under Y" never needs a
+  /// recursive query on the hot path.
+  ancestorIds String[] @map("ancestor_ids") @db.Uuid
+
+  sortOrder Int     @default(0) @map("sort_order")
+  isActive  Boolean @default(true) @map("is_active")
+
+  /// Node-type-specific extras that don't earn their own column — e.g. {"classNumber":
+  /// 10} on a `class` node, {"requiresState": true} on a `board` node whose State
+  /// Board branch requires a state selection beneath it.
+  metadata Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  links BookTaxonomyLink[]
+
+  // Siblings share a parent+slug uniquely; NULL parentId (domain roots) needs its own
+  // uniqueness on (domain, slug) since Postgres treats NULLs as distinct in a unique
+  // index otherwise.
+  @@unique([parentId, slug])
+  @@unique([domain, slug, parentId])
+  @@index([domain, nodeType])
+  @@index([parentId])
+  @@map("taxonomy_nodes")
+  @@schema("taxonomy")
+}
+
+/// A book, in either app, tagged onto one node. Many rows per book supports
+/// cross-listing (an NCERT title is CBSE and several state boards); exactly one row
+/// per (app, bookId) should have isPrimary = true — the primary shelf path for
+/// browsing, enforced in links-service rather than the database since Postgres has no
+/// native "exactly one true per group" constraint short of a partial unique index per
+/// group key, which bookId being free-form text makes awkward here.
+model BookTaxonomyLink {
+  id String @id @default(uuid()) @db.Uuid
+
+  app TaxonomyApp
+  /// Opaque — PDLMS Book.id or DCP books.id. Intentionally NOT a foreign key; this
+  /// schema does not depend on either RP's database.
+  bookId String @map("book_id") @db.VarChar(64)
+
+  nodeId String       @map("node_id") @db.Uuid
+  node   TaxonomyNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  isPrimary Boolean @default(false) @map("is_primary")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([app, bookId, nodeId])
+  @@index([app, bookId])
+  @@index([nodeId])
+  @@map("book_taxonomy_links")
+  @@schema("taxonomy")
+}
