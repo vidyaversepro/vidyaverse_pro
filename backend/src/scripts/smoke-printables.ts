@@ -3,7 +3,7 @@
  * (no HTTP/auth) for a real student, exercising the full path: template resolve
  * + auto-seed → branding → Handlebars render → Puppeteer PDF → R2 upload.
  *
- * Run from backend/:  npx tsx src/scripts/smoke-printables.ts [institutionId]
+ * Run from backend/:  npx tsx src/scripts/smoke-printables.ts <institutionId>
  * Verifies a PDF URL lands for each type; prints a pass/fail table.
  */
 import { prisma } from '../config/database.js';
@@ -14,7 +14,10 @@ import { transferCertificateService } from '../modules/transfer-certificates/tra
 import { marksheetService } from '../modules/marksheets/marksheet.service.js';
 import { hallTicketService } from '../modules/hall-tickets/hall-ticket.service.js';
 
-const INSTITUTION = process.argv[2] || '0ea3b292-ba4d-4e2e-9103-a13e637dbfc5'; // Virat Gurukul 2
+const INSTITUTION = process.argv[2];
+if (!INSTITUTION) {
+    throw new Error('Usage: npx tsx src/scripts/smoke-printables.ts <institutionId> — no default, must be explicit.');
+}
 
 type Row = { type: string; status: string; detail: string };
 

@@ -3,7 +3,7 @@
  * to a local PNG so the output can be visually inspected. Same render path as the
  * in-app preview: registry HTML -> Handlebars -> document-base (fonts) -> Puppeteer image.
  *
- * Run from backend/:  npx tsx src/scripts/visual-preview.ts [institutionId] [outDir]
+ * Run from backend/:  npx tsx src/scripts/visual-preview.ts <institutionId> [outDir]
  */
 import { prisma } from '../config/database.js';
 import { DEFAULT_TEMPLATES, getSampleData } from '../lib/default-templates/index.js';
@@ -14,7 +14,10 @@ import { generateImageFromHTML } from '../utils/pdf-generator.js';
 import fs from 'fs/promises';
 import path from 'path';
 
-const INSTITUTION = process.argv[2] || '0ea3b292-ba4d-4e2e-9103-a13e637dbfc5'; // Virat Gurukul 2
+const INSTITUTION = process.argv[2];
+if (!INSTITUTION) {
+    throw new Error('Usage: npx tsx src/scripts/visual-preview.ts <institutionId> [outDir] — no default, must be explicit.');
+}
 const OUT = process.argv[3] || path.join(process.env.TEMP || '.', 'vv-previews');
 
 async function main() {

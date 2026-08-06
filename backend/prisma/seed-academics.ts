@@ -4,11 +4,14 @@
  * schedule + timetable (exam_subjects), and marks (out of 100) for every student.
  * The calculation engine is created lazily by marksheet.service on first generate.
  *
- * Run from backend/:  npx tsx prisma/seed-academics.ts [institutionId]
+ * Run from backend/:  npx tsx prisma/seed-academics.ts <institutionId>
  */
 import { prisma } from '../src/config/database.js';
 
-const INSTITUTION = process.argv[2] || '0ea3b292-ba4d-4e2e-9103-a13e637dbfc5'; // Virat Gurukul 2
+const INSTITUTION = process.argv[2];
+if (!INSTITUTION) {
+    throw new Error('Usage: npx tsx prisma/seed-academics.ts <institutionId> — no default, must be explicit.');
+}
 const ACADEMIC_YEAR = '2026-2027';
 const EXAM_NAME = 'वार्षिक परीक्षा · Annual Examination 2026-27';
 const SUBJECTS = [
