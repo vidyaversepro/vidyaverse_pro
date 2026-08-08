@@ -1,7 +1,15 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "strict": false,
+        // strict stays ON here, matching tsconfig.json.
+        //
+        // It was previously `false`, which switched off strictNullChecks — and
+        // zod's `z.infer` depends on strictNullChecks to tell required apart from
+        // optional. Without it EVERY schema property collapses to optional, so
+        // taxonomy/routes.ts reported two type errors that did not exist in the
+        // code at all. Turning strict back on removed both and surfaced nothing
+        // new. The lint-style checks below stay relaxed for the build; those are
+        // style, not soundness.
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "noImplicitReturns": false,

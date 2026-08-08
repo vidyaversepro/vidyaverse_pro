@@ -867,8 +867,18 @@ export const createStudentService = (tx: any = prisma) => ({
 
         if (students.length === 0) throw new NotFoundError('No students found for the given IDs');
 
-        // Clean up MinIO objects for all students
-        const allUrls = students.flatMap(s => [
+        // Clean up MinIO objects for all students.
+        // `tx` is typed `any` (see createStudentService), so findMany's result
+        // carries no shape and these callbacks would be implicitly any. Naming
+        // the four fields actually selected above is precise and local; retyping
+        // the whole transaction client is a separate change.
+        type StudentAssetRow = {
+            photoUrl: string | null;
+            thumbUrl: string | null;
+            studentSignatureUrl: string | null;
+            parentSignatureUrl: string | null;
+        };
+        const allUrls = (students as StudentAssetRow[]).flatMap((s) => [
             s.photoUrl,
             s.thumbUrl,
             s.studentSignatureUrl,

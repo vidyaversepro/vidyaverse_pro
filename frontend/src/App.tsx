@@ -305,7 +305,7 @@ export default function App() {
                         <Route path="settings" element={<SettingsPage />} />
                         <Route path="oauth-clients" element={<OAuthClientsPage />} />
                         <Route path="visionarium" element={<VisionariumPage />} />
-                        <Route path="visionarium/test-series" element={<VisionariumPage />} />
+                        <Route path="visionarium/test-series" element={<TestSeriesPage />} />
                         <Route path="visionarium/submissions" element={<SubmissionsPage />} />
                         <Route path="saathi" element={<SaathiFeedPage />} />
                         <Route path="saathi/connections" element={<SaathiConnectionsPage />} />
@@ -342,7 +342,7 @@ export default function App() {
                         <Route path="dashboard" element={<StudentDashboardPage />} />
                         <Route path="connections" element={<SaathiConnectionsPage />} />
                         <Route path="visionarium" element={<VisionariumPage />} />
-                        <Route path="visionarium/test-series" element={<VisionariumPage />} />
+                        <Route path="visionarium/test-series" element={<TestSeriesPage />} />
                         <Route path="visionarium/submissions" element={<SubmissionsPage />} />
                         <Route path="settings" element={<SettingsPage />} />
                     </Route>

@@ -23,6 +23,7 @@
     "no-undef": "off",
     "no-empty": ["error", { "allowEmptyCatch": true }],
     "no-console": "off",
+    "no-constant-condition": ["error", { "checkLoops": false }],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/ban-ts-comment": "warn",

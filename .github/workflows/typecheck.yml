@@ -1,0 +1,53 @@
+name: Typecheck
+
+# The backend runs under `tsx`, which strips types without checking them, and the
+# frontend ships through Vite. So nothing in the normal build or deploy path ever
+# runs `tsc` — type errors accumulate silently and only surface as runtime
+# surprises.
+#
+# That is not hypothetical: by the time this was added, an unused-import error had
+# been sitting in App.tsx long enough that the `visionarium/test-series` route was
+# rendering the wrong page in production, and tsconfig.build.json had `strict:false`
+# which broke zod's required/optional inference and produced two phantom errors in
+# taxonomy/routes.ts. Both were invisible precisely because nothing type-checked.
+#
+# This job is the gate. Keep it green.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # Prisma Client is generated, not committed; the backend will not typecheck
+      # without it.
+      - name: Generate Prisma Client
+        run: pnpm --filter @vidyaverse/backend exec prisma generate
+
+      - name: Build shared packages
+        run: pnpm --filter @vidyaverse/shared-validation build
+
+      - name: Typecheck backend
+        run: pnpm --filter @vidyaverse/backend exec tsc --noEmit
+
+      - name: Typecheck backend (build config)
+        run: pnpm --filter @vidyaverse/backend exec tsc -p tsconfig.build.json --noEmit
+
+      - name: Typecheck frontend
+        run: pnpm --filter @vidyaverse/frontend exec tsc --noEmit
