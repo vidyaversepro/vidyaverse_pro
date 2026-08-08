@@ -35,10 +35,15 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      # Prisma Client is generated, not committed; the backend will not typecheck
-      # without it.
-      - name: Generate Prisma Client
-        run: pnpm --filter @vidyaverse/backend exec prisma generate
+      # Prisma Clients are generated, not committed; the backend will not
+      # typecheck without them. There are THREE datasources, each with its own
+      # client — missing the taxonomy one is what took the taxonomy service down
+      # in production, so generate all three here too.
+      - name: Generate Prisma Clients
+        run: |
+          pnpm --filter @vidyaverse/backend exec prisma generate
+          pnpm --filter @vidyaverse/backend exec prisma generate --schema prisma/entitlements/schema.prisma
+          pnpm --filter @vidyaverse/backend exec prisma generate --schema prisma/taxonomy/schema.prisma
 
       - name: Build shared packages
         run: pnpm --filter @vidyaverse/shared-validation build

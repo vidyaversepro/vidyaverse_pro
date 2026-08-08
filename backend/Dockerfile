@@ -37,7 +37,19 @@ RUN pnpm --filter @vidyaverse/shared-validation build \
  # `|| true` because it is an optional module: a build without it must still
  # produce a working image, and the runtime loads the client lazily so its absence
  # is only felt if the feature is actually enabled.
- && (pnpm --filter @vidyaverse/backend exec prisma generate --schema prisma/entitlements/schema.prisma || true)
+ && (pnpm --filter @vidyaverse/backend exec prisma generate --schema prisma/entitlements/schema.prisma || true) \
+ # Taxonomy is a THIRD datasource with its own generated client. It was added
+ # after this Dockerfile and never wired in, so the client was absent from every
+ # image ever built and /api/v1/taxonomy/* answered 500 with
+ # "Cannot find module '.prisma/taxonomy-client'" from the day it shipped —
+ # which meant DigiClassroom's book-tagging picker, which proxies this service,
+ # could never populate.
+ #
+ # Deliberately NOT `|| true`. The entitlements line above swallows failures
+ # because that module is optional; taxonomy is not — every book tagged in either
+ # RP goes through it, and a silent 500 is exactly how this went unnoticed. A
+ # failed generate should fail the build.
+ && pnpm --filter @vidyaverse/backend exec prisma generate --schema prisma/taxonomy/schema.prisma
 
 # ---- Production -------------------------------------------------------------
 FROM node:22-alpine AS production
