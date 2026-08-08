@@ -92,6 +92,24 @@ const baseConfig = {
         // cookie is the one that must remain unambiguous.
         cookiePrefix: AUTH_COOKIE_PREFIX,
     },
+    // This is the identity provider — every trio login funnels through these
+    // endpoints, so credential-stuffing and email-bomb abuse is throttled here at
+    // the source. Per-IP, in-memory (per instance); the generous global ceiling
+    // keeps the SPA working while the custom rules clamp the sensitive paths.
+    // NOTE: rate limiting is keyed on client IP, which behind Traefik/Cloudflare
+    // must arrive via X-Forwarded-For — confirm the proxy sets it.
+    rateLimit: {
+        enabled: true,
+        window: 60,
+        max: 120,
+        customRules: {
+            '/sign-in/email': { window: 60, max: 8 },
+            '/sign-up/email': { window: 60, max: 5 },
+            '/forget-password': { window: 900, max: 5 },
+            '/reset-password': { window: 900, max: 8 },
+            '/send-verification-email': { window: 900, max: 5 },
+        },
+    },
     trustedOrigins,
 } satisfies BetterAuthOptions;
 

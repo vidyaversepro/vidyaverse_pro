@@ -26,10 +26,10 @@
   },
   "lint-staged": {
     "backend/src/**/*.ts": [
-      "eslint --fix"
+      "pnpm --filter @vidyaverse/backend exec eslint --fix"
     ],
     "frontend/src/**/*.{ts,tsx}": [
-      "eslint --fix"
+      "pnpm --filter @vidyaverse/frontend exec eslint --fix"
     ]
   },
   "keywords": [
