@@ -28,7 +28,7 @@ const attendanceRoutes: FastifyPluginAsync = async (fastify) => {
         preHandler: [fastify.requireInstitution],
         handler: async (request) => {
             const institutionId = request.institutionId;
-            const query = request.query;
+            const query = attendanceQuerySchema.parse(request.query);
             const result = await attendanceService.listSessions(institutionId, query);
             return { success: true, data: result.sessions, pagination: result.pagination };
         },
