@@ -147,7 +147,7 @@ const hallTicketRoutes = async (fastify) => {
         preHandler: [fastify.requireInstitution],
         handler: async (request) => {
             const institutionId = request.institutionId;
-            const query = request.query;
+            const query = hallTicketQuerySchema.parse(request.query);
             const result = await getService(request).list(institutionId, query);
             return {
                 success: true,

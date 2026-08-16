@@ -43,7 +43,7 @@ const libraryCardRoutes = async (fastify) => {
         preHandler: [fastify.requireInstitution],
         handler: async (request) => {
             const institutionId = request.institutionId;
-            const query = request.query;
+            const query = libraryCardQuerySchema.parse(request.query);
             const result = await getService(request).list(institutionId, query);
             return { success: true, data: result.cards, pagination: result.pagination };
         },

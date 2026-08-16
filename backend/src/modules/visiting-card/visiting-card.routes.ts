@@ -3,6 +3,7 @@ import { FastifyPluginAsync } from 'fastify';
 // @ts-nocheck
 import { createVisitingCardService } from './service.js';
 import { getTenantPrisma } from '../../lib/prisma-tenant.js';
+import { visitingCardQuerySchema } from '@vidyaverse/shared-validation';
 
 function getService(request: any) {
     if (request.institutionId) {
@@ -71,7 +72,7 @@ const visitingCardRoutes: FastifyPluginAsync = async (fastify) => {
             preHandler: [fastify.requireInstitution],
             handler: async (request: any) => {
                 const institutionId = request.institutionId;
-                const query = request.query;
+                const query = visitingCardQuerySchema.parse(request.query);
                 const result = await getService(request).list(institutionId, query);
 
                 return {
