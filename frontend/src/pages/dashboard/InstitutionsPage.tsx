@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useInstitutions, useDeleteInstitution } from '@/lib/queries';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { StatCard } from '@/components/shared/StatCard';
-import { FilterBar } from '@/components/shared/FilterBar';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
     Table,
     TableBody,
@@ -21,7 +21,6 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 import {
     Building2,
     Users,
@@ -34,16 +33,10 @@ import {
     Plus,
     Rocket,
     CheckCircle2,
+    Search,
+    GraduationCap,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/use-toast';
 import {
     AlertDialog,
@@ -55,14 +48,53 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { InstitutionModal } from './InstitutionModal';
+
+type SubscriptionTier = 'starter' | 'professional' | 'enterprise';
+type SubscriptionStatus = 'trial' | 'active' | 'suspended' | 'cancelled';
+
+const TONE = {
+    green: { t: '#15803d', bg: 'rgb(21 128 61 / .12)' },
+    temple: { t: '#B8860B', bg: 'rgb(184 134 11 / .16)' },
+    red: { t: '#C0392B', bg: 'rgb(192 57 43 / .12)' },
+    peacock: { t: '#006A6E', bg: 'rgb(0 106 110 / .13)' },
+};
+
+function statusTone(status: SubscriptionStatus) {
+    if (status === 'active') return TONE.green;
+    if (status === 'trial') return TONE.temple;
+    return TONE.red;
+}
+
+function tierTone(tier: SubscriptionTier) {
+    if (tier === 'enterprise') return TONE.temple;
+    if (tier === 'professional') return TONE.peacock;
+    return null;
+}
+
+function StatusPill({ status }: { status: SubscriptionStatus }) {
+    const tone = statusTone(status);
+    return (
+        <span
+            className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full"
+            style={{ color: tone.t, background: tone.bg }}
+        >
+            {status}
+        </span>
+    );
+}
+
+function TierPill({ tier }: { tier: SubscriptionTier }) {
+    const tone = tierTone(tier);
+    return (
+        <span
+            className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full"
+            style={tone ? { color: tone.t, background: tone.bg } : { color: 'hsl(var(--muted-foreground))', background: 'hsl(var(--muted))' }}
+        >
+            {tier}
+        </span>
+    );
+}
 
 export default function InstitutionsPage() {
     const { toast } = useToast();
@@ -107,7 +139,6 @@ export default function InstitutionsPage() {
         }
     };
 
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingInstitution, setEditingInstitution] = useState<any>(null);
 
@@ -121,103 +152,114 @@ export default function InstitutionsPage() {
         setIsModalOpen(true);
     };
 
-    // Calculate stats from data if available, or use placeholder/separate query
-    // For now using simple counts from the current page/metadata if we had a separate stats endpoint
-    // Ideally we would fetch stats separately.
+    const statusChip = (value: string, label: string) => (
+        <button
+            key={`status-${value}`}
+            onClick={() => { setStatusFilter(value); setPage(1); }}
+            className="whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-[9px] border transition-colors"
+            style={statusFilter === value
+                ? { background: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', borderColor: 'transparent' }
+                : { background: 'hsl(var(--card))', color: 'hsl(var(--muted-foreground))', borderColor: 'hsl(var(--border))' }}
+        >
+            {label}
+        </button>
+    );
+
+    const tierChip = (value: string, label: string) => (
+        <button
+            key={`tier-${value}`}
+            onClick={() => { setTierFilter(value); setPage(1); }}
+            className="whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-[9px] border transition-colors"
+            style={tierFilter === value
+                ? { background: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', borderColor: 'transparent' }
+                : { background: 'hsl(var(--card))', color: 'hsl(var(--muted-foreground))', borderColor: 'hsl(var(--border))' }}
+        >
+            {label}
+        </button>
+    );
+
+    const rows = data?.data ?? [];
 
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <PageHeader
                 breadcrumb={[
                     { label: 'Dashboard', href: '/app/dashboard' },
                     { label: 'Institutions' },
                 ]}
-                title="Institutions Management"
+                title="Institutions"
                 description="Manage all connected educational institutions"
                 action={
                     <Button onClick={handleCreate}>
                         <Plus className="mr-2 h-4 w-4" />
-                        Add Institution
+                        <span className="hidden sm:inline">Add institution</span>
+                        <span className="sm:hidden">Add</span>
                     </Button>
                 }
             />
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-4">
                 <StatCard
-                    title="Total Institutions"
-                    value={data?.pagination?.total || 0}
+                    title="Total"
+                    value={data?.pagination?.total ?? 0}
                     icon={Building2}
-                    iconClassName="bg-blue-100 text-blue-600"
+                    tone="teal"
                 />
                 <StatCard
                     title="Active"
-                    value="-" // TODO: Add stats endpoint
+                    value="-"
                     icon={Users}
-                    iconClassName="bg-green-100 text-green-600"
+                    tone="gold"
                 />
                 <StatCard
                     title="Trial"
-                    value="-" // TODO: Add stats endpoint
+                    value="-"
                     icon={Clock}
-                    iconClassName="bg-yellow-100 text-yellow-600"
+                    tone="saffron"
                 />
                 <StatCard
                     title="Suspended"
-                    value="-" // TODO: Add stats endpoint
+                    value="-"
                     icon={XCircle}
-                    iconClassName="bg-red-100 text-red-600"
+                    tone="indigo"
                 />
             </div>
 
-            <FilterBar
-                searchQuery={search}
-                onSearchChange={handleSearch}
-                searchPlaceholder="Search institutions..."
-                filters={
-                    <>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="All">All Status</SelectItem>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="trial">Trial</SelectItem>
-                                <SelectItem value="suspended">Suspended</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Select value={tierFilter} onValueChange={setTierFilter}>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Tier" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="All">All Tiers</SelectItem>
-                                <SelectItem value="starter">Starter</SelectItem>
-                                <SelectItem value="professional">Professional</SelectItem>
-                                <SelectItem value="enterprise">Enterprise</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </>
-                }
-                onReset={() => {
-                    setSearch('');
-                    setStatusFilter('All');
-                    setTierFilter('All');
-                    setPage(1);
-                }}
-            />
+            <div className="flex flex-col gap-2.5 mb-4">
+                <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search institutions…"
+                        value={search}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="h-11 rounded-xl pl-10"
+                    />
+                </div>
+                <div className="flex gap-1.5 flex-wrap items-center">
+                    {statusChip('All', 'All status')}
+                    {statusChip('active', 'Active')}
+                    {statusChip('trial', 'Trial')}
+                    {statusChip('suspended', 'Suspended')}
+                    <span className="w-px self-stretch bg-border mx-1" />
+                    {tierChip('All', 'All tiers')}
+                    {tierChip('starter', 'Starter')}
+                    {tierChip('professional', 'Pro')}
+                    {tierChip('enterprise', 'Enterprise')}
+                </div>
+            </div>
 
-            <div className="rounded-md border bg-card">
+            {/* Desktop table */}
+            <div className="hidden lg:block rounded-2xl border bg-card overflow-hidden">
                 <Table>
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="bg-muted/40 hover:bg-muted/40">
                             <TableHead>Name</TableHead>
                             <TableHead>Contact</TableHead>
                             <TableHead>Subscription</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Students</TableHead>
+                            <TableHead className="text-right">Students</TableHead>
                             <TableHead>Created</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead className="w-[44px]" />
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -228,12 +270,12 @@ export default function InstitutionsPage() {
                                     <TableCell><div className="h-4 w-24 bg-muted animate-pulse rounded" /></TableCell>
                                     <TableCell><div className="h-4 w-20 bg-muted animate-pulse rounded" /></TableCell>
                                     <TableCell><div className="h-4 w-16 bg-muted animate-pulse rounded" /></TableCell>
-                                    <TableCell><div className="h-4 w-12 bg-muted animate-pulse rounded" /></TableCell>
+                                    <TableCell><div className="h-4 w-12 bg-muted animate-pulse rounded ml-auto" /></TableCell>
                                     <TableCell><div className="h-4 w-24 bg-muted animate-pulse rounded" /></TableCell>
                                     <TableCell><div className="h-8 w-8 bg-muted animate-pulse rounded ml-auto" /></TableCell>
                                 </TableRow>
                             ))
-                        ) : data?.data?.length === 0 ? (
+                        ) : rows.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={7}>
                                     <EmptyState
@@ -245,12 +287,12 @@ export default function InstitutionsPage() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            data?.data?.map((inst) => (
+                            rows.map((inst) => (
                                 <TableRow key={inst.id}>
                                     <TableCell>
                                         <div className="flex flex-col">
                                             <button
-                                                className="font-medium text-left hover:text-[#E63946] hover:underline transition-colors"
+                                                className="font-bold text-left text-foreground hover:text-primary transition-colors"
                                                 onClick={() => navigate(`/app/institutions/${inst.id}`)}
                                             >
                                                 {inst.name}
@@ -258,25 +300,16 @@ export default function InstitutionsPage() {
                                             <span className="text-xs text-muted-foreground">{inst.code}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell>
-                                        <div className="flex flex-col text-sm">
-                                            <span>{inst.contactEmail || '-'}</span>
-                                        </div>
+                                    <TableCell className="text-muted-foreground">
+                                        {inst.contactEmail || '-'}
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className="capitalize">
-                                            {inst.subscriptionTier}
-                                        </Badge>
+                                        <TierPill tier={inst.subscriptionTier} />
                                     </TableCell>
                                     <TableCell>
-                                        <Badge
-                                            variant={inst.subscriptionStatus === 'active' ? 'default' : 'secondary'}
-                                            className="capitalize"
-                                        >
-                                            {inst.subscriptionStatus}
-                                        </Badge>
+                                        <StatusPill status={inst.subscriptionStatus} />
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="text-right font-semibold">
                                         {inst._count?.students || 0}
                                     </TableCell>
                                     <TableCell className="text-muted-foreground text-sm">
@@ -332,29 +365,97 @@ export default function InstitutionsPage() {
             </div>
 
             {data?.pagination && (
-                <div className="mt-4">
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious
-                                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                                    className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                                />
-                            </PaginationItem>
+                <div className="hidden lg:flex items-center justify-end gap-1.5 mt-3.5">
+                    <Button
+                        variant="outline"
+                        className="h-[34px] rounded-[9px] px-3 text-xs font-semibold"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                    >
+                        Prev
+                    </Button>
+                    <span className="h-[34px] w-[34px] inline-flex items-center justify-center rounded-[9px] bg-primary text-primary-foreground text-sm font-bold">
+                        {page}
+                    </span>
+                    <Button
+                        variant="outline"
+                        className="h-[34px] rounded-[9px] px-3 text-xs font-semibold"
+                        onClick={() => setPage(p => Math.min(data.pagination.totalPages, p + 1))}
+                        disabled={page >= data.pagination.totalPages}
+                    >
+                        Next
+                    </Button>
+                </div>
+            )}
 
-                            {/* Simple pagination logic for now */}
-                            <PaginationItem>
-                                <PaginationLink isActive>{page}</PaginationLink>
-                            </PaginationItem>
+            {/* Mobile / tablet card list */}
+            <div className="lg:hidden flex flex-col gap-2.5">
+                {isLoading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-[100px] rounded-2xl bg-muted animate-pulse" />
+                    ))
+                ) : rows.length === 0 ? (
+                    <EmptyState
+                        icon={Building2}
+                        title="No institutions found"
+                        description="Try adjusting your filters or create a new institution."
+                    />
+                ) : (
+                    rows.map((inst) => (
+                        <button
+                            key={inst.id}
+                            onClick={() => navigate(`/app/institutions/${inst.id}`)}
+                            className="text-left w-full bg-card border rounded-2xl p-4 flex flex-col gap-2.5 active:scale-[.99] transition-transform"
+                        >
+                            <div className="flex items-start gap-2.5">
+                                <span
+                                    className="w-[42px] h-[42px] rounded-xl text-white flex items-center justify-center flex-shrink-0 text-[17px]"
+                                    style={{ fontFamily: 'var(--font-display)', background: 'linear-gradient(135deg, hsl(var(--primary)), var(--accent-strong))' }}
+                                >
+                                    {inst.name[0]}
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-bold text-foreground text-[15px] truncate">{inst.name}</div>
+                                    <div className="text-xs text-muted-foreground truncate">{inst.code} · {inst.contactEmail || '-'}</div>
+                                </div>
+                                <StatusPill status={inst.subscriptionStatus} />
+                            </div>
+                            <div className="flex gap-2 items-center flex-wrap text-xs font-semibold text-muted-foreground">
+                                <TierPill tier={inst.subscriptionTier} />
+                                <span className="inline-flex items-center gap-1.5">
+                                    <GraduationCap className="h-3.5 w-3.5" />
+                                    {inst._count?.students || 0} students
+                                </span>
+                                <span className="ml-auto text-muted-foreground/70">
+                                    {format(new Date(inst.createdAt), 'MMM d, yyyy')}
+                                </span>
+                            </div>
+                        </button>
+                    ))
+                )}
+            </div>
 
-                            <PaginationItem>
-                                <PaginationNext
-                                    onClick={() => setPage(p => Math.min(data.pagination.totalPages, p + 1))}
-                                    className={page >= data.pagination.totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                                />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
+            {data?.pagination && rows.length > 0 && (
+                <div className="lg:hidden flex items-center justify-center gap-1.5 mt-4">
+                    <Button
+                        variant="outline"
+                        className="h-9 rounded-[9px] px-4 text-xs font-semibold"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                    >
+                        Prev
+                    </Button>
+                    <span className="text-xs text-muted-foreground font-semibold px-2">
+                        Page {page} of {data.pagination.totalPages}
+                    </span>
+                    <Button
+                        variant="outline"
+                        className="h-9 rounded-[9px] px-4 text-xs font-semibold"
+                        onClick={() => setPage(p => Math.min(data.pagination.totalPages, p + 1))}
+                        disabled={page >= data.pagination.totalPages}
+                    >
+                        Next
+                    </Button>
                 </div>
             )}
 
@@ -377,7 +478,7 @@ export default function InstitutionsPage() {
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
-                            className="bg-red-600 hover:bg-red-700"
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                             Delete
                         </AlertDialogAction>

@@ -41,7 +41,7 @@ export function Ruler({ orientation, lengthPx, mmToPx, zoomScale }: RulerProps) 
                         <line
                             x1={pos} y1={RULER_THICKNESS}
                             x2={pos} y2={RULER_THICKNESS - tickHeight}
-                            stroke={isMajor ? '#b7102a' : '#94a3b8'}
+                            stroke={isMajor ? 'hsl(var(--primary))' : '#94a3b8'}
                             strokeWidth={isMajor ? 0.8 : 0.5}
                         />
                         {showLabel && (
@@ -64,7 +64,7 @@ export function Ruler({ orientation, lengthPx, mmToPx, zoomScale }: RulerProps) 
                         <line
                             x1={RULER_THICKNESS} y1={pos}
                             x2={RULER_THICKNESS - tickHeight} y2={pos}
-                            stroke={isMajor ? '#b7102a' : '#94a3b8'}
+                            stroke={isMajor ? 'hsl(var(--primary))' : '#94a3b8'}
                             strokeWidth={isMajor ? 0.8 : 0.5}
                         />
                         {showLabel && (

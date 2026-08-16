@@ -689,3 +689,172 @@
         animation: none;
     }
 }
+
+/* ============================================================================
+   LANDING REDESIGN (reference: design_handoff_landing_redesign)
+   Aliases the reference's token names onto the indic pigments already defined
+   above, adds the accent-switch classes and the keyframes the new sections
+   use. Nothing above this block is redefined — the older helpers keep working.
+   ============================================================================ */
+
+.landing-root {
+    /* Reference names → existing indic-backed variables */
+    --surface: var(--bg-surface);
+    --sand: var(--sand-light);
+    --elevated: #ffffff;
+    --text: var(--text-primary);
+    --text2: var(--text-secondary);
+    --text3: var(--text-tertiary);
+    --border-soft: var(--border-light);
+    --glass: var(--glass-bg);
+    --glass-brd: var(--glass-border);
+
+    --brand-2: var(--lotus-deep);
+    --brand-rgb: var(--kumkum-rgb);
+    --peacock: var(--peacock-teal);
+    --peacock-rgb: var(--peacock-teal-rgb);
+    --indigo: var(--indigo-ink);
+    --indigo-rgb: var(--indigo-ink-rgb);
+    --teal-rgb: var(--teal-light-rgb);
+}
+
+.dark .landing-root {
+    --brand-2: #ffb27a;
+    --brand-rgb: var(--accent-primary-dark-rgb);
+    --sand: var(--navy-deep);
+    --elevated: var(--slate-blue);
+}
+
+/* Accent switch — applied as `acc-kumkum` / `acc-peacock` on .landing-root by
+   LandingPage from the theme store. Kumkum is the default (no class needed,
+   the base values above already resolve to it). */
+.landing-root.acc-peacock {
+    --brand: var(--peacock-teal);
+    --brand-rgb: var(--peacock-teal-rgb);
+    --brand-2: var(--teal-light);
+}
+
+.dark .landing-root.acc-peacock {
+    --brand: #3fb0a5;
+    --brand-rgb: 63 176 165;
+    --brand-2: var(--teal-light);
+}
+
+/* Hero mandala pacing — the reference turns the rings far slower than the
+   shared motif defaults; override durations only, the design system's
+   keyframes and transform-origins stay in charge. */
+.landing-root .mandala-ring-1 {
+    animation-duration: 120s;
+}
+
+.landing-root .mandala-ring-2 {
+    animation-duration: 90s;
+}
+
+/* …and the hero mandala breathes at the reference's slower 9s pace. */
+.lg-breathe {
+    animation: lg-breathe 9s ease-in-out infinite;
+}
+
+@keyframes lg-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes lg-spinr {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+/* Scale-only breath — deliberately no translate, so it can sit inside a
+   positioned wrapper without fighting the wrapper's centering transform. */
+@keyframes lg-breathe {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.72;
+    }
+}
+
+@keyframes lg-sheen {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -90% 0;
+    }
+}
+
+@keyframes lg-bob {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(7px);
+    }
+}
+
+@keyframes lg-tdot {
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+
+    30% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
+}
+
+/* Travelling sheen on the hero's primary CTA (reference shimmer pattern). */
+.lg-btn-shine {
+    position: relative;
+    overflow: hidden;
+}
+
+.lg-btn-shine::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
+    background-size: 220% 100%;
+    animation: lg-sheen 3.6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Module-category card hover — per-category accent via the --mc custom
+   property each card sets inline. */
+.lg-module-card {
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.lg-module-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 46px rgb(var(--night-ink-rgb) / 0.12);
+    border-color: rgb(var(--mc) / 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .landing-root * {
+        animation: none !important;
+    }
+
+    .lg-module-card:hover {
+        transform: none;
+    }
+}

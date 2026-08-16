@@ -1,110 +1,145 @@
 import { motion } from 'framer-motion';
 import {
-    GraduationCap, Wrench, Wallet, MessageSquare, FileText, BrainCircuit,
+    GraduationCap, Wrench, Wallet, MessageSquare, FileText, Sparkles,
 } from 'lucide-react';
+import type { CSSProperties } from 'react';
+import CardMandala from './CardMandala';
 
 /**
- * "The Module Universe" — the repositioning centerpiece. Vidyaverse is no longer a
- * document-generation tool; it's a 47-module institutional OS. Modules are grouped
- * into the six real categories from backend/src/config/module-registry.ts and shown
- * as Indic tiles with a distinct mandala motif per category — six categories, six
- * motifs, no two cards sharing a watermark. Capability framing (no fake counts).
+ * "The Module Universe" — the repositioning centerpiece. Vidyaverse is a
+ * 47-module institutional OS, grouped into the six real categories from
+ * backend/src/config/module-registry.ts. Each category card carries its own
+ * pigment from the indic palette (set as --mc, which drives the hover border
+ * in landing.css).
  */
 
 const categories = [
     {
         icon: GraduationCap,
         name: 'Academics',
-        motif: 'indic-motif-lotus',
-        modules: ['Student Info', 'Classes & Sections', 'Attendance', 'Timetable', 'Examinations', 'Gradebook (CCE)', 'Online Assessments', 'Assignments', 'AI Tutor', 'Live Classes'],
+        color: 'var(--peacock)',
+        rgbVar: '--peacock-teal-rgb',
+        chipAlpha: 0.06,
+        modules: ['Student Info', 'Classes & Sections', 'Attendance', 'Timetable', 'Examinations', 'Gradebook (CCE)', 'Online Tests', 'Assignments', 'AI Tutor', 'Live Classes'],
     },
     {
         icon: Wrench,
         name: 'Operations',
-        motif: 'indic-motif-kolam',
+        color: 'var(--indigo)',
+        rgbVar: '--indigo-rgb',
+        chipAlpha: 0.06,
         modules: ['Transport + GPS', 'Hostel & Mess', 'Inventory', 'Health & Clinic', 'Visitor & Gate Pass', 'Library'],
     },
     {
         icon: Wallet,
         name: 'Finance',
-        motif: 'indic-motif-meenakari',
-        modules: ['Fees & Invoicing', 'Concessions & Plans', 'Online Payments', 'HR & Payroll', 'Accounting & Ledgers'],
+        color: 'var(--clay-mid)',
+        rgbVar: '--deep-saffron-rgb',
+        chipAlpha: 0.09,
+        modules: ['Fees & Invoicing', 'Concessions & Plans', 'Online Payments', 'HR & Payroll', 'Accounting'],
     },
     {
         icon: MessageSquare,
         name: 'Communication',
-        motif: 'indic-motif-peacock',
+        color: 'var(--teal-light)',
+        rgbVar: '--teal-rgb',
+        chipAlpha: 0.07,
         modules: ['WhatsApp Messaging', 'AI Inbound Replies', 'Voice Notes', 'Notices & Events', 'Guardian Digests'],
     },
     {
         icon: FileText,
         name: 'Document Studio',
-        motif: 'indic-motif-sriyantra',
+        color: 'var(--lotus-pink)',
+        rgbVar: '--lotus-pink-rgb',
+        chipAlpha: 0.07,
         modules: ['ID Cards', 'Certificates', 'Marksheets', 'Hall Tickets', 'Transfer Certs', 'Portfolios', 'Library Cards', 'Group Photos'],
     },
     {
-        icon: BrainCircuit,
+        icon: Sparkles,
         name: 'Intelligence',
-        motif: 'indic-motif-ashoka',
+        color: 'var(--brand)',
+        rgbVar: '--brand-rgb',
+        chipAlpha: 0.07,
         modules: ['Admissions CRM', 'Reports & BI', 'Analytics', 'Approvals', 'Alumni', 'Placement'],
     },
 ];
 
 export default function ModuleUniverse() {
     return (
-        <section id="modules" className="indic-section--warm py-20">
-            <div className="max-w-7xl mx-auto px-6">
+        <section
+            id="modules"
+            className="px-[clamp(16px,4vw,28px)] py-[clamp(64px,9vw,110px)]"
+            style={{ background: 'var(--surface)' }}
+        >
+            <div className="max-w-[1200px] mx-auto">
                 <motion.div
-                    initial={{ opacity: 0, y: 28 }}
+                    initial={{ opacity: 0, y: 26 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: '-60px' }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
+                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    className="text-center max-w-[720px] mx-auto mb-14"
                 >
-                    <span className="indic-eyebrow mb-4">One Platform</span>
-                    <h2 className="text-3xl sm:text-5xl mt-4 mb-4">
-                        47 Modules. One Login. Zero Silos.
+                    <span className="text-xs font-bold tracking-[0.16em] uppercase" style={{ color: 'var(--brand)' }}>
+                        One platform
+                    </span>
+                    <h2
+                        className="my-3.5 leading-[1.08] text-[clamp(30px,5.2vw,54px)]"
+                        style={{ fontFamily: 'var(--font-display)', color: 'var(--text)' }}
+                    >
+                        47 modules. One login. Zero silos.
                     </h2>
-                    <p className="text-lg max-w-3xl mx-auto indic-muted">
+                    <p className="leading-[1.6] text-[clamp(15px,2vw,19px)] [text-wrap:pretty]" style={{ color: 'var(--text2)' }}>
                         Everything an institution runs on — academics, operations, finance, parent
-                        communication, documents, and analytics — in a single connected system.
-                        Toggle on only what you need; the rest waits in one tap.
+                        communication, documents, and intelligence — in a single connected system.
+                        Toggle on only what you need.
                     </p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid gap-[22px]" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
                     {categories.map((cat, i) => (
                         <motion.div
                             key={cat.name}
-                            initial={{ opacity: 0, y: 28 }}
+                            initial={{ opacity: 0, y: 26 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: '-40px' }}
-                            transition={{ duration: 0.5, delay: i * 0.07 }}
-                            className="indic-tile p-7 h-full group"
+                            transition={{ duration: 0.7, delay: (i % 3) * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                            className="lg-module-card relative overflow-hidden p-7 rounded-[22px]"
+                            style={{
+                                '--mc': `var(${cat.rgbVar})`,
+                                background: 'var(--elevated)',
+                                border: '1px solid var(--border-soft)',
+                                boxShadow: '0 2px 18px rgb(var(--night-ink-rgb) / 0.05)',
+                            } as CSSProperties}
                         >
-                            <span className={`indic-tile__motif ${cat.motif}`} />
-                            <div className="relative z-10">
-                                <div className="indic-icon-plinth w-14 h-14 mb-5">
-                                    <cat.icon size={26} className="relative z-10" />
-                                </div>
-                                <div className="flex items-baseline justify-between mb-4">
-                                    <h3 className="text-xl">{cat.name}</h3>
-                                    <span className="indic-caps">{cat.modules.length} modules</span>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {cat.modules.map((m) => (
-                                        <span
-                                            key={m}
-                                            className="text-xs font-medium px-2.5 py-1 rounded-lg indic-muted transition-all duration-300 group-hover:scale-[1.02]"
-                                            style={{
-                                                background: 'rgb(var(--accent-primary-rgb) / 0.06)',
-                                                border: '1px solid rgb(var(--temple-stone-rgb) / 0.18)',
-                                            }}
-                                        >
-                                            {m}
-                                        </span>
-                                    ))}
-                                </div>
+                            <CardMandala color={cat.color} />
+                            <span
+                                className="w-14 h-14 rounded-[15px] flex items-center justify-center mb-[18px]"
+                                style={{ background: `rgb(var(${cat.rgbVar}) / 0.12)`, color: cat.color }}
+                            >
+                                <cat.icon size={26} strokeWidth={1.7} />
+                            </span>
+                            <div className="flex items-baseline justify-between mb-3.5">
+                                <h3 className="text-[21px] font-extrabold m-0" style={{ color: 'var(--text)' }}>
+                                    {cat.name}
+                                </h3>
+                                <span className="text-[11px] font-bold tracking-[0.08em] uppercase" style={{ color: 'var(--text3)' }}>
+                                    {cat.modules.length} modules
+                                </span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {cat.modules.map((m) => (
+                                    <span
+                                        key={m}
+                                        className="text-[12.5px] font-semibold px-[11px] py-[5px] rounded-[9px]"
+                                        style={{
+                                            color: 'var(--text2)',
+                                            background: `rgb(var(${cat.rgbVar}) / ${cat.chipAlpha})`,
+                                            border: '1px solid var(--border-soft)',
+                                        }}
+                                    >
+                                        {m}
+                                    </span>
+                                ))}
                             </div>
                         </motion.div>
                     ))}
@@ -115,7 +150,8 @@ export default function ModuleUniverse() {
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.3 }}
-                    className="text-center text-sm mt-10 indic-muted"
+                    className="text-center text-sm mt-[34px]"
+                    style={{ color: 'var(--text2)' }}
                 >
                     Per-institution module toggles &amp; tiered plans — enable what fits your campus, scale when you grow.
                 </motion.p>

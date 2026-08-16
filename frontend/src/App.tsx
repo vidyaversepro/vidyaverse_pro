@@ -170,10 +170,11 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 // =============================================================================
 
 function ThemeSync() {
-    const { isDarkMode } = useThemeStore();
+    const { isDarkMode, accent } = useThemeStore();
     useEffect(() => {
         document.documentElement.classList.toggle('dark', isDarkMode);
-    }, [isDarkMode]);
+        document.documentElement.classList.toggle('acc-peacock', accent === 'peacock');
+    }, [isDarkMode, accent]);
     return null;
 }
 

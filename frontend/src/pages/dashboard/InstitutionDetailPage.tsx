@@ -82,7 +82,7 @@ export default function InstitutionDetailPage() {
     if (loadingInst) {
         return (
             <div className="flex items-center justify-center h-[60vh]">
-                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
@@ -90,7 +90,7 @@ export default function InstitutionDetailPage() {
     if (!institution) {
         return (
             <div className="p-6 text-center">
-                <p className="text-gray-500">Institution not found.</p>
+                <p className="text-muted-foreground">Institution not found.</p>
                 <Button variant="link" onClick={() => navigate('/app/institutions')}>
                     ← Back to Institutions
                 </Button>
@@ -117,24 +117,24 @@ export default function InstitutionDetailPage() {
             />
 
             <Tabs defaultValue="overview" className="mt-6">
-                <TabsList className="bg-gray-100 dark:bg-gray-800/50 p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar flex-nowrap justify-start w-full">
-                    <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm px-4 py-2 gap-2">
+                <TabsList className="bg-muted p-1 rounded-xl gap-1 overflow-x-auto no-scrollbar flex-nowrap justify-start w-full">
+                    <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-4 py-2 gap-2">
                         <Building2 className="w-4 h-4" />
                         Overview
                     </TabsTrigger>
-                    <TabsTrigger value="academics" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm px-4 py-2 gap-2">
+                    <TabsTrigger value="academics" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-4 py-2 gap-2">
                         <GraduationCap className="w-4 h-4" />
                         Classes & Sections
                     </TabsTrigger>
-                    <TabsTrigger value="students" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm px-4 py-2 gap-2">
+                    <TabsTrigger value="students" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-4 py-2 gap-2">
                         <Users className="w-4 h-4" />
                         Students
                     </TabsTrigger>
-                    <TabsTrigger value="modules" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm px-4 py-2 gap-2">
+                    <TabsTrigger value="modules" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-4 py-2 gap-2">
                         <Layers className="w-4 h-4" />
                         Modules
                     </TabsTrigger>
-                    <TabsTrigger value="branding" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm px-4 py-2 gap-2">
+                    <TabsTrigger value="branding" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm px-4 py-2 gap-2">
                         <Palette className="w-4 h-4" />
                         Branding
                     </TabsTrigger>
@@ -174,17 +174,17 @@ function OverviewTab({ institution }: { institution: any }) {
 
     return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 lg:p-8 shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Institution Details</h2>
+            <div className="bg-card rounded-2xl border border-border p-6 lg:p-8 shadow-sm">
+                <h2 className="text-lg text-foreground mb-6">Institution Details</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {infoItems.map((item) => (
                         <div key={item.label} className="flex items-start gap-3">
-                            <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
-                                <item.icon className="w-4 h-4 text-gray-500" />
+                            <div className="p-2 rounded-lg bg-muted">
+                                <item.icon className="w-4 h-4 text-muted-foreground" />
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-medium">{item.label}</p>
-                                <p className="text-sm font-medium text-gray-900 dark:text-white mt-0.5">{item.value}</p>
+                                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">{item.label}</p>
+                                <p className="text-sm font-medium text-foreground mt-0.5">{item.value}</p>
                             </div>
                         </div>
                     ))}
@@ -192,8 +192,8 @@ function OverviewTab({ institution }: { institution: any }) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 shadow-sm">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Subscription</p>
+                <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Subscription</p>
                     <div className="flex items-center gap-2 mt-2">
                         <Badge variant="outline" className="capitalize">{institution.subscriptionTier}</Badge>
                         <Badge variant={institution.subscriptionStatus === 'active' ? 'default' : 'secondary'} className="capitalize">
@@ -201,12 +201,12 @@ function OverviewTab({ institution }: { institution: any }) {
                         </Badge>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 shadow-sm">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Students</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{institution._count?.students ?? '—'}</p>
+                <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Students</p>
+                    <p className="text-2xl font-bold text-foreground mt-1">{institution._count?.students ?? '—'}</p>
                 </div>
-                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 shadow-sm">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Onboarding</p>
+                <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Onboarding</p>
                     <Badge variant={institution.onboardingCompleted ? 'default' : 'secondary'} className="mt-2">
                         {institution.onboardingCompleted ? 'Complete' : 'Pending'}
                     </Badge>
@@ -609,9 +609,9 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-6">
 
             {/* Hierarchy Reset / Settings Ribbon */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-800 p-3 shadow-sm flex flex-wrap justify-between items-center gap-2">
+            <div className="bg-card rounded-xl border border-border p-3 shadow-sm flex flex-wrap justify-between items-center gap-2">
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                    <span className="text-sm font-medium text-gray-500">Academics Architecture</span>
+                    <span className="text-sm font-medium text-muted-foreground">Academics Architecture</span>
                     {selectedClassId && (
                         <Button variant="ghost" size="sm" onClick={() => { setSelectedClassId(null); setSelectedStreamId(null); }} className="h-7 text-xs">
                             Reset View
@@ -620,7 +620,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                 </div>
                 {selectedClassId && (
                     <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">Advanced Streams</span>
+                        <span className="text-xs text-muted-foreground">Advanced Streams</span>
                         <Switch checked={streamsEnabled} onCheckedChange={handleToggleStreams} disabled={updateClass.isPending} />
                     </div>
                 )}
@@ -630,11 +630,11 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:h-[600px]">
 
                 {/* ── CARD 1: CLASSES ── */}
-                <div className="bg-white dark:bg-gray-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 shadow-sm overflow-hidden flex flex-col min-h-[300px] md:h-full bg-slate-50/50 dark:bg-slate-900/50">
-                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+                <div className="bg-muted/30 rounded-2xl border-2 border-border p-5 shadow-sm overflow-hidden flex flex-col min-h-[300px] md:h-full">
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-border">
                         <div className="flex items-center gap-2">
-                            <BookOpen className="w-5 h-5 text-gray-400" />
-                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Classes</h2>
+                            <BookOpen className="w-5 h-5 text-muted-foreground" />
+                            <h2 className="text-lg text-foreground">Classes</h2>
                         </div>
                         <Button size="icon" variant="ghost" onClick={() => setIsAddClassOpen(true)}>
                             <Plus className="w-4 h-4" />
@@ -643,9 +643,9 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
 
                     <div className="flex-1 overflow-y-auto pr-2 space-y-2">
                         {loadingClasses ? (
-                            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
+                            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
                         ) : normalizedData.length === 0 ? (
-                            <div className="text-center py-8 px-4 text-sm text-gray-500 border border-dashed rounded-xl border-gray-200 dark:border-gray-700">
+                            <div className="text-center py-8 px-4 text-sm text-muted-foreground border border-dashed rounded-xl border-border">
                                 No classes available.<br />Click + to add your first class.
                             </div>
                         ) : (
@@ -664,7 +664,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                             "w-full text-left p-3 rounded-xl border transition-all flex justify-between items-center group cursor-pointer",
                                             selectedClassId === cls.id
                                                 ? "border-primary bg-primary/10 text-primary dark:bg-primary/20"
-                                                : "border-transparent bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 shadow-sm"
+                                                : "border-transparent bg-card hover:border-border shadow-sm"
                                         )}
                                     >
                                         <div>
@@ -677,7 +677,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity p-0" onClick={e => e.stopPropagation()}>
-                                                        <MoreVertical className="w-3.5 h-3.5 text-gray-400" />
+                                                        <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
@@ -685,7 +685,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                                         <Edit className="w-4 h-4 mr-2" />
                                                         Edit
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={(e) => handleDeleteClass(cls.id, e)}>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => handleDeleteClass(cls.id, e)}>
                                                         <Trash2 className="w-4 h-4 mr-2" />
                                                         Delete
                                                     </DropdownMenuItem>
@@ -701,11 +701,11 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                 </div>
 
                 {/* ── CARD 2: STREAMS ── */}
-                <div className="bg-slate-50 dark:bg-slate-800/20 rounded-2xl border-2 border-slate-200/60 dark:border-slate-800/60 p-5 shadow-sm overflow-hidden flex flex-col min-h-[300px] md:h-full">
-                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+                <div className="bg-muted/30 rounded-2xl border-2 border-border p-5 shadow-sm overflow-hidden flex flex-col min-h-[300px] md:h-full">
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-border">
                         <div className="flex items-center gap-2">
-                            <GitBranch className="w-5 h-5 text-gray-400" />
-                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Streams</h2>
+                            <GitBranch className="w-5 h-5 text-muted-foreground" />
+                            <h2 className="text-lg text-foreground">Streams</h2>
                         </div>
                         {streamsEnabled && (
                             <Button size="icon" variant="ghost" onClick={() => setIsAddStreamOpen(true)}>
@@ -716,19 +716,19 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
 
                     <div className="flex-1 overflow-y-auto pr-2 space-y-2">
                         {!selectedClassId ? (
-                            <div className="text-center py-8 px-4 text-sm text-gray-400">
+                            <div className="text-center py-8 px-4 text-sm text-muted-foreground">
                                 <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-20" />
                                 Select a class first to view streams.
                             </div>
                         ) : !streamsEnabled ? (
-                            <div className="text-center py-8 px-4 text-sm text-gray-400 border border-dashed rounded-xl border-gray-200 dark:border-gray-800">
+                            <div className="text-center py-8 px-4 text-sm text-muted-foreground border border-dashed rounded-xl border-border">
                                 No streams available for this class. <br />
                                 <span className="text-xs mt-2 block opacity-70">Streams are toggled OFF in settings.</span>
                             </div>
                         ) : loadingStreams ? (
-                            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
+                            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
                         ) : activeStreams.length === 0 ? (
-                            <div className="text-center py-8 px-4 text-sm text-gray-500 border border-dashed rounded-xl border-gray-200 dark:border-gray-700">
+                            <div className="text-center py-8 px-4 text-sm text-muted-foreground border border-dashed rounded-xl border-border">
                                 No streams configured.<br />Click + to add a stream.
                             </div>
                         ) : (
@@ -747,16 +747,16 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                         className={cn(
                                             "w-full text-left p-3 rounded-xl border transition-all flex flex-col group shadow-sm cursor-pointer",
                                             selectedStreamId === stream.id
-                                                ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300"
-                                                : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-emerald-300"
+                                                ? "border-primary bg-primary/10 text-primary"
+                                                : "border-border bg-card hover:border-primary/40"
                                         )}
                                     >
-                                        <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-1 flex justify-between w-full">
+                                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1 flex justify-between w-full">
                                             <span>{selectedClass?.name}</span>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity p-0 -mt-1 -mr-1" onClick={e => e.stopPropagation()}>
-                                                        <MoreVertical className="w-3 h-3 text-gray-400 hover:text-gray-900 dark:hover:text-white" />
+                                                        <MoreVertical className="w-3 h-3 text-muted-foreground hover:text-foreground" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" onClick={e => e.stopPropagation()}>
@@ -764,7 +764,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                                         <Edit className="w-4 h-4 mr-2" />
                                                         Edit
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={(e) => handleDeleteStream(stream.id, e)}>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => handleDeleteStream(stream.id, e)}>
                                                         <Trash2 className="w-4 h-4 mr-2" />
                                                         Delete
                                                     </DropdownMenuItem>
@@ -783,11 +783,11 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                 </div>
 
                 {/* ── CARD 3: SECTIONS ── */}
-                <div className="bg-slate-100 dark:bg-slate-800/40 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 shadow-sm overflow-hidden flex flex-col min-h-[300px] md:h-full">
-                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                <div className="bg-muted/50 rounded-2xl border-2 border-border p-5 shadow-sm overflow-hidden flex flex-col min-h-[300px] md:h-full">
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-border">
                         <div className="flex items-center gap-2">
-                            <Layers className="w-5 h-5 text-gray-400" />
-                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sections</h2>
+                            <Layers className="w-5 h-5 text-muted-foreground" />
+                            <h2 className="text-lg text-foreground">Sections</h2>
                         </div>
                         {canAddSection && (
                             <Button size="icon" variant="ghost" onClick={() => setIsAddSectionOpen(true)}>
@@ -798,19 +798,19 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
 
                     <div className="flex-1 overflow-y-auto pr-2 space-y-3">
                         {!selectedClassId ? (
-                            <div className="text-center py-8 px-4 text-sm text-gray-400">
+                            <div className="text-center py-8 px-4 text-sm text-muted-foreground">
                                 <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-20" />
                                 Select a class first.
                             </div>
                         ) : (streamsEnabled && !selectedStreamId) ? (
-                            <div className="text-center py-8 px-4 text-sm text-gray-400">
+                            <div className="text-center py-8 px-4 text-sm text-muted-foreground">
                                 <GitBranch className="w-8 h-8 mx-auto mb-2 opacity-20" />
                                 Select a stream first.
                             </div>
                         ) : loadingSections ? (
-                            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
+                            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
                         ) : activeSections.length === 0 ? (
-                            <div className="text-center py-8 px-4 text-sm text-gray-500 border border-dashed rounded-xl border-gray-300 dark:border-gray-700">
+                            <div className="text-center py-8 px-4 text-sm text-muted-foreground border border-dashed rounded-xl border-border">
                                 No sections available.<br />Click + to add a section.
                             </div>
                         ) : (
@@ -822,12 +822,12 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
                                         key={section.id}
-                                        className="p-3 bg-white dark:bg-gray-800/90 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 relative group transition-all hover:shadow-md"
+                                        className="p-3 bg-card rounded-xl shadow-sm border border-border relative group transition-all hover:shadow-md"
                                     >
                                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
                                                         <MoreVertical className="w-4 h-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
@@ -836,7 +836,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                                         <Edit className="w-4 h-4 mr-2" />
                                                         Edit
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={(e) => handleDeleteSection(section.id, e)}>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => handleDeleteSection(section.id, e)}>
                                                         <Trash2 className="w-4 h-4 mr-2" />
                                                         Delete
                                                     </DropdownMenuItem>
@@ -844,21 +844,21 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                             </DropdownMenu>
                                         </div>
 
-                                        <div className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mb-2 pr-8">
+                                        <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-2 pr-8">
                                             {selectedClass?.name}
-                                            {streamsEnabled && section.streamId ? <span className="text-emerald-500/80"> &bull; {activeStreams.find(s => s.id === section.streamId)?.name || 'Stream'}</span> : ''}
+                                            {streamsEnabled && section.streamId ? <span className="text-primary/80"> &bull; {activeStreams.find(s => s.id === section.streamId)?.name || 'Stream'}</span> : ''}
                                         </div>
 
                                         <div className="flex justify-between items-end">
-                                            <div className="font-bold text-lg text-gray-900 dark:text-white leading-none">
+                                            <div className="font-bold text-lg text-foreground leading-none">
                                                 Section {section.name}
                                             </div>
                                             <div className="text-right">
                                                 <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 mb-1 block w-max ml-auto">
                                                     Cap: {section.expectedStudentCount ?? '∞'}
                                                 </Badge>
-                                                <div className="text-xs text-gray-500">
-                                                    <span className="font-semibold text-gray-700 dark:text-gray-300">{section._count?.students ?? 0}</span> Enrolled
+                                                <div className="text-xs text-muted-foreground">
+                                                    <span className="font-semibold text-foreground">{section._count?.students ?? 0}</span> Enrolled
                                                 </div>
                                             </div>
                                         </div>
@@ -883,7 +883,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                             <label className="text-sm font-medium">Class Name</label>
                             <Input value={newClassName} onChange={(e) => setNewClassName(e.target.value)} placeholder="e.g., 11th" />
                         </div>
-                        <Button onClick={handleAddClass} disabled={!newClassName.trim() || createClass.isPending} className="w-full bg-[#E63946] hover:bg-[#C41E3A] text-white">
+                        <Button onClick={handleAddClass} disabled={!newClassName.trim() || createClass.isPending} className="w-full">
                             {createClass.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                             Create Class
                         </Button>
@@ -906,7 +906,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                             <label className="text-sm font-medium">Description (Optional)</label>
                             <Input value={newStreamDesc} onChange={(e) => setNewStreamDesc(e.target.value)} placeholder="e.g., PCM + Biology" />
                         </div>
-                        <Button onClick={handleAddStream} disabled={!newStreamName.trim() || createStream.isPending} className="w-full bg-[#E63946] hover:bg-[#C41E3A] text-white">
+                        <Button onClick={handleAddStream} disabled={!newStreamName.trim() || createStream.isPending} className="w-full">
                             {createStream.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                             Create Stream
                         </Button>
@@ -936,7 +936,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                 <label className="text-sm font-medium">Capacity (Optional)</label>
                                 <Input type="number" value={newSectionCapacity} onChange={(e) => setNewSectionCapacity(e.target.value)} placeholder="40" />
                             </div>
-                            <Button onClick={handleAddSection} disabled={!newSectionName.trim() || createSection.isPending} className="w-full bg-[#E63946] hover:bg-[#C41E3A] text-white">
+                            <Button onClick={handleAddSection} disabled={!newSectionName.trim() || createSection.isPending} className="w-full">
                                 {createSection.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                 Create Section
                             </Button>
@@ -1015,7 +1015,7 @@ function AcademicsTab({ institutionId }: { institutionId: string }) {
                                         <Button onClick={() => setBulkPreview([])} variant="outline" className="w-full">
                                             Cancel
                                         </Button>
-                                        <Button onClick={handleAddSection} disabled={createBulkSections.isPending} className="w-full bg-[#E63946] hover:bg-[#C41E3A] text-white">
+                                        <Button onClick={handleAddSection} disabled={createBulkSections.isPending} className="w-full">
                                             {createBulkSections.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                             Save All ({bulkPreview.length})
                                         </Button>

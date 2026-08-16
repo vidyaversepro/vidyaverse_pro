@@ -2,7 +2,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { QUICK_ACTIONS } from '@/pages/dashboard/dashboard.config';
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 
 export function QuickActionsPanel() {
     return (
@@ -21,7 +20,7 @@ export function QuickActionsPanel() {
                                 to={action.href}
                                 className="group flex items-center p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 hover:shadow-md transition-all bg-gray-50/50 dark:bg-gray-800/30"
                             >
-                                <div className={cn("p-2 rounded-lg text-white mr-3 shadow-sm", `bg-gradient-to-br ${action.color}`)}>
+                                <div className="indic-icon-plinth w-8 h-8 mr-3 shrink-0">
                                     <Icon className="w-4 h-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">

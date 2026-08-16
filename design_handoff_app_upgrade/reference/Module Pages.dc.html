@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Yatra+One&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+.vv{
+ --kumkum:#C0392B;--gold:#FFD700;--temple-stone:#B8860B;--peacock:#006A6E;--teal-light:#00897B;--indigo:#1A237E;--lotus-deep:#AD1457;
+ --bg:#FFFCF7;--surface:#FFF8F0;--sand:#FFF3E6;--elevated:#ffffff;
+ --text:#241B0F;--text2:#5A4E3C;--text3:#9a8a72;
+ --brand:var(--kumkum);--brand-2:var(--lotus-deep);
+ --border:rgb(184 134 11 / .22);--border-soft:rgb(184 134 11 / .12);--glass:rgb(255 252 247 / .72);--studio:#efe6d8;
+ --font-display:'Yatra One','Noto Sans Devanagari',serif;--font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+ -webkit-font-smoothing:antialiased;
+}
+.vv.acc-peacock{--brand:var(--peacock);--brand-2:var(--teal-light)}
+.vv.dark{--bg:#0A0F1E;--surface:#0B1233;--sand:#0B1233;--elevated:#16213E;--text:#FFF8F0;--text2:rgb(255 248 240 / .74);--text3:rgb(255 248 240 / .5);--brand:#E2685A;--brand-2:#FFB27A;--border:rgb(255 215 0 / .16);--border-soft:rgb(255 215 0 / .09);--glass:rgb(10 15 30 / .6);--studio:#05070f}
+.vv.dark.acc-peacock{--brand:#3fb0a5;--brand-2:#6fd3c4}
+@keyframes vvrise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.vv input::placeholder{color:var(--text3)}
+.vv-scroll::-webkit-scrollbar{width:8px;height:8px}.vv-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+@media (prefers-reduced-motion:reduce){.vv *{animation:none!important}}
+</style>
+</helmet>
+
+<div class="vv {{ themeClass }} {{ accentClass }}" style="font-family:var(--font-body);min-height:100vh;background:var(--studio);display:flex;flex-direction:column">
+
+  <div style="position:sticky;top:0;z-index:80;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:var(--glass);border-bottom:1px solid var(--border);padding:10px clamp(12px,3vw,24px);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="font-family:var(--font-display);font-size:16px;color:var(--text);margin-right:auto">Vidyaverse — Modules</div>
+    <div style="display:inline-flex;background:var(--elevated);border:1px solid var(--border);border-radius:11px;padding:3px;gap:2px;flex-wrap:wrap">
+      <sc-for list="{{ pageOpts }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for>
+    </div>
+    <div style="display:inline-flex;background:var(--elevated);border:1px solid var(--border);border-radius:11px;padding:3px;gap:2px">
+      <sc-for list="{{ deviceOpts }}" as="d" hint-placeholder-count="3"><button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.label }}</button></sc-for>
+    </div>
+    <button onClick="{{ toggleAccent }}" aria-label="Accent" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:linear-gradient(135deg,var(--brand),var(--brand-2));cursor:pointer"></button>
+    <button onClick="{{ toggleTheme }}" aria-label="Theme" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--elevated);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ themeIcon }}"></path></svg></button>
+  </div>
+
+  <div class="vv-scroll" style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:clamp(16px,4vw,44px)">
+    <div style="{{ frameStyle }}">
+      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+        <div style="height:38px;background:var(--surface);border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:7px;padding:0 14px"><span style="width:11px;height:11px;border-radius:50%;background:#ff5f57"></span><span style="width:11px;height:11px;border-radius:50%;background:#febc2e"></span><span style="width:11px;height:11px;border-radius:50%;background:#28c840"></span><span style="margin-left:14px;font-size:12px;color:var(--text3);background:var(--bg);border:1px solid var(--border-soft);border-radius:7px;padding:3px 12px">app.vidyaverse.in{{ urlPath }}</span></div>
+      </sc-if>
+
+      <div style="{{ screenStyle }}">
+        <sc-if value="{{ isCompact }}" hint-placeholder-val="{{ false }}">
+          <div style="height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:13px;font-weight:700;color:var(--text);flex-shrink:0"><span>9:41</span><span style="display:flex;gap:6px"><svg viewBox="0 0 24 16" width="18" height="12" fill="currentColor"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="5" y="6" width="3" height="8" rx="1"/><rect x="10" y="3" width="3" height="11" rx="1"/><rect x="15" y="0" width="3" height="14" rx="1"/></svg><svg viewBox="0 0 26 14" width="22" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="20" height="12" rx="3"/><rect x="3" y="3" width="14" height="8" rx="1.5" fill="currentColor" stroke="none"/></svg></span></div>
+        </sc-if>
+
+        <main class="vv-scroll" style="flex:1;overflow:auto;background:var(--bg);padding:{{ contentPad }}">
+          <div style="max-width:1080px;margin:0 auto;animation:vvrise .4s ease both" key="{{ page }}">
+
+          <!-- header -->
+          <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+            <div style="min-width:0">
+              <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}"><div style="font-size:12px;color:var(--text3);font-weight:600;margin-bottom:5px">Dashboard <span style="opacity:.5">/</span> {{ pageTitle }}</div></sc-if>
+              <div style="font-family:var(--font-display);font-size:{{ titleSize }};color:var(--text);line-height:1.1">{{ pageTitle }}</div>
+              <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}"><div style="font-size:13.5px;color:var(--text2);font-weight:500;margin-top:4px">{{ pageSub }}</div></sc-if>
+            </div>
+            <button style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border:none;border-radius:12px;padding:11px 16px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit;box-shadow:0 10px 22px -12px var(--brand);white-space:nowrap;flex-shrink:0"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14 M5 12h14"></path></svg>{{ primaryAction }}</button>
+          </div>
+
+          <!-- stats -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px">
+            <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+              <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:15px;padding:15px;display:flex;align-items:center;gap:13px">
+                <span style="width:42px;height:42px;border-radius:12px;background:{{ s.bg }};color:{{ s.tone }};display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ s.icon }}"></path></svg></span>
+                <div style="min-width:0"><div style="font-family:var(--font-display);font-size:21px;color:{{ s.valTone }};line-height:1">{{ s.value }}</div><div style="font-size:12px;color:var(--text2);font-weight:600">{{ s.label }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- tabs (attendance/fees) -->
+          <sc-if value="{{ hasTabs }}" hint-placeholder-val="{{ false }}">
+            <div style="display:inline-flex;background:var(--surface);border:1px solid var(--border-soft);border-radius:12px;padding:3px;gap:2px;margin-bottom:14px">
+              <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button></sc-for>
+            </div>
+          </sc-if>
+
+          <!-- search/filter row -->
+          <sc-if value="{{ showFilter }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:14px">
+              <div style="position:relative">
+                <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text3);display:flex"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.3-4.3"></path></svg></span>
+                <input type="text" placeholder="{{ searchPlaceholder }}" value="{{ search }}" onInput="{{ onSearch }}" style="width:100%;height:44px;border-radius:12px;border:1px solid var(--border);background:var(--elevated);color:var(--text);padding:0 14px 0 42px;font-size:14px;font-family:inherit;outline:none" style-focus="border-color:var(--brand)"/>
+              </div>
+              <div style="display:flex;gap:7px;flex-wrap:wrap"><sc-for list="{{ filterChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button></sc-for></div>
+            </div>
+          </sc-if>
+
+          <!-- selection bar (students) -->
+          <sc-if value="{{ showSelBar }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:12px;flex-wrap:wrap">
+              <span style="font-weight:700;font-size:13.5px">{{ selCount }} selected</span>
+              <button onClick="{{ clearSel }}" style="margin-left:auto;background:rgb(255 255 255 / .18);border:none;color:#fff;border-radius:9px;padding:7px 12px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit">Request photos</button>
+              <button onClick="{{ clearSel }}" style="background:rgb(255 255 255 / .18);border:none;color:#fff;border-radius:9px;padding:7px 12px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit">Delete</button>
+            </div>
+          </sc-if>
+
+          <!-- ══ STUDENTS ══ -->
+          <sc-if value="{{ isStudents }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+              <div style="border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:var(--elevated)">
+                <table style="width:100%;border-collapse:collapse;font-size:13.5px">
+                  <thead><tr style="background:var(--surface)">
+                    <th style="width:44px;padding:12px 14px"><span onClick="{{ toggleAll }}" style="{{ allBox }}"><sc-if value="{{ allChecked }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-11"></path></svg></sc-if></span></th>
+                    <th style="text-align:left;padding:12px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Sr</th>
+                    <th style="text-align:left;padding:12px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Enroll · Roll</th>
+                    <th style="text-align:left;padding:12px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Class</th>
+                    <th style="text-align:left;padding:12px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Name</th>
+                    <th style="text-align:left;padding:12px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Status</th>
+                    <th style="width:40px"></th>
+                  </tr></thead>
+                  <tbody>
+                    <sc-for list="{{ studentRows }}" as="r" hint-placeholder-count="6">
+                      <tr style="{{ r.rowStyle }}">
+                        <td style="padding:11px 14px"><span onClick="{{ r.toggle }}" style="{{ r.box }}"><sc-if value="{{ r.checked }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-11"></path></svg></sc-if></span></td>
+                        <td style="padding:11px 14px;font-family:monospace;font-size:12px;color:var(--text3)">{{ r.sr }}</td>
+                        <td style="padding:11px 14px;font-family:monospace;font-size:12px;color:var(--text2)">{{ r.enroll }} · {{ r.roll }}</td>
+                        <td style="padding:11px 14px;color:var(--text2)">{{ r.cls }}–{{ r.sec }}</td>
+                        <td style="padding:11px 14px"><div style="display:flex;align-items:center;gap:8px"><span style="font-weight:700;color:var(--text)">{{ r.name }}</span><span style="{{ r.linkStyle }}">{{ r.linkLabel }}</span></div></td>
+                        <td style="padding:11px 14px"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></td>
+                        <td style="padding:11px 6px;text-align:right"><button aria-label="Actions" style="width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--text3);cursor:pointer"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button></td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+                <sc-if value="{{ noStudents }}" hint-placeholder-val="{{ false }}"><div style="padding:34px;text-align:center;color:var(--text3);font-size:14px">No students match your filters.</div></sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isCompact }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ studentRows }}" as="r" hint-placeholder-count="6">
+                  <div style="display:flex;align-items:center;gap:12px;background:var(--elevated);border:1px solid var(--border-soft);border-radius:15px;padding:13px">
+                    <span onClick="{{ r.toggle }}" style="{{ r.box }}"><sc-if value="{{ r.checked }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-11"></path></svg></sc-if></span>
+                    <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:7px"><span style="font-weight:700;color:var(--text);font-size:14.5px">{{ r.name }}</span><span style="{{ r.linkStyle }}">{{ r.linkLabel }}</span></div><div style="font-size:12px;color:var(--text3);margin-top:2px">{{ r.cls }}–{{ r.sec }} · {{ r.enroll }}</div></div>
+                    <span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </sc-if>
+
+          <!-- ══ ATTENDANCE ══ -->
+          <sc-if value="{{ isAttendance }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ attReports }}" hint-placeholder-val="{{ false }}">
+              <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+                <sc-for list="{{ reportFields }}" as="rf" hint-placeholder-count="4"><div style="flex:1;min-width:130px"><div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px">{{ rf.label }}</div><div style="height:42px;border:1px solid var(--border);border-radius:11px;background:var(--surface);display:flex;align-items:center;justify-content:space-between;padding:0 13px;color:var(--text3);font-size:13px">{{ rf.value }}<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"></path></svg></div></div></sc-for>
+                <button style="height:42px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-weight:700;font-size:13.5px;padding:0 18px;cursor:pointer;font-family:inherit">Generate</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ attTable }}" hint-placeholder-val="{{ true }}">
+              <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+                <div style="border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:var(--elevated)">
+                  <table style="width:100%;border-collapse:collapse;font-size:13.5px">
+                    <thead><tr style="background:var(--surface)"><th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Class & Section</th><th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Type</th><th style="text-align:right;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#15803d">Present</th><th style="text-align:right;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#B8860B">Late</th><th style="text-align:right;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#C0392B">Absent</th><th style="text-align:right;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Total</th></tr></thead>
+                    <tbody><sc-for list="{{ sessions }}" as="s" hint-placeholder-count="4"><tr style="border-top:1px solid var(--border-soft);cursor:pointer" style-hover="background:var(--surface)"><td style="padding:12px 16px;font-weight:700;color:var(--text)">{{ s.cls }} – {{ s.sec }}</td><td style="padding:12px 16px"><span style="{{ s.typeStyle }}">{{ s.type }}</span></td><td style="padding:12px 16px;text-align:right;font-weight:600;color:#15803d">{{ s.present }}</td><td style="padding:12px 16px;text-align:right;font-weight:600;color:#B8860B">{{ s.late }}</td><td style="padding:12px 16px;text-align:right;font-weight:600;color:#C0392B">{{ s.absent }}</td><td style="padding:12px 16px;text-align:right;font-weight:700;color:var(--text)">{{ s.total }}</td></tr></sc-for></tbody>
+                  </table>
+                </div>
+              </sc-if>
+              <sc-if value="{{ isCompact }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:10px"><sc-for list="{{ sessions }}" as="s" hint-placeholder-count="4"><div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:15px;padding:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-weight:700;color:var(--text);font-size:14.5px">{{ s.cls }} – {{ s.sec }}</span><span style="{{ s.typeStyle }}">{{ s.type }}</span></div><div style="display:flex;gap:14px;font-size:13px"><span style="color:#15803d;font-weight:700">{{ s.present }} <span style="color:var(--text3);font-weight:500">present</span></span><span style="color:#B8860B;font-weight:700">{{ s.late }} <span style="color:var(--text3);font-weight:500">late</span></span><span style="color:#C0392B;font-weight:700">{{ s.absent }} <span style="color:var(--text3);font-weight:500">absent</span></span></div></div></sc-for></div>
+              </sc-if>
+            </sc-if>
+          </sc-if>
+
+          <!-- ══ FEES ══ -->
+          <sc-if value="{{ isFees }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ feeStructures }}" hint-placeholder-val="{{ true }}">
+              <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+                <div style="border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:var(--elevated)">
+                  <table style="width:100%;border-collapse:collapse;font-size:13.5px">
+                    <thead><tr style="background:var(--surface)"><th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Name</th><th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Category</th><th style="text-align:right;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Amount</th><th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Frequency</th><th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Year</th><th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)">Status</th></tr></thead>
+                    <tbody><sc-for list="{{ structures }}" as="s" hint-placeholder-count="3"><tr style="border-top:1px solid var(--border-soft)"><td style="padding:12px 16px;font-weight:700;color:var(--text)">{{ s.name }}</td><td style="padding:12px 16px;color:var(--text2)">{{ s.cat }}</td><td style="padding:12px 16px;text-align:right;font-weight:600;color:var(--text)">{{ s.amount }}</td><td style="padding:12px 16px;color:var(--text2)">{{ s.freq }}</td><td style="padding:12px 16px;color:var(--text3)">{{ s.year }}</td><td style="padding:12px 16px"><span style="{{ s.style }}">{{ s.statusLabel }}</span></td></tr></sc-for></tbody>
+                  </table>
+                </div>
+              </sc-if>
+              <sc-if value="{{ isCompact }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:10px"><sc-for list="{{ structures }}" as="s" hint-placeholder-count="3"><div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:15px;padding:14px"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:700;color:var(--text);font-size:14.5px">{{ s.name }}</span><span style="{{ s.style }}">{{ s.statusLabel }}</span></div><div style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12.5px;color:var(--text2);font-weight:600">{{ s.cat }} · {{ s.freq }}<span style="margin-left:auto;font-family:var(--font-display);font-size:16px;color:var(--text)">{{ s.amount }}</span></div></div></sc-for></div>
+              </sc-if>
+            </sc-if>
+            <sc-if value="{{ feeInvoices }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px"><sc-for list="{{ invStatusChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button></sc-for></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ invoices }}" as="v" hint-placeholder-count="3">
+                  <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:15px;padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                    <div style="min-width:0;flex:1"><div style="display:flex;align-items:center;gap:8px"><span style="font-weight:700;color:var(--text);font-size:14px">{{ v.student }}</span><span style="{{ v.style }}">{{ v.statusLabel }}</span></div><div style="font-family:monospace;font-size:11.5px;color:var(--text3);margin-top:2px">{{ v.no }} · due {{ v.due }}</div></div>
+                    <div style="text-align:right"><div style="font-family:var(--font-display);font-size:17px;color:var(--text)">{{ v.net }}</div><div style="font-size:11px;color:var(--text3)">paid {{ v.paid }}</div></div>
+                    <sc-if value="{{ v.actionable }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:7px"><button aria-label="Link" style="width:36px;height:36px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6 M10 6l1-1a4 4 0 0 1 6 6l-1 1 M14 18l-1 1a4 4 0 0 1-6-6l1-1"></path></svg></button><button aria-label="Remind" style="width:36px;height:36px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:#15803d;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13 M22 2l-7 20-4-9-9-4z"></path></svg></button></div></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </sc-if>
+
+          <!-- ══ ADMISSIONS (kanban) ══ -->
+          <sc-if value="{{ isAdmissions }}" hint-placeholder-val="{{ false }}">
+            <div class="vv-scroll" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;align-items:flex-start">
+              <sc-for list="{{ pipeline }}" as="col" hint-placeholder-count="6">
+                <div style="flex-shrink:0;width:260px;background:var(--surface);border:1px solid var(--border-soft);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px"><span style="font-weight:700;color:var(--text);font-size:13.5px;text-transform:capitalize;display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:50%;background:{{ col.dot }}"></span>{{ col.status }}</span><span style="font-size:11px;font-weight:700;color:var(--text2);background:var(--elevated);border:1px solid var(--border-soft);border-radius:999px;padding:2px 9px">{{ col.count }}</span></div>
+                  <sc-for list="{{ col.cards }}" as="c" hint-placeholder-count="2">
+                    <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:12px;padding:12px;cursor:pointer" style-hover="border-color:var(--brand)">
+                      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px"><span style="font-weight:700;color:var(--text);font-size:13.5px">{{ c.name }}</span><span style="{{ c.srcStyle }}">{{ c.source }}</span></div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text3);margin-top:7px"><span>{{ c.phone }}</span><span>{{ c.cls }}</span></div>
+                      <sc-if value="{{ c.followUp }}" hint-placeholder-val="{{ false }}"><div style="{{ c.followStyle }}">Follow-up · {{ c.followUp }}</div></sc-if>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ col.empty }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;color:var(--text3);font-size:12px;padding:14px 0">No enquiries</div></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <div style="height:12px"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1300,&quot;height&quot;:900},&quot;page&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;students&quot;,&quot;attendance&quot;,&quot;fees&quot;,&quot;admissions&quot;],&quot;default&quot;:&quot;students&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;device&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;phone&quot;,&quot;tablet&quot;,&quot;desktop&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;kumkum&quot;,&quot;peacock&quot;],&quot;default&quot;:&quot;kumkum&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const IC={
+  users:"M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75",
+  check:"M9 12l2 2 4-4 M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
+  clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 7v5l3 2",
+  eye:"M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  userx:"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M11 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M17 8l5 5 M22 8l-5 5",
+  usercheck:"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M11 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M16 11l2 2 4-4",
+  rupee:"M6 3h12 M6 8h12 M9 3c4 0 6 2.5 6 5.5S13 14 9 14l7 7 M6 8h6",
+  trend:"M3 17l6-6 4 4 8-8 M15 7h6v6",
+  receipt:"M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z M8 8h8 M8 12h8 M8 16h5",
+  userplus:"M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M11.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0 M19 8v6 M22 11h-6",
+};
+const T={peacock:{t:"#006A6E",bg:"rgb(0 106 110 / .13)"},green:{t:"#15803d",bg:"rgb(21 128 61 / .12)"},temple:{t:"#B8860B",bg:"rgb(184 134 11 / .15)"},red:{t:"#C0392B",bg:"rgb(192 57 43 / .12)"},indigo:{t:"#1A237E",bg:"rgb(26 35 126 / .12)"},lotus:{t:"#AD1457",bg:"rgb(173 20 87 / .12)"},blue:{t:"#1A237E",bg:"rgb(26 35 126 / .10)"}};
+const pill=(k,label)=>"display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:"+T[k].bg+";color:"+T[k].t;
+const neutral="display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--surface);color:var(--text2);border:1px solid var(--border-soft)";
+
+const STUD=[
+ {sr:1,enroll:'2021/0345',roll:'14',cls:'10',sec:'A',name:'Aarav Mehta',linked:true,status:'approved'},
+ {sr:2,enroll:'2021/0361',roll:'21',cls:'10',sec:'A',name:'Diya Sharma',linked:true,status:'submitted'},
+ {sr:3,enroll:'2021/0402',roll:'07',cls:'9',sec:'B',name:'Kabir Singh',linked:false,status:'pending'},
+ {sr:4,enroll:'2021/0418',roll:'11',cls:'9',sec:'B',name:'Ananya Rao',linked:true,status:'filled'},
+ {sr:5,enroll:'2021/0455',roll:'03',cls:'8',sec:'C',name:'Vivaan Gupta',linked:false,status:'enhanced'},
+ {sr:6,enroll:'2021/0470',roll:'19',cls:'8',sec:'C',name:'Ishita Nair',linked:true,status:'rejected'},
+];
+const SSTAT={pending:['Pending','red'],filled:['Filled','peacock'],enhanced:['Enhanced','indigo'],submitted:['Submitted','temple'],approved:['Approved','green'],rejected:['Rejected','red']};
+const SESSIONS=[
+ {cls:'10',sec:'A',type:'class',present:38,late:2,absent:2,total:42},
+ {cls:'10',sec:'B',type:'class',present:36,late:1,absent:4,total:41},
+ {cls:'9',sec:'A',type:'exam',present:40,late:0,absent:1,total:41},
+ {cls:'8',sec:'C',type:'activity',present:33,late:3,absent:2,total:38},
+];
+const STYPE={class:'peacock',exam:'lotus',activity:'temple',event:'indigo'};
+const STRUCTURES=[
+ {name:'Tuition Fee — Q1',cat:'Tuition',amount:'₹15,000',freq:'Quarterly',year:'2024-25',active:true},
+ {name:'Transport — Zone A',cat:'Transport',amount:'₹2,400',freq:'Monthly',year:'2024-25',active:true},
+ {name:'Exam Fee',cat:'Exam',amount:'₹800',freq:'One-time',year:'2024-25',active:false},
+];
+const INVOICES=[
+ {no:'INV-2024-0345',student:'Aarav Mehta',net:'₹15,000',due:'10 Aug',status:'unpaid',paid:'₹0'},
+ {no:'INV-2024-0361',student:'Diya Sharma',net:'₹17,400',due:'12 Aug',status:'partial',paid:'₹8,000'},
+ {no:'INV-2024-0312',student:'Ananya Rao',net:'₹15,000',due:'05 Aug',status:'paid',paid:'₹15,000'},
+];
+const ISTAT={unpaid:['Unpaid','red'],partial:['Partial','temple'],paid:['Paid','green'],waived:['Waived','indigo'],cancelled:['Cancelled','lotus']};
+const ENQ={
+ new:[{name:'Rohan Verma',source:'website',phone:'+91 98xxx 11',cls:'Class 6',followUp:'18 Aug',overdue:false},{name:'Meera Joshi',source:'walk in',phone:'+91 99xxx 42',cls:'Class 9'}],
+ contacted:[{name:'Aditya Kumar',source:'referral',phone:'+91 90xxx 08',cls:'Class 5',followUp:'12 Aug',overdue:true}],
+ visited:[{name:'Sara Khan',source:'whatsapp',phone:'+91 97xxx 55',cls:'Class 8'}],
+ application:[{name:'Nikhil Das',source:'phone',phone:'+91 96xxx 30',cls:'Class 11'}],
+ admitted:[{name:'Priya Menon',source:'website',phone:'+91 95xxx 71',cls:'Class 7'}],
+ lost:[{name:'Arjun Pillai',source:'social',phone:'+91 94xxx 19',cls:'Class 10'}],
+};
+const ESTAT={new:'indigo',contacted:'peacock',visited:'lotus',application:'temple',admitted:'green',lost:'red'};
+
+class Component extends DCLogic {
+  state={device:this.props.device||'desktop',theme:this.props.theme||'light',accent:this.props.accent||'kumkum',page:this.props.page||'students',
+         search:'',sStatus:'All',sel:{},attTab:'overview',feeTab:'structures',feeStatus:'all'};
+  set(p){this.setState(p);}
+  toggle(id){this.setState(s=>{const n={...s.sel};if(n[id])delete n[id];else n[id]=true;return{sel:n};});}
+  renderVals(){
+    const s=this.state,isDesktop=s.device==='desktop',isCompact=!isDesktop;
+    const frames={phone:{frame:"width:392px;padding:13px;background:#0c0c12;border-radius:46px;box-shadow:0 40px 90px -34px rgb(0 0 0 / .55);flex-shrink:0",screen:"height:812px;border-radius:33px"},tablet:{frame:"width:820px;padding:18px;background:#0c0c12;border-radius:30px;box-shadow:0 40px 90px -34px rgb(0 0 0 / .55);flex-shrink:0",screen:"height:940px;border-radius:16px"},desktop:{frame:"width:min(1120px,100%);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 40px 90px -40px rgb(0 0 0 / .45);background:var(--elevated)",screen:"height:780px"}};
+    const f=frames[s.device];
+    const box=(on)=>"width:20px;height:20px;border-radius:6px;border:1.5px solid "+(on?"var(--brand)":"var(--border)")+";background:"+(on?"var(--brand)":"transparent")+";display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0";
+    const chip=(active,cb,label)=>({label,onClick:cb,style:"white-space:nowrap;border:1px solid "+(active?"transparent":"var(--border)")+";cursor:pointer;font-size:12px;font-weight:700;padding:6px 12px;border-radius:9px;color:"+(active?"#fff":"var(--text2)")+";background:"+(active?"var(--brand)":"var(--elevated)")});
+    const seg=(active,cb,label)=>({label,onClick:cb,style:"border:none;cursor:pointer;font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:9px;color:"+(active?"#fff":"var(--text2)")+";background:"+(active?"linear-gradient(135deg,var(--brand),var(--brand-2))":"transparent")});
+
+    // page meta
+    const META={students:{title:'Students',sub:'Manage students across all classes and sections',action:'Add student',url:'/app/students'},attendance:{title:'Attendance',sub:'Manage student attendance sessions',action:'Create session',url:'/app/attendance'},fees:{title:'Fee Management',sub:'Structures, invoices and collections',action:'Create invoice',url:'/app/fees'},admissions:{title:'Admissions',sub:'Lead pipeline — capture, follow up, convert',action:'New enquiry',url:'/app/admissions'}};
+    const m=META[s.page];
+
+    // stats per page
+    let stats=[];
+    if(s.page==='students')stats=[{label:'Total',value:'18,432',icon:IC.users,...T.peacock,valTone:'var(--text)'},{label:'Approved',value:'16,904',icon:IC.usercheck,...T.green,valTone:'var(--text)'},{label:'Pending',value:'214',icon:IC.clock,...T.temple,valTone:'var(--text)'},{label:'On page',value:'6',icon:IC.eye,...T.indigo,valTone:'var(--text)'}];
+    if(s.page==='attendance')stats=[{label:'Total marked',value:'162',icon:IC.users,...T.peacock,valTone:'var(--text)'},{label:'Present',value:'147',icon:IC.usercheck,...T.green,valTone:'#15803d'},{label:'Late',value:'6',icon:IC.clock,...T.temple,valTone:'#B8860B'},{label:'Absent',value:'9',icon:IC.userx,...T.red,valTone:'#C0392B'}];
+    if(s.page==='fees')stats=[{label:'Total billed',value:'₹48.2L',icon:IC.rupee,...T.peacock,valTone:'var(--text)'},{label:'Collected',value:'₹39.6L',icon:IC.check,...T.green,valTone:'#15803d'},{label:'Outstanding',value:'₹8.6L',icon:IC.rupee,...T.red,valTone:'#C0392B'},{label:'Collection rate',value:'82.2%',icon:IC.trend,...T.indigo,valTone:'var(--text)'}];
+    if(s.page==='admissions')stats=[{label:'New',value:'8',icon:IC.userplus,...T.indigo,valTone:'var(--text)'},{label:'In pipeline',value:'12',icon:IC.users,...T.peacock,valTone:'var(--text)'},{label:'Admitted',value:'6',icon:IC.usercheck,...T.green,valTone:'#15803d'},{label:'Lost',value:'2',icon:IC.userx,...T.red,valTone:'#C0392B'}];
+
+    // students
+    const q=s.search.trim().toLowerCase();
+    const studentRows=STUD.filter(r=>{
+      if(q && !(r.name.toLowerCase().includes(q)||r.enroll.includes(q))) return false;
+      if(s.sStatus!=='All' && r.status!==s.sStatus) return false;
+      return true;
+    }).map(r=>{const on=!!s.sel[r.sr];const[lbl,tone]=SSTAT[r.status];return{...r,checked:on,box:box(on),toggle:()=>this.toggle(r.sr),rowStyle:"border-top:1px solid var(--border-soft);"+(on?"background:rgb(192 57 43 / .05)":""),statusStyle:pill(tone,lbl),statusLabel:lbl,linkStyle:r.linked?pill('green','Linked'):neutral,linkLabel:r.linked?'Linked':'No account'};});
+    const selCount=Object.keys(s.sel).length;
+    const allChecked=studentRows.length>0 && studentRows.every(r=>s.sel[r.sr]);
+
+    // fees invoices filter
+    const invoices=INVOICES.filter(v=>s.feeStatus==='all'||v.status===s.feeStatus).map(v=>{const[lbl,tone]=ISTAT[v.status];return{...v,statusStyle:pill(tone,lbl),style:pill(tone,lbl),statusLabel:lbl,actionable:v.status==='unpaid'||v.status==='partial'};});
+    const structures=STRUCTURES.map(x=>({...x,statusLabel:x.active?'Active':'Inactive',style:x.active?pill('green','Active'):neutral}));
+
+    // admissions pipeline
+    const pipeline=['new','contacted','visited','application','admitted','lost'].map(st=>{
+      const cards=(ENQ[st]||[]).map(c=>({...c,srcStyle:neutral,followStyle:"font-size:10.5px;font-weight:700;margin-top:7px;color:"+(c.overdue?"#C0392B":"var(--text3)")}));
+      return{status:st,count:cards.length,dot:T[ESTAT[st]].t,cards,empty:cards.length===0};
+    });
+
+    // tabs
+    let tabs=[],hasTabs=false;
+    if(s.page==='attendance'){hasTabs=true;tabs=[['overview','Overview'],['sessions','Sessions'],['reports','Reports']].map(([k,l])=>seg(s.attTab===k,()=>this.set({attTab:k}),l));}
+    if(s.page==='fees'){hasTabs=true;tabs=[['structures','Fee structures'],['invoices','Invoices']].map(([k,l])=>seg(s.feeTab===k,()=>this.set({feeTab:k}),l));}
+
+    const invStatusChips=[['all','All'],['unpaid','Unpaid'],['partial','Partial'],['paid','Paid']].map(([k,l])=>chip(s.feeStatus===k,()=>this.set({feeStatus:k}),l));
+    const sStatusChips=[['All','All'],['approved','Approved'],['submitted','Submitted'],['pending','Pending'],['filled','Filled']].map(([k,l])=>chip(s.sStatus===k,()=>this.set({sStatus:k}),l));
+
+    const reportFields=[{label:'Class',value:'Class 10'},{label:'Section',value:'Section A'},{label:'Start date',value:'01 Aug 2024'},{label:'End date',value:'14 Aug 2024'}];
+
+    const pageOpts=[['students','Students'],['attendance','Attendance'],['fees','Fees'],['admissions','Admissions']].map(([k,l])=>({label:l,onClick:()=>this.set({page:k}),style:"border:none;cursor:pointer;font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;color:"+(s.page===k?"#fff":"var(--text2)")+";background:"+(s.page===k?"linear-gradient(135deg,var(--brand),var(--brand-2))":"transparent")}));
+    const deviceOpts=[['phone','Phone'],['tablet','Tablet'],['desktop','Desktop']].map(([k,l])=>({label:l,onClick:()=>this.set({device:k}),style:"border:none;cursor:pointer;font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;color:"+(s.device===k?"#fff":"var(--text2)")+";background:"+(s.device===k?"linear-gradient(135deg,var(--brand),var(--brand-2))":"transparent")}));
+
+    return {
+      themeClass:s.theme==='dark'?'dark':'',accentClass:s.accent==='peacock'?'acc-peacock':'',
+      themeIcon:s.theme==='dark'?"M12 3v2 M12 19v2 M4.2 4.2l1.4 1.4 M18.4 18.4l1.4 1.4 M3 12h2 M19 12h2 M4.2 19.8l1.4-1.4 M18.4 5.6l1.4-1.4 M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z":"M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z",
+      isDesktop,isCompact,frameStyle:f.frame,screenStyle:"display:flex;flex-direction:column;background:var(--bg);overflow:hidden;"+(isDesktop?"":"border-radius:33px;")+f.screen,
+      contentPad:isCompact?'16px':'26px',titleSize:isCompact?'22px':'26px',urlPath:m.url,
+      page:s.page,pageTitle:m.title,pageSub:m.sub,primaryAction:m.action,
+      isStudents:s.page==='students',isAttendance:s.page==='attendance',isFees:s.page==='fees',isAdmissions:s.page==='admissions',
+      stats,hasTabs,tabs,
+      showFilter:s.page==='students',searchPlaceholder:'Search students…',search:s.search,onSearch:(e)=>this.set({search:e.target.value}),filterChips:sStatusChips,
+      showSelBar:s.page==='students'&&selCount>0,selCount,clearSel:()=>this.set({sel:{}}),
+      studentRows,noStudents:studentRows.length===0,allChecked,allBox:box(allChecked),toggleAll:()=>{if(allChecked)this.set({sel:{}});else{const n={};studentRows.forEach(r=>n[r.sr]=true);this.set({sel:n});}},
+      attTable:s.attTab!=='reports',attReports:s.attTab==='reports',sessions:SESSIONS.map(x=>({...x,typeStyle:pill(STYPE[x.type],x.type)})),reportFields,
+      feeStructures:s.feeTab==='structures',feeInvoices:s.feeTab==='invoices',structures,invoices,invStatusChips,
+      pipeline,
+      pageOpts,deviceOpts,
+      toggleTheme:()=>this.set({theme:s.theme==='dark'?'light':'dark'}),toggleAccent:()=>this.set({accent:s.accent==='peacock'?'kumkum':'peacock'}),
+    };
+  }
+}
+</script>
+</body>
+</html>

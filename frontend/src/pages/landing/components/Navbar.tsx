@@ -6,127 +6,153 @@ import { MandalaMark } from '@/design/indic/motifs/mandala-mark';
 
 const navLinks = [
     { label: 'Modules', href: '#modules' },
-    { label: 'Communication', href: '#communication' },
+    { label: 'Live demo', href: '#live' },
+    { label: 'WhatsApp', href: '#communication' },
     { label: 'Ecosystem', href: '#ecosystem' },
-    { label: 'How It Works', href: '#how-it-works' },
+    { label: 'Why Vidyaverse', href: '#compare' },
 ];
 
-export default function Navbar() {
-    const [scrolled, setScrolled] = useState(false);
-    const [mobileOpen, setMobileOpen] = useState(false);
-    const { theme, toggleTheme } = useTheme();
+// Extra link shown only in the mobile sheet, mirroring the reference.
+const mobileExtraLink = { label: 'How it works', href: '#how-it-works' };
+
+/** The redesign's single JS breakpoint: mobile nav below 860px. */
+function useIsMobile(): boolean {
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 860);
 
     useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', onScroll, { passive: true });
-        return () => window.removeEventListener('scroll', onScroll);
+        const mq = window.matchMedia('(max-width: 859px)');
+        const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+        setIsMobile(mq.matches);
+        mq.addEventListener('change', onChange);
+        return () => mq.removeEventListener('change', onChange);
     }, []);
+
+    return isMobile;
+}
+
+export default function Navbar() {
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const isMobile = useIsMobile();
+    const { theme, toggleTheme } = useTheme();
+
+    // Close the sheet when crossing back to desktop.
+    useEffect(() => {
+        if (!isMobile) setMobileOpen(false);
+    }, [isMobile]);
 
     return (
         <nav
-            className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md transition-all duration-300"
+            id="top"
+            className="fixed top-0 left-0 right-0 z-50"
             style={{
-                background: scrolled ? 'rgb(var(--parchment-rgb) / 0.9)' : 'rgb(var(--parchment-rgb) / 0.55)',
-                borderBottom: scrolled ? '1px solid rgb(var(--temple-stone-rgb) / 0.22)' : '1px solid transparent',
-                boxShadow: scrolled ? '0 4px 20px rgb(var(--night-ink-rgb) / 0.06)' : 'none',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                background: 'var(--glass)',
+                borderBottom: '1px solid var(--border)',
             }}
         >
-            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-4 h-16 px-[clamp(16px,4vw,28px)]">
                 {/* Brand */}
-                <a href="#" className="flex items-center gap-2.5 shrink-0">
+                <a href="#top" className="flex items-center gap-2.5 shrink-0" style={{ color: 'var(--text)' }}>
                     <MandalaMark size={36} />
-                    <span
-                        className="text-xl tracking-tight text-[color:var(--night-ink)] dark:text-[color:var(--ivory-cream)]"
-                        style={{ fontFamily: 'var(--font-display)' }}
-                    >
+                    <span className="text-[22px] tracking-[0.3px]" style={{ fontFamily: 'var(--font-display)' }}>
                         Vidyaverse
                     </span>
                 </a>
 
                 {/* Desktop nav */}
-                <ul className="hidden md:flex items-center gap-8">
-                    {navLinks.map((link) => (
-                        <li key={link.href}>
-                            <a
-                                href={link.href}
-                                className="text-sm font-semibold indic-muted hover:text-[color:var(--accent-strong)] dark:hover:text-[color:var(--accent-primary-dark)] transition-colors duration-200"
+                {!isMobile && (
+                    <>
+                        <ul className="flex items-center list-none m-0 p-0" style={{ gap: 'clamp(18px,2.4vw,32px)' }}>
+                            {navLinks.map((link) => (
+                                <li key={link.href}>
+                                    <a
+                                        href={link.href}
+                                        className="text-sm font-semibold transition-colors duration-200 hover:text-[color:var(--brand)]"
+                                        style={{ color: 'var(--text2)' }}
+                                    >
+                                        {link.label}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="flex items-center gap-2.5">
+                            <button
+                                onClick={toggleTheme}
+                                className="theme-toggle-btn"
+                                aria-label="Toggle theme"
                             >
-                                {link.label}
+                                {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                            </button>
+                            <a
+                                href="/login"
+                                className="text-sm font-semibold px-3.5 py-2 transition-colors duration-200 hover:text-[color:var(--brand)]"
+                                style={{ color: 'var(--text2)' }}
+                            >
+                                Log in
                             </a>
-                        </li>
-                    ))}
-                </ul>
-
-                {/* Actions */}
-                <div className="hidden md:flex items-center gap-3">
-                    <button
-                        onClick={toggleTheme}
-                        className="p-2 rounded-full indic-muted hover:bg-[color:var(--accent-soft)] dark:hover:bg-white/5 transition-colors"
-                        aria-label="Toggle theme"
-                    >
-                        {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-                    </button>
-                    <a
-                        href="/login"
-                        className="text-sm font-semibold indic-muted hover:text-[color:var(--accent-strong)] dark:hover:text-[color:var(--accent-primary-dark)] px-4 py-2 transition-colors"
-                    >
-                        Log In
-                    </a>
-                    <a href="/register" className="indic-cta indic-cta--primary !min-h-0 !py-2.5 !px-5 text-sm">
-                        Get Started
-                    </a>
-                </div>
+                            <a
+                                href="/register"
+                                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full font-bold text-sm text-white transition-all duration-200 hover:-translate-y-px hover:brightness-[1.06]"
+                                style={{ background: 'linear-gradient(135deg, var(--brand), var(--brand-2))' }}
+                            >
+                                Get started
+                            </a>
+                        </div>
+                    </>
+                )}
 
                 {/* Mobile */}
-                <div className="flex md:hidden items-center gap-2">
-                    <button
-                        onClick={toggleTheme}
-                        className="p-2 rounded-full indic-muted hover:bg-[color:var(--accent-soft)] dark:hover:bg-white/5 transition-colors"
-                        aria-label="Toggle theme"
-                    >
-                        {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-                    </button>
-                    <button
-                        onClick={() => setMobileOpen(!mobileOpen)}
-                        className="p-2 rounded-lg indic-muted hover:bg-[color:var(--accent-soft)] dark:hover:bg-white/5 transition-colors"
-                        aria-label="Toggle menu"
-                    >
-                        {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-                    </button>
-                </div>
+                {isMobile && (
+                    <div className="flex items-center gap-2">
+                        <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle theme">
+                            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                        </button>
+                        <button
+                            onClick={() => setMobileOpen(!mobileOpen)}
+                            className="theme-toggle-btn"
+                            style={{ color: 'var(--text)' }}
+                            aria-label="Menu"
+                        >
+                            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {/* Mobile menu */}
+            {/* Mobile sheet */}
             <AnimatePresence>
-                {mobileOpen && (
+                {isMobile && mobileOpen && (
                     <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                        className="md:hidden overflow-hidden"
+                        className="overflow-hidden"
                         style={{
-                            background: 'var(--parchment)',
-                            borderTop: '1px solid rgb(var(--temple-stone-rgb) / 0.22)',
+                            background: 'var(--bg)',
+                            borderTop: '1px solid var(--border)',
                         }}
                     >
-                        <div className="px-6 py-4 flex flex-col gap-3">
-                            {navLinks.map((link) => (
+                        <div className="px-[clamp(16px,4vw,28px)] py-3.5 flex flex-col gap-1.5">
+                            {[...navLinks.slice(0, 4), mobileExtraLink, navLinks[4]].map((link) => (
                                 <a
                                     key={link.href}
                                     href={link.href}
                                     onClick={() => setMobileOpen(false)}
-                                    className="text-sm font-semibold indic-muted py-2"
+                                    className="text-sm font-semibold py-2.5"
+                                    style={{ color: 'var(--text2)' }}
                                 >
                                     {link.label}
                                 </a>
                             ))}
-                            <hr className="indic-rule" />
-                            <a href="/login" className="text-sm font-semibold indic-muted py-2">
-                                Log In
-                            </a>
-                            <a href="/register" className="indic-cta indic-cta--primary text-sm py-3 justify-center">
-                                Get Started
+                            <a
+                                href="/register"
+                                onClick={() => setMobileOpen(false)}
+                                className="text-center mt-1.5 py-3 rounded-full font-bold text-white"
+                                style={{ background: 'linear-gradient(135deg, var(--brand), var(--brand-2))' }}
+                            >
+                                Get started
                             </a>
                         </div>
                     </motion.div>

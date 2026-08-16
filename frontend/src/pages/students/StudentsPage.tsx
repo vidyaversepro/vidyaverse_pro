@@ -7,7 +7,6 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -55,6 +54,7 @@ import {
     ArrowUp,
     ArrowDown,
     ArrowUpDown,
+    Camera,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import StudentModal from './StudentModal';
@@ -64,15 +64,42 @@ import { BulkPhotoUploadModal } from '@/components/students/bulk-upload/BulkPhot
 import { StudentDraftGrid } from '@/components/students/StudentDraftGrid';
 import { StudentFilterBar, type StudentFilterValues } from '@/components/students/StudentFilterBar';
 
-// Data status badge styling
-const dataStatusConfig: Record<DataStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-    pending: { label: 'Pending', variant: 'outline' },
-    filled: { label: 'Filled', variant: 'secondary' },
-    enhanced: { label: 'Enhanced', variant: 'secondary' },
-    submitted: { label: 'Submitted', variant: 'default' },
-    approved: { label: 'Approved', variant: 'default' },
-    rejected: { label: 'Rejected', variant: 'destructive' },
+const TONE = {
+    green: '#15803d',
+    temple: '#B8860B',
+    red: '#C0392B',
+    peacock: '#006A6E',
+    indigo: '#1A237E',
 };
+
+// Data status → literal tone (matches the reference's SSTAT palette exactly)
+const dataStatusConfig: Record<DataStatus, { label: string; tone: string }> = {
+    pending: { label: 'Pending', tone: TONE.red },
+    filled: { label: 'Filled', tone: TONE.peacock },
+    enhanced: { label: 'Enhanced', tone: TONE.indigo },
+    submitted: { label: 'Submitted', tone: TONE.temple },
+    approved: { label: 'Approved', tone: TONE.green },
+    rejected: { label: 'Rejected', tone: TONE.red },
+};
+
+function Pill({ label, tone }: { label: string; tone: string }) {
+    return (
+        <span
+            className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
+            style={{ color: tone, background: `${tone}1f` }}
+        >
+            {label}
+        </span>
+    );
+}
+
+function NeutralPill({ label }: { label: string }) {
+    return (
+        <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full bg-muted text-muted-foreground border whitespace-nowrap">
+            {label}
+        </span>
+    );
+}
 
 export default function StudentsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -261,7 +288,7 @@ export default function StudentsPage() {
         return (
             <TableHead className={className}>
                 <div
-                    className="flex items-center gap-1 cursor-pointer select-none hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                    className="flex items-center gap-1 cursor-pointer select-none hover:text-foreground transition-colors"
                     onClick={() => handleSort(column)}
                 >
                     {label}
@@ -276,13 +303,13 @@ export default function StudentsPage() {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4">
             <PageHeader
                 breadcrumb={[
                     { label: 'Dashboard', href: '/app/dashboard' },
                     { label: 'Students' },
                 ]}
-                title="Students Management"
+                title="Students"
                 description="Manage students across all classes and sections"
                 action={
                     <div className="flex items-center gap-2 flex-wrap">
@@ -306,18 +333,6 @@ export default function StudentsPage() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        {selectedIds.size > 0 && (
-                            <>
-                                <Button variant="destructive" onClick={() => setIsBulkDeleteOpen(true)} disabled={bulkDeleteStudents.isPending}>
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    {bulkDeleteStudents.isPending ? 'Deleting...' : `Delete Selected (${selectedIds.size})`}
-                                </Button>
-                                <Button variant="secondary" onClick={handleBulkRequestPhotos} disabled={bulkRequestPhotos.isPending}>
-                                    <Upload className="h-4 w-4 mr-2" />
-                                    {bulkRequestPhotos.isPending ? 'Sending...' : `Request Photos (${selectedIds.size})`}
-                                </Button>
-                            </>
-                        )}
                         <Button onClick={handleCreate}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Student
@@ -327,27 +342,53 @@ export default function StudentsPage() {
             />
 
             {/* Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <StatCard title="Total Students" value={totalStudents} icon={Users} />
-                <StatCard title="Approved" value={approvedCount} icon={UserCheck} />
-                <StatCard title="Pending Review" value={pendingCount} icon={Clock} />
-                <StatCard title="On This Page" value={students.length} icon={Eye} />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <StatCard title="Total" value={totalStudents} icon={Users} tone="teal" />
+                <StatCard title="Approved" value={approvedCount} icon={UserCheck} tone="gold" />
+                <StatCard title="Pending" value={pendingCount} icon={Clock} tone="saffron" />
+                <StatCard title="On page" value={students.length} icon={Eye} tone="indigo" />
             </div>
 
             {/* Filter Bar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <div className="flex-1 w-full sm:w-auto">
                     <StudentFilterBar filters={filters} onChange={setFilters} />
                 </div>
-                <div className="flex items-center space-x-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md px-3 py-2 shadow-sm shrink-0">
+                <div className="flex items-center gap-2 bg-card border rounded-xl px-3 py-2 shrink-0">
                     <Switch id="volunteer-mode" checked={isVolunteerMode} onCheckedChange={setIsVolunteerMode} />
                     <Label htmlFor="volunteer-mode" className="text-sm cursor-pointer whitespace-nowrap">Volunteer Mode</Label>
                 </div>
             </div>
 
+            {/* Selection bar */}
+            {selectedIds.size > 0 && (
+                <div
+                    className="flex items-center gap-2.5 text-white rounded-xl px-3.5 py-2.5 flex-wrap"
+                    style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), var(--accent-strong))' }}
+                >
+                    <span className="font-bold text-[13.5px]">{selectedIds.size} selected</span>
+                    <button
+                        onClick={handleBulkRequestPhotos}
+                        disabled={bulkRequestPhotos.isPending}
+                        className="ml-auto bg-white/[0.18] rounded-[9px] px-3 py-1.5 font-bold text-xs inline-flex items-center gap-1.5"
+                    >
+                        <Camera className="h-3.5 w-3.5" />
+                        {bulkRequestPhotos.isPending ? 'Sending…' : 'Request photos'}
+                    </button>
+                    <button
+                        onClick={() => setIsBulkDeleteOpen(true)}
+                        disabled={bulkDeleteStudents.isPending}
+                        className="bg-white/[0.18] rounded-[9px] px-3 py-1.5 font-bold text-xs inline-flex items-center gap-1.5"
+                    >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                    </button>
+                </div>
+            )}
+
             {/* Content */}
             {isLoading ? (
-                <div className="rounded-md border">
+                <div className="hidden lg:block rounded-2xl border bg-card overflow-hidden">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -390,12 +431,13 @@ export default function StudentsPage() {
                 />
             ) : (
                 <>
-                    <div className={`rounded-md border ${isFetching ? 'opacity-50' : ''} transition-opacity duration-300`}>
+                    {/* Desktop table */}
+                    <div className={`hidden lg:block rounded-2xl border bg-card overflow-hidden ${isFetching ? 'opacity-50' : ''} transition-opacity duration-300`}>
                         <Table>
                             <TableHeader>
-                                <TableRow>
+                                <TableRow className="bg-muted/40 hover:bg-muted/40">
                                     <TableHead className="w-12">
-                                        <Checkbox 
+                                        <Checkbox
                                             checked={students.length > 0 && selectedIds.size === students.length}
                                             onCheckedChange={handleSelectAll}
                                             aria-label="Select all"
@@ -426,7 +468,7 @@ export default function StudentsPage() {
                                     return (
                                         <TableRow key={student.id} data-state={selectedIds.has(student.id) ? "selected" : undefined}>
                                             <TableCell>
-                                                <Checkbox 
+                                                <Checkbox
                                                     checked={selectedIds.has(student.id)}
                                                     onCheckedChange={(checked) => handleSelectRow(student.id, !!checked)}
                                                     aria-label={`Select ${student.name}`}
@@ -455,15 +497,15 @@ export default function StudentsPage() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <p className="font-semibold">{student.name}</p>
+                                                    <p className="font-bold">{student.name}</p>
                                                     {student.userId
-                                                        ? <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100 text-[10px] py-0 px-2 h-5">Linked</Badge>
-                                                        : <Badge className="bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-100 text-[10px] py-0 px-2 h-5">No account</Badge>
+                                                        ? <Pill label="Linked" tone={TONE.green} />
+                                                        : <NeutralPill label="No account" />
                                                     }
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
+                                                <Pill label={statusConfig.label} tone={statusConfig.tone} />
                                             </TableCell>
                                             <TableCell>
                                                 <DropdownMenu>
@@ -499,6 +541,33 @@ export default function StudentsPage() {
                         </Table>
                     </div>
 
+                    {/* Mobile / tablet card list */}
+                    <div className={`lg:hidden flex flex-col gap-2.5 ${isFetching ? 'opacity-50' : ''} transition-opacity duration-300`}>
+                        {students.map((student: Student, index: number) => {
+                            const statusConfig = dataStatusConfig[student.dataStatus] || dataStatusConfig.pending;
+                            const srNo = (page - 1) * pageSize + index + 1;
+                            return (
+                                <div key={student.id} className="flex items-center gap-3 bg-card border rounded-2xl p-3.5">
+                                    <Checkbox
+                                        checked={selectedIds.has(student.id)}
+                                        onCheckedChange={(checked) => handleSelectRow(student.id, !!checked)}
+                                        aria-label={`Select ${student.name}`}
+                                    />
+                                    <button className="flex-1 min-w-0 text-left" onClick={() => handleEdit(student)}>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-bold text-[14.5px] truncate">{student.name}</span>
+                                            {student.userId ? <Pill label="Linked" tone={TONE.green} /> : <NeutralPill label="No account" />}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-0.5">
+                                            Sr {srNo} · {student.section?.class?.name || '—'}–{student.section?.name || '—'} · {student.admissionNumber || '—'}
+                                        </div>
+                                    </button>
+                                    <Pill label={statusConfig.label} tone={statusConfig.tone} />
+                                </div>
+                            );
+                        })}
+                    </div>
+
                     {/* Pagination */}
                     {pagination && (
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -518,11 +587,11 @@ export default function StudentsPage() {
                                         <SelectItem value="50">50 / page</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <div className="flex gap-2">
-                                    <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+                                <div className="flex gap-1.5">
+                                    <Button variant="outline" className="h-9 rounded-[9px] px-4 text-xs font-semibold" disabled={page <= 1} onClick={() => setPage(page - 1)}>
                                         Previous
                                     </Button>
-                                    <Button variant="outline" size="sm" disabled={page >= pagination.totalPages} onClick={() => setPage(page + 1)}>
+                                    <Button variant="outline" className="h-9 rounded-[9px] px-4 text-xs font-semibold" disabled={page >= pagination.totalPages} onClick={() => setPage(page + 1)}>
                                         Next
                                     </Button>
                                 </div>
@@ -533,11 +602,11 @@ export default function StudentsPage() {
             )}
 
             {/* Student Modal */}
-            <StudentModal 
-                open={modalOpen} 
-                onOpenChange={setModalOpen} 
-                student={selectedStudent} 
-                mode={modalMode} 
+            <StudentModal
+                open={modalOpen}
+                onOpenChange={setModalOpen}
+                student={selectedStudent}
+                mode={modalMode}
                 defaultInstitutionId={filters.institutionId}
             />
 

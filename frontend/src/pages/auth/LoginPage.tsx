@@ -3,15 +3,14 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, ArrowRight, Mail, KeyRound } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Loader2, ArrowRight, Mail, KeyRound, Eye, EyeOff } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { signIn, AUTH_BASE } from '@/lib/auth.client';
+import { AuthShell } from './components/AuthShell';
 
 // Schema for Login
 const loginSchema = z.object({
@@ -26,6 +25,7 @@ export default function LoginPage() {
     const [searchParams] = useSearchParams();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
+    const [showPw, setShowPw] = useState(false);
     // OIDC federated flow: Better Auth redirects here with the full authorize query
     // (client_id, response_type, redirect_uri, scope, state, code_challenge…). After
     // sign-in we must loop the browser back to the authorize endpoint to resume.
@@ -79,130 +79,88 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4"
-            style={{ background: 'linear-gradient(135deg, #FFF5F5 0%, #FFFFFF 40%, #F0F4FF 100%)' }}
+        <AuthShell
+            heading={
+                <span className="gradient-text-indic-soft">
+                    {isFederated ? 'Sign in to continue' : 'Welcome back'}
+                </span>
+            }
+            sub={
+                isFederated
+                    ? 'An application is requesting access to your Vidyaverse account.'
+                    : 'Sign in to your Vidyaverse account.'
+            }
+            footer={
+                <>
+                    New to Vidyaverse?{' '}
+                    <Link to="/register" className="text-primary font-bold">
+                        Create an account
+                    </Link>
+                </>
+            }
         >
-            {/* Decorative blobs */}
-            <div className="absolute top-[-120px] right-[-80px] w-[400px] h-[400px] rounded-full opacity-[0.12]"
-                style={{ background: 'radial-gradient(circle, #E63946, transparent 70%)' }}
-            />
-            <div className="absolute bottom-[-100px] left-[-60px] w-[350px] h-[350px] rounded-full opacity-[0.08]"
-                style={{ background: 'radial-gradient(circle, #8B5CF6, transparent 70%)' }}
-            />
-
-            <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full max-w-md relative z-10"
-            >
-                <Card className="border border-white/60 shadow-2xl shadow-red-200/30 dark:shadow-red-900/10 backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 dark:border-gray-700/50 rounded-2xl overflow-hidden">
-                    <div className="h-1 w-full bg-gradient-to-r from-[#E63946] via-[#8B5CF6] to-[#2563EB]" />
-
-                    <CardContent className="p-8">
-                        <div className="text-center mb-8">
-                            <motion.div
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
-                            >
-                                <img
-                                    src="/vidyaverse-logo.png"
-                                    alt="Vidyaverse Pro"
-                                    className="h-10 mx-auto mb-4"
-                                />
-                            </motion.div>
-                            <h1 className="text-2xl font-bold gradient-text-brand">
-                                {isFederated ? 'Sign in to continue' : 'Welcome Back'}
-                            </h1>
-                            <p className="text-sm text-muted-foreground mt-1">
-                                {isFederated
-                                    ? 'An application is requesting access to your Vidyaverse account'
-                                    : 'Sign in to your account'}
-                            </p>
-                        </div>
-
-                        <form
-                            onSubmit={handleSubmit(onSubmit)}
-                            className="space-y-4"
-                        >
-                            <div className="space-y-1.5">
-                                <Label htmlFor="email">Email Address</Label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="name@example.com"
-                                        {...register('email')}
-                                        className={`pl-10 ${errors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                                    />
-                                </div>
-                                {errors.email && (
-                                    <p className="text-xs text-red-500">{errors.email.message}</p>
-                                )}
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <div className="flex items-center justify-between">
-                                    <Label htmlFor="password">Password</Label>
-                                    <Link
-                                        to="/forgot-password"
-                                        className="text-xs text-[#E63946] hover:text-[#C41E3A] font-medium transition-colors"
-                                    >
-                                        Forgot password?
-                                    </Link>
-                                </div>
-                                <div className="relative">
-                                    <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        placeholder="••••••••"
-                                        {...register('password')}
-                                        className={`pl-10 ${errors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                                    />
-                                </div>
-                                {errors.password && (
-                                    <p className="text-xs text-red-500">{errors.password.message}</p>
-                                )}
-                            </div>
-
-                            <Button
-                                type="submit"
-                                className="w-full bg-gradient-to-r from-[#E63946] to-[#C41E3A] hover:from-[#D32F3F] hover:to-[#B01A30] text-white rounded-xl h-11 text-sm font-semibold shadow-lg shadow-red-500/20 transition-all mt-6"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Signing in...
-                                    </>
-                                ) : (
-                                    <>
-                                        Sign In
-                                        <ArrowRight className="ml-2 h-4 w-4" />
-                                    </>
-                                )}
-                            </Button>
-                        </form>
-                    </CardContent>
-
-                    {/* Register link */}
-                    <div className="px-8 pb-6 text-center">
-                        <p className="text-sm text-muted-foreground">
-                            Don't have an account?{' '}
-                            <Link
-                                to="/register"
-                                className="text-[#E63946] hover:text-[#C41E3A] font-semibold transition-colors"
-                            >
-                                Sign up
-                            </Link>
-                        </p>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-[15px]">
+                <div className="space-y-1.5">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            {...register('email')}
+                            className={`h-12 rounded-[13px] pl-[42px] ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                        />
                     </div>
-                </Card>
-            </motion.div>
-        </div>
+                    {errors.email && (
+                        <p className="text-xs text-destructive">{errors.email.message}</p>
+                    )}
+                </div>
+
+                <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="password">Password</Label>
+                        <Link to="/forgot-password" className="text-xs font-bold text-primary">
+                            Forgot?
+                        </Link>
+                    </div>
+                    <div className="relative">
+                        <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            id="password"
+                            type={showPw ? 'text' : 'password'}
+                            placeholder="••••••••"
+                            {...register('password')}
+                            className={`h-12 rounded-[13px] pl-[42px] pr-10 ${errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPw(!showPw)}
+                            aria-label={showPw ? 'Hide password' : 'Show password'}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                    </div>
+                    {errors.password && (
+                        <p className="text-xs text-destructive">{errors.password.message}</p>
+                    )}
+                </div>
+
+                <Button type="submit" className="w-full h-[50px] rounded-[14px] text-[15px] font-bold mt-1.5" disabled={isLoading}>
+                    {isLoading ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Signing in...
+                        </>
+                    ) : (
+                        <>
+                            Sign in
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </>
+                    )}
+                </Button>
+            </form>
+        </AuthShell>
     );
 }
-

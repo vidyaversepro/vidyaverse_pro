@@ -2,6 +2,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 
+type StatTone = 'saffron' | 'teal' | 'gold' | 'indigo' | 'lotus';
+
 interface StatCardProps {
     title: string;
     value: string | number;
@@ -14,6 +16,8 @@ interface StatCardProps {
     };
     className?: string;
     iconClassName?: string;
+    /** Indic pigment tone for the icon plinth. Takes precedence over iconClassName. */
+    tone?: StatTone;
 }
 
 export function StatCard({
@@ -23,7 +27,8 @@ export function StatCard({
     description,
     trend,
     className,
-    iconClassName
+    iconClassName,
+    tone
 }: StatCardProps) {
     return (
         <Card className={cn("overflow-hidden", className)}>
@@ -35,8 +40,8 @@ export function StatCard({
                         </span>
                         <span className="text-2xl font-bold">{value}</span>
                     </div>
-                    <div className={cn("p-2 rounded-full bg-primary/10", iconClassName)}>
-                        <Icon className="h-5 w-5 text-primary" />
+                    <div className={cn("p-2.5 rounded-full", tone ? `stat-icon-${tone}` : cn("bg-primary/10", iconClassName))}>
+                        <Icon className={cn("h-5 w-5", tone ? "text-white" : "text-primary")} />
                     </div>
                 </div>
                 {(description || trend) && (

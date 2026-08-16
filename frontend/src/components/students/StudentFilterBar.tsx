@@ -64,7 +64,7 @@ export function StudentFilterBar({ filters, onChange }: StudentFilterBarProps) {
     };
 
     return (
-        <div className="flex flex-wrap items-center gap-3 p-4 bg-white dark:bg-gray-900 rounded-xl border shadow-sm">
+        <div className="flex flex-wrap items-center gap-3 p-4 bg-card rounded-xl border">
             {/* Search */}
             <Input
                 placeholder="Search name, admission no..."

@@ -1,131 +1,290 @@
 import { motion } from 'framer-motion';
-import { MessageCircle, Bell, CreditCard, Bot, BadgeCheck, CheckCheck } from 'lucide-react';
+import { Bell, CreditCard, Bot, ShieldCheck, Send } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 /**
- * WhatsApp parent-communication section — surfaces the Urmi assimilation that the
- * old landing never showed. Indian parents live on WhatsApp; Vidyaverse reaches them
- * natively: auto fee reminders with payment links, attendance alerts, and AI inbound
- * replies grounded in real school data. CSS-composed phone mockup, WhatsApp-green accent.
+ * WhatsApp parent-communication section — surfaces the Urmi assimilation that
+ * the old landing never showed. The phone mockup is now a LIVE demo: type a
+ * question (Hindi or English) or tap a quick chip and the "AI" answers from a
+ * small grounded rule-set, mirroring the reference prototype's reply logic.
  */
 
+type InMsg = { dir: 'in'; label?: string; labelColor?: string; text: string; time: string; pay?: boolean };
+type OutMsg = { dir: 'out'; text: string; time: string };
+type ChatMsg = InMsg | OutMsg | { typing: true };
+
 const capabilities = [
-    { icon: Bell, title: 'Automated alerts', desc: 'Attendance, results, fees, transport — sent the moment they happen, batched into a tidy daily digest.' },
-    { icon: CreditCard, title: 'Fees with one-tap pay', desc: 'Reminders carry a Razorpay payment link. Parents pay inside the chat; the books reconcile automatically.' },
-    { icon: Bot, title: 'AI that answers back', desc: 'Parents ask "kitni fees baaki hai?" in Hindi or English — the bot replies from real student data, 24×7.' },
-    { icon: BadgeCheck, title: 'DPDP-compliant', desc: 'Consent-first messaging, opt-outs honored, every send audit-logged. Built for Indian data law.' },
+    { icon: Bell, title: 'Automated alerts', desc: 'Attendance, fees & results the moment they happen.' },
+    { icon: CreditCard, title: 'One-tap fee pay', desc: 'Razorpay link inside the chat; books reconcile.' },
+    { icon: Bot, title: 'AI that answers', desc: 'Bilingual replies grounded in real records.' },
+    { icon: ShieldCheck, title: 'DPDP-compliant', desc: 'Consent-first, opt-outs honoured, audit-logged.' },
 ];
 
-export default function WhatsAppComms() {
+const quickChips = ['Kitni fees baaki hai?', 'Aaj ki attendance?', 'Result kab aayega?'];
+
+function now(): string {
+    const d = new Date();
+    let h = d.getHours();
+    const m = String(d.getMinutes()).padStart(2, '0');
+    const ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${h}:${m} ${ap}`;
+}
+
+/** The demo's "AI" — keyword-matched answers over a fixed student record. */
+function reply(input: string): string {
+    const t = input.toLowerCase();
+    if (/fee|fees|baaki|paisa|due|pay/.test(t)) {
+        return 'आपके 1 बच्चे हैं। Term-2 में कुल ₹12,500 बाकी है (Aarav)। पिछली payment 02 Apr को ₹10,000 मिली थी। एक tap में pay करें 🧾';
+    }
+    if (/attend|present|absent|upasthit|haazri|aaj/.test(t)) {
+        return 'Aarav is present today ✅. इस महीने attendance 96% रही है (22 / 23 days)।';
+    }
+    if (/result|marks|exam|grade|report/.test(t)) {
+        return 'Term-2 results 20 Jun को publish होंगे। पिछली बार Aarav ने 88% score किया था 🎉';
+    }
+    if (/bus|transport|gaadi|pickup/.test(t)) {
+        return 'Bus #7 अभी on-route है, ETA 7:52 AM 🚌। Live GPS link app में उपलब्ध है।';
+    }
+    return 'नमस्ते! मैं Vidyaverse AI हूँ 🙏 — fees, attendance, results या transport के बारे में पूछें। I can reply in Hindi or English.';
+}
+
+const initialMessages: ChatMsg[] = [
+    { dir: 'in', label: 'ATTENDANCE', labelColor: '#0B8A5A', text: 'Aarav was marked present today at 8:42 AM ✅', time: '8:43 AM' },
+    { dir: 'in', label: 'FEE REMINDER', labelColor: '#B45309', text: 'Term-2 fee of ₹12,500 is due on 15 Jun.', time: '9:01 AM', pay: true },
+];
+
+function ChatBubble({ m }: { m: Exclude<ChatMsg, { typing: true }> }) {
+    if (m.dir === 'in') {
+        return (
+            <div
+                className="self-start max-w-[88%] px-3 py-[9px] shadow-sm"
+                style={{ background: '#fff', borderRadius: '12px 12px 12px 3px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}
+            >
+                {m.label && (
+                    <div className="text-[9px] font-extrabold tracking-[0.04em] mb-[3px]" style={{ color: m.labelColor }}>
+                        {m.label}
+                    </div>
+                )}
+                <div className="text-[12.5px] leading-[1.5]" style={{ color: '#1a1a1a' }}>
+                    {m.text}
+                </div>
+                {m.pay && (
+                    <div className="mt-2 py-2 rounded-lg text-center text-xs font-bold" style={{ background: '#25D366', color: '#fff' }}>
+                        💳 Pay now — secure link
+                    </div>
+                )}
+                <div className="text-right text-[9px] mt-[3px]" style={{ color: '#999' }}>
+                    {m.time}
+                </div>
+            </div>
+        );
+    }
     return (
-        <section id="communication" className="indic-section py-20">
-            <div className="max-w-7xl mx-auto px-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    {/* Left: copy */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 28 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: '-60px' }}
-                        transition={{ duration: 0.6 }}
+        <div
+            className="self-end max-w-[80%] px-3 py-[9px] shadow-sm"
+            style={{ background: '#DCF8C6', borderRadius: '12px 12px 3px 12px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}
+        >
+            <div className="text-[12.5px] leading-[1.5]" style={{ color: '#1a1a1a' }}>
+                {m.text}
+            </div>
+            <div className="text-right text-[9px] mt-[3px]" style={{ color: '#5a8a4a' }}>
+                {m.time} ✓✓
+            </div>
+        </div>
+    );
+}
+
+export default function WhatsAppComms() {
+    const [messages, setMessages] = useState<ChatMsg[]>(initialMessages);
+    const [chatInput, setChatInput] = useState('');
+    const chatRef = useRef<HTMLDivElement>(null);
+    const replyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const scrollChat = useCallback(() => {
+        requestAnimationFrame(() => {
+            if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        });
+    }, []);
+
+    useEffect(() => scrollChat(), [messages, scrollChat]);
+
+    useEffect(() => () => {
+        if (replyTimer.current) clearTimeout(replyTimer.current);
+    }, []);
+
+    const send = useCallback((text: string) => {
+        const t = (text || '').trim();
+        if (!t) return;
+        setChatInput('');
+        setMessages((prev) => [...prev, { dir: 'out', text: t, time: now() }, { typing: true }]);
+        if (replyTimer.current) clearTimeout(replyTimer.current);
+        replyTimer.current = setTimeout(() => {
+            const r = reply(t);
+            setMessages((prev) => [
+                ...prev.filter((m) => !('typing' in m)),
+                { dir: 'in', label: 'VIDYAVERSE AI', labelColor: '#7C3AED', text: r, time: now() },
+            ]);
+        }, 1200);
+    }, []);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            send(chatInput);
+        }
+    };
+
+    return (
+        <section id="communication" className="px-[clamp(16px,4vw,28px)] py-[clamp(64px,9vw,110px)]">
+            <div
+                className="max-w-[1120px] mx-auto grid items-center"
+                style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'clamp(32px,6vw,64px)' }}
+            >
+                {/* Left: copy */}
+                <motion.div
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                >
+                    <span className="text-xs font-bold tracking-[0.16em] uppercase" style={{ color: 'var(--teal-light)' }}>
+                        The differentiator · try it live
+                    </span>
+                    <h2
+                        className="my-3.5 leading-[1.1] text-[clamp(28px,4.6vw,48px)]"
+                        style={{ fontFamily: 'var(--font-display)', color: 'var(--text)' }}
                     >
-                        <span className="indic-eyebrow mb-4">Parent Communication</span>
-                        <h2 className="text-3xl sm:text-5xl mt-4 mb-5">
-                            Your back office, now on every parent&apos;s phone.
-                        </h2>
-                        <p className="text-lg mb-8 leading-relaxed indic-muted">
-                            Every other ERP stops at the dashboard. Vidyaverse closes the last mile —
-                            reaching parents where they already are, on WhatsApp, with the alerts and
-                            payments they actually open.
-                        </p>
-                        <div className="grid sm:grid-cols-2 gap-5">
-                            {capabilities.map((c, i) => (
-                                <motion.div
-                                    key={c.title}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.4, delay: i * 0.08 }}
-                                    className="flex items-start gap-3"
+                        Every parent reached, on WhatsApp
+                    </h2>
+                    <p className="leading-[1.65] text-[clamp(15px,2vw,18px)] mb-[26px] [text-wrap:pretty]" style={{ color: 'var(--text2)' }}>
+                        Type a message in the demo — ask about fees, attendance or results in Hindi or English. Our AI
+                        answers from live student data, day and night.
+                    </p>
+                    <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                        {capabilities.map((c) => (
+                            <div key={c.title} className="flex gap-[11px] items-start">
+                                <span
+                                    className="shrink-0 w-[34px] h-[34px] rounded-[10px] flex items-center justify-center"
+                                    style={{ background: 'rgb(var(--teal-rgb) / 0.14)', color: 'var(--teal-light)' }}
                                 >
-                                    <span className="indic-icon-plinth w-10 h-10 shrink-0">
-                                        <c.icon size={20} />
-                                    </span>
-                                    <div>
-                                        <h4 className="font-bold text-sm mb-1">{c.title}</h4>
-                                        <p className="text-xs leading-relaxed indic-muted">{c.desc}</p>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </motion.div>
-
-                    {/* Right: WhatsApp phone mockup */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true, margin: '-40px' }}
-                        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                        className="flex justify-center"
-                    >
-                        <div className="relative w-[300px] rounded-[2.2rem] p-3 shadow-2xl" style={{ background: '#111827', boxShadow: '0 32px 80px rgba(37,211,102,0.18), 0 0 0 1px var(--border)' }}>
-                            {/* notch */}
-                            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-5 bg-black rounded-b-2xl z-20" />
-                            <div className="rounded-[1.7rem] overflow-hidden" style={{ background: '#E5DDD5' }}>
-                                {/* WA header */}
-                                <div className="flex items-center gap-3 px-4 py-3" style={{ background: '#075E54' }}>
-                                    <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-                                        <MessageCircle size={18} className="text-white" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="text-white text-sm font-semibold leading-tight">Sunrise Public School</div>
-                                        <div className="text-white/60 text-[10px]">online</div>
-                                    </div>
-                                    <BadgeCheck size={16} className="text-[#25D366]" />
-                                </div>
-
-                                {/* chat body */}
-                                <div className="px-3 py-4 space-y-2.5 min-h-[420px]" style={{ backgroundImage: 'radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0)', backgroundSize: '16px 16px' }}>
-                                    {/* attendance alert (incoming) */}
-                                    <div className="max-w-[82%] bg-white rounded-xl rounded-tl-sm p-2.5 shadow-sm">
-                                        <div className="flex items-center gap-1 text-[9px] font-bold text-[#075E54] mb-1"><Bell size={9} /> ATTENDANCE</div>
-                                        <p className="text-[11px] text-gray-700 leading-snug">Aarav was marked <b>present</b> today at 8:42 AM. ✅</p>
-                                        <div className="text-[8px] text-gray-400 text-right mt-1">8:43 AM</div>
-                                    </div>
-
-                                    {/* fee reminder with pay button (incoming) */}
-                                    <div className="max-w-[82%] bg-white rounded-xl rounded-tl-sm p-2.5 shadow-sm">
-                                        <div className="flex items-center gap-1 text-[9px] font-bold text-[#B45309] mb-1"><CreditCard size={9} /> FEE REMINDER</div>
-                                        <p className="text-[11px] text-gray-700 leading-snug">Term-2 fee of <b>₹12,500</b> is due on 15 Jun.</p>
-                                        <div className="mt-2 rounded-lg py-1.5 text-center text-[11px] font-bold text-white" style={{ background: '#25D366' }}>
-                                            💳 Pay Now — Secure Link
-                                        </div>
-                                        <div className="text-[8px] text-gray-400 text-right mt-1">9:01 AM</div>
-                                    </div>
-
-                                    {/* parent question (outgoing) */}
-                                    <div className="max-w-[80%] ml-auto rounded-xl rounded-tr-sm p-2.5 shadow-sm" style={{ background: '#DCF8C6' }}>
-                                        <p className="text-[11px] text-gray-800 leading-snug">Kitni fees abhi baaki hai?</p>
-                                        <div className="flex items-center justify-end gap-1 text-[8px] text-gray-500 mt-1">9:02 AM <CheckCheck size={10} className="text-[#34B7F1]" /></div>
-                                    </div>
-
-                                    {/* AI reply (incoming) */}
-                                    <div className="max-w-[82%] bg-white rounded-xl rounded-tl-sm p-2.5 shadow-sm">
-                                        <div className="flex items-center gap-1 text-[9px] font-bold text-[#8B5CF6] mb-1"><Bot size={9} /> VIDYAVERSE AI</div>
-                                        <p className="text-[11px] text-gray-700 leading-snug">Aapke do bachche hain. Kul ₹12,500 baaki hai (Aarav). Pichhli payment 02 Apr ko ₹10,000 mili thi. 🧾</p>
-                                        <div className="text-[8px] text-gray-400 text-right mt-1">9:02 AM</div>
-                                    </div>
-                                </div>
-
-                                {/* input bar */}
-                                <div className="flex items-center gap-2 px-3 py-2" style={{ background: '#F0F0F0' }}>
-                                    <div className="flex-1 bg-white rounded-full px-3 py-1.5 text-[10px] text-gray-400">Type a message…</div>
-                                    <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: '#25D366' }}>
-                                        <MessageCircle size={13} className="text-white" />
-                                    </div>
+                                    <c.icon size={17} strokeWidth={2} />
+                                </span>
+                                <div>
+                                    <h4 className="text-sm font-extrabold m-0 mb-[3px]" style={{ color: 'var(--text)' }}>
+                                        {c.title}
+                                    </h4>
+                                    <p className="text-[12.5px] leading-[1.5] m-0" style={{ color: 'var(--text2)' }}>
+                                        {c.desc}
+                                    </p>
                                 </div>
                             </div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Right: interactive phone mockup */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: '-40px' }}
+                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex justify-center"
+                >
+                    <div
+                        className="w-[320px] max-w-full rounded-[34px] p-3"
+                        style={{
+                            background: '#111827',
+                            boxShadow: '0 32px 80px rgb(37 211 102 / 0.18), 0 0 0 1px var(--border)',
+                        }}
+                    >
+                        <div className="rounded-3xl overflow-hidden" style={{ background: '#ECE5DD' }}>
+                            {/* WA header */}
+                            <div className="flex items-center gap-2.5 px-4 py-3.5 text-white" style={{ background: '#075E54' }}>
+                                <span
+                                    className="w-9 h-9 rounded-full flex items-center justify-center"
+                                    style={{ background: 'rgba(255,255,255,0.2)', fontFamily: 'var(--font-display)', fontSize: 16 }}
+                                >
+                                    वि
+                                </span>
+                                <div className="flex-1">
+                                    <div className="text-sm font-bold">Sunrise Public School</div>
+                                    <div className="text-[11px]" style={{ opacity: 0.75 }}>
+                                        online · AI assistant
+                                    </div>
+                                </div>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true">
+                                    <path d="M12 2l2.4 2.1 3.1-.5 1 3 2.9 1.3-1 3 1 3-2.9 1.3-1 3-3.1-.5L12 22l-2.4-2.1-3.1.5-1-3L2.6 15.5l1-3-1-3 2.9-1.3 1-3 3.1.5z" />
+                                    <path d="M9 12l2 2 4-4" stroke="#075E54" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            </div>
+
+                            {/* Chat body */}
+                            <div
+                                ref={chatRef}
+                                className="flex flex-col gap-[9px] h-[320px] overflow-y-auto px-3 py-3.5"
+                                style={{
+                                    backgroundImage: 'radial-gradient(rgba(0,0,0,0.035) 1px, transparent 0)',
+                                    backgroundSize: '16px 16px',
+                                }}
+                            >
+                                {messages.map((m, i) =>
+                                    'typing' in m ? (
+                                        <div
+                                            key={`typing-${i}`}
+                                            className="self-start bg-white px-3.5 py-[11px] shadow-sm flex gap-1"
+                                            style={{ borderRadius: '12px 12px 12px 3px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}
+                                        >
+                                            {[0, 1, 2].map((d) => (
+                                                <span
+                                                    key={d}
+                                                    className="w-[7px] h-[7px] rounded-full"
+                                                    style={{ background: '#7C3AED', animation: `lg-tdot 1s infinite ${d * 0.15}s` }}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <ChatBubble key={i} m={m} />
+                                    )
+                                )}
+                            </div>
+
+                            {/* Quick chips */}
+                            <div className="flex flex-wrap gap-1.5 px-2.5 pt-2 pb-[3px]" style={{ background: '#F0F0F0' }}>
+                                {quickChips.map((c) => (
+                                    <button
+                                        key={c}
+                                        onClick={() => send(c)}
+                                        className="text-[11px] font-semibold px-[11px] py-1.5 rounded-full cursor-pointer"
+                                        style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#fff', color: '#333' }}
+                                    >
+                                        {c}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Input bar */}
+                            <div className="flex items-center gap-2 px-2.5 pb-2.5" style={{ background: '#F0F0F0' }}>
+                                <input
+                                    value={chatInput}
+                                    onChange={(e) => setChatInput(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="Type a message…"
+                                    className="flex-1 min-w-0 border-none outline-none rounded-full px-3.5 py-2.5 text-[12.5px]"
+                                    style={{ background: '#fff', color: '#333', fontFamily: 'var(--font-body)' }}
+                                />
+                                <button
+                                    onClick={() => send(chatInput)}
+                                    aria-label="Send"
+                                    className="w-10 h-10 shrink-0 border-none rounded-full flex items-center justify-center cursor-pointer"
+                                    style={{ background: '#25D366', color: '#fff' }}
+                                >
+                                    <Send size={16} fill="currentColor" />
+                                </button>
+                            </div>
                         </div>
-                    </motion.div>
-                </div>
+                    </div>
+                </motion.div>
             </div>
         </section>
     );

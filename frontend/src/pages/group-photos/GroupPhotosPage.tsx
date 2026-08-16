@@ -16,17 +16,19 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { useGroupPhotos, useCreateGroupPhoto, useExtractFaces, GroupPhoto } from '@/lib/queries';
 import { FaceMappingModal } from './components/FaceMappingModal';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { StatCard } from '@/components/shared/StatCard';
 
 const statusColors: Record<string, string> = {
-    pending: 'bg-yellow-100 text-yellow-700',
-    processing: 'bg-blue-100 text-blue-700',
-    completed: 'bg-green-100 text-green-700',
-    failed: 'bg-red-100 text-red-700',
+    pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+    processing: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    completed: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    failed: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
 };
 
 export default function GroupPhotosPage() {
@@ -106,16 +108,15 @@ export default function GroupPhotosPage() {
     };
 
     return (
-        <div className="space-y-6 p-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Group Photos</h1>
-                    <p className="text-gray-500 dark:text-gray-400">
-                        Upload, process, and extract individual photos
-                    </p>
-                </div>
-                <div className="flex gap-2">
+        <div className="p-4 sm:p-6">
+            <PageHeader
+                breadcrumb={[
+                    { label: 'Dashboard', href: '/app/dashboard' },
+                    { label: 'Group Photos' },
+                ]}
+                title="Group Photos"
+                description="Upload, process, and extract individual photos"
+                action={
                     <label className="cursor-pointer">
                         <input
                             type="file"
@@ -124,84 +125,64 @@ export default function GroupPhotosPage() {
                             onChange={handleUpload}
                             disabled={isUploading}
                         />
-                        <Button className="bg-gradient-to-r from-blue-600 to-[var(--peacock-teal)]" disabled={isUploading}>
-                            {isUploading ? (
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
-                                <Upload className="w-4 h-4 mr-2" />
-                            )}
-                            Upload Photo
+                        <Button asChild disabled={isUploading}>
+                            <span>
+                                {isUploading ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                    <Upload className="w-4 h-4 mr-2" />
+                                )}
+                                Upload Photo
+                            </span>
                         </Button>
                     </label>
-                </div>
-            </div>
+                }
+            />
 
             {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                {[
-                    { label: 'Total Photos', value: data?.pagination?.total || 0, icon: ImageIcon, color: 'from-[#E63946] to-[#C41E3A]' },
-                    { label: 'Faces Detected', value: '-', icon: Users, color: 'from-blue-500 to-[var(--peacock-teal)]' },
-                    { label: 'Matched', value: '-', icon: Check, color: 'from-green-500 to-emerald-500' },
-                    { label: 'Pending Review', value: '-', icon: Scan, color: 'from-amber-500 to-orange-500' },
-                ].map((stat) => (
-                    <Card key={stat.label} className="border-0 shadow-lg">
-                        <CardContent className="p-4 flex items-center gap-4">
-                            <div className={cn('w-12 h-12 rounded-lg bg-gradient-to-br flex items-center justify-center', stat.color)}>
-                                <stat.icon className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                                <p className="text-sm text-gray-500">{stat.label}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                <StatCard title="Total Photos" value={data?.pagination?.total || 0} icon={ImageIcon} tone="teal" />
+                <StatCard title="Faces Detected" value="-" icon={Users} tone="gold" />
+                <StatCard title="Matched" value="-" icon={Check} tone="saffron" />
+                <StatCard title="Pending Review" value="-" icon={Scan} tone="indigo" />
             </div>
 
             {/* Search */}
-            <Card className="border-0 shadow-lg">
-                <CardContent className="p-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                            placeholder="Search by event name or class..."
-                            className="pl-10"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="relative mb-4">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                    placeholder="Search by event name or class…"
+                    className="h-11 rounded-xl pl-10"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </div>
 
             {/* Photos Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {isLoading ? (
-                    Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="animate-pulse">
-                            <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg" />
-                        </div>
-                    ))
-                ) : data?.data?.length === 0 ? (
-                    <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
-                        <div className="w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                            <Users className="w-10 h-10 text-blue-600" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">No Group Photos</h3>
-                        <p className="text-gray-500 mt-1 max-w-sm">
-                            Upload your first group photo to start extracting individual student photos.
-                        </p>
-                    </div>
-                ) : (
-                    data?.data?.map((photo) => (
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="aspect-video rounded-2xl bg-muted animate-pulse" />
+                    ))}
+                </div>
+            ) : data?.data?.length === 0 ? (
+                <EmptyState
+                    icon={Users}
+                    title="No group photos"
+                    description="Upload your first group photo to start extracting individual student photos."
+                />
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {data?.data?.map((photo) => (
                         <motion.div
                             key={photo.id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             whileHover={{ y: -4 }}
                         >
-                            <Card className="border-0 shadow-lg overflow-hidden group">
+                            <div className="indic-card rounded-2xl overflow-hidden group">
                                 {/* Thumbnail */}
-                                <div className="relative aspect-video bg-gray-100 dark:bg-gray-800">
+                                <div className="relative aspect-video bg-muted">
                                     {photo.thumbnailUrl || photo.photoUrl ? (
                                         <img
                                             src={photo.thumbnailUrl || photo.photoUrl}
@@ -210,7 +191,7 @@ export default function GroupPhotosPage() {
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
-                                            <Users className="w-12 h-12 text-gray-300" />
+                                            <Users className="w-12 h-12 text-muted-foreground/40" />
                                         </div>
                                     )}
 
@@ -238,15 +219,15 @@ export default function GroupPhotosPage() {
                                     </div>
                                 </div>
 
-                                <CardContent className="p-4">
-                                    <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-1">
+                                <div className="p-4">
+                                    <h3 className="text-base line-clamp-1">
                                         {photo.name}
                                     </h3>
                                     {photo.eventName && (
-                                        <p className="text-sm text-gray-500 line-clamp-1">{photo.eventName}</p>
+                                        <p className="text-sm text-muted-foreground line-clamp-1">{photo.eventName}</p>
                                     )}
 
-                                    <div className="flex items-center gap-3 mt-3 text-xs text-gray-400">
+                                    <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
                                         {photo.class && <span>{photo.class.name}</span>}
                                         {photo.section && <span>• {photo.section.name}</span>}
                                         <span>• {photo._count?.extractions || 0} faces</span>
@@ -254,7 +235,7 @@ export default function GroupPhotosPage() {
 
                                     {/* Actions */}
                                     {photo.status === 'completed' && (
-                                        <div className="flex gap-1 mt-3 pt-3 border-t dark:border-gray-700">
+                                        <div className="flex gap-1 mt-3 pt-3 border-t border-border">
                                             <Button size="sm" variant="ghost" className="flex-1" onClick={() => handleMatchStudents(photo.id)}>
                                                 <Users className="w-4 h-4 mr-1" />
                                                 Match
@@ -264,17 +245,17 @@ export default function GroupPhotosPage() {
                                             </Button>
                                         </div>
                                     )}
-                                </CardContent>
-                            </Card>
+                                </div>
+                            </div>
                         </motion.div>
-                    ))
-                )}
-            </div>
+                    ))}
+                </div>
+            )}
 
             {/* Pagination */}
             {data?.pagination && (
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">
+                <div className="flex items-center justify-between mt-4">
+                    <p className="text-sm text-muted-foreground">
                         Page {page} of {data.pagination.totalPages}
                     </p>
                     <div className="flex gap-2">

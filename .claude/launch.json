@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vidyaverse-backend",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev:backend"],
+      "port": 3002
+    },
+    {
+      "name": "vidyaverse-frontend",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev:frontend"],
+      "port": 5173
+    }
+  ]
+}

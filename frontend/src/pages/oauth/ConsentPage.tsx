@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Loader2, Shield, ExternalLink, Check, X } from 'lucide-react';
+import { Loader2, ExternalLink, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { useSession, AUTH_BASE } from '@/lib/auth.client';
 import { api } from '@/lib/api';
 import { PageLoader } from '@/lib/lazy-page';
+import { MandalaMark } from '@/design/indic/motifs/mandala-mark';
 
 const SCOPE_DESCRIPTIONS: Record<string, { label: string; detail: string }> = {
     openid: { label: 'Identify you', detail: 'Confirm your identity to the application.' },
@@ -114,14 +115,14 @@ export default function ConsentPage() {
     const clientName = client?.name ?? clientId;
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-muted/40">
-            <Card className="max-w-lg w-full">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+            <Card className="max-w-lg w-full rounded-2xl">
                 <CardHeader className="text-center">
-                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center">
                         {client?.icon ? (
                             <img src={client.icon} alt="" className="h-12 w-12 rounded-full" />
                         ) : (
-                            <Shield className="h-7 w-7 text-primary" />
+                            <MandalaMark size={56} spin={false} />
                         )}
                     </div>
                     <CardTitle className="text-xl">Authorise {clientName}</CardTitle>

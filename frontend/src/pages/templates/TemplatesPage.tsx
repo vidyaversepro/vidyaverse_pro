@@ -27,6 +27,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { useTemplates, useSetDefaultTemplate, type Template, useDeleteTemplate, useDuplicateTemplate } from '@/lib/queries/templates/template-queries';
 import { cn } from '@/lib/utils';
 
@@ -42,17 +43,9 @@ const serviceTypeIcons: Record<string, React.ElementType> = {
     visiting_card: Contact,
 };
 
-const serviceTypeColors: Record<string, string> = {
-    id_card: 'from-[#E63946] to-[#C41E3A]',
-    certificate: 'from-amber-500 to-orange-500',
-    group_photo: 'from-blue-500 to-[var(--peacock-teal)]',
-    hall_ticket: 'from-red-500 to-pink-500',
-    marksheet: 'from-emerald-500 to-green-500',
-    library_card: 'from-indigo-500 to-blue-500',
-    transfer_certificate: 'from-gray-500 to-slate-500',
-    portfolio: 'from-pink-500 to-rose-500',
-    visiting_card: 'from-[var(--lotus-pink)] to-purple-600',
-};
+// One accent gradient for every service type — the per-type icons carry the
+// differentiation, so the header stays on-brand instead of a rainbow.
+const CARD_GRADIENT = 'from-primary to-primary/70';
 
 export default function TemplatesPage() {
     const navigate = useNavigate();
@@ -127,14 +120,13 @@ export default function TemplatesPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Templates</h1>
-                    <p className="text-gray-500 dark:text-gray-400">
+                    <h1 className="arch-section-header text-2xl">Templates</h1>
+                    <p className="text-muted-foreground">
                         Manage document templates for all services
                     </p>
                 </div>
-                <Button 
+                <Button
                     onClick={() => navigate('/app/templates/new')}
-                    className="bg-gradient-to-r from-[#E63946] to-[#C41E3A] hover:from-[#D32F3F] hover:to-[#B01A30] shadow-lg shadow-red-500/20"
                 >
                     <Plus className="w-4 h-4 mr-2" />
                     Create Template
@@ -146,7 +138,6 @@ export default function TemplatesPage() {
                 <Button
                     variant={!selectedType ? 'default' : 'outline'}
                     size="sm"
-                    className={!selectedType ? 'bg-gradient-to-r from-[#E63946] to-[#C41E3A]' : ''}
                     onClick={() => setSelectedType(null)}
                 >
                     All Templates
@@ -158,7 +149,6 @@ export default function TemplatesPage() {
                             key={type.value}
                             variant={selectedType === type.value ? 'default' : 'outline'}
                             size="sm"
-                            className={selectedType === type.value ? `bg-gradient-to-r ${serviceTypeColors[type.value]} text-white border-transparent` : ''}
                             onClick={() => setSelectedType(type.value)}
                         >
                             <Icon className="w-4 h-4 mr-2" />
@@ -169,11 +159,11 @@ export default function TemplatesPage() {
             </div>
 
             {/* Audience Filters */}
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
                 <Button
                     variant={!selectedAudience ? 'secondary' : 'ghost'}
                     size="sm"
-                    className={!selectedAudience ? 'bg-gray-200 dark:bg-gray-800' : 'text-gray-500'}
+                    className={!selectedAudience ? 'bg-muted' : 'text-muted-foreground'}
                     onClick={() => setSelectedAudience(null)}
                 >
                     Any Audience
@@ -183,7 +173,7 @@ export default function TemplatesPage() {
                         key={audience.value}
                         variant={selectedAudience === audience.value ? 'secondary' : 'ghost'}
                         size="sm"
-                        className={selectedAudience === audience.value ? 'bg-gray-200 dark:bg-gray-800' : 'text-gray-500'}
+                        className={selectedAudience === audience.value ? 'bg-muted' : 'text-muted-foreground'}
                         onClick={() => setSelectedAudience(audience.value)}
                     >
                         {audience.label}
@@ -195,7 +185,7 @@ export default function TemplatesPage() {
             <Card className="border-0 shadow-lg">
                 <CardContent className="p-4">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                             placeholder="Search templates..."
                             value={searchQuery}
@@ -211,16 +201,17 @@ export default function TemplatesPage() {
                 {isLoading ? (
                     Array.from({ length: 8 }).map((_, i) => (
                         <div key={i} className="animate-pulse">
-                            <div className="h-48 bg-gray-100 dark:bg-gray-800 rounded-lg" />
+                            <div className="h-48 bg-muted rounded-lg" />
                         </div>
                     ))
                 ) : data?.data?.length === 0 ? (
-                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-                            <FileText className="w-8 h-8 text-[#E63946]" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">No Templates Yet</h3>
-                        <p className="text-gray-500 mt-1">Create your first template to get started.</p>
+                    <div className="col-span-full">
+                        <EmptyState
+                            icon={FileText}
+                            title="No Templates Yet"
+                            description="Create your first template to get started."
+                            action={{ label: 'Create Template', onClick: () => navigate('/app/templates/new') }}
+                        />
                     </div>
                 ) : (
                     data?.data?.map((template: Template) => {
@@ -236,10 +227,7 @@ export default function TemplatesPage() {
                                 <Card className="border-0 shadow-lg overflow-hidden hover:shadow-xl transition-all h-full">
                                     {/* Header with gradient */}
                                     <div
-                                        className={cn(
-                                            'h-24 relative bg-gradient-to-br',
-                                            serviceTypeColors[template.serviceType] || 'from-gray-500 to-slate-500'
-                                        )}
+                                        className={cn('h-24 relative bg-gradient-to-br', CARD_GRADIENT)}
                                     >
                                         <div className="absolute inset-0 bg-black/10" />
                                         <div className="absolute inset-0 flex items-center justify-center">
@@ -264,17 +252,17 @@ export default function TemplatesPage() {
 
                                     <CardContent className="p-4">
                                         {/* Title */}
-                                        <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-1">
+                                        <h3 className="text-foreground line-clamp-1">
                                             {template.name}
                                         </h3>
 
                                         {/* Description */}
-                                        <p className="text-sm text-gray-500 mt-1 line-clamp-2 min-h-[40px]">
+                                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2 min-h-[40px]">
                                             {template.description || 'No description'}
                                         </p>
 
                                         {/* Meta */}
-                                        <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-gray-400">
+                                        <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-muted-foreground">
                                             <span className="capitalize">{template.targetAudience?.toLowerCase() || 'all'}</span>
                                             <span>•</span>
                                             <span>{template.widthMm}×{template.heightMm}mm</span>
@@ -283,7 +271,7 @@ export default function TemplatesPage() {
                                         </div>
 
                                         {/* Actions */}
-                                        <div className="flex items-center gap-1 flex-wrap mt-4 pt-3 border-t dark:border-gray-700">
+                                        <div className="flex items-center gap-1 flex-wrap mt-4 pt-3 border-t border-border">
                                             <Button size="sm" variant="ghost" className="flex-1" onClick={() => navigate(`/app/templates/${template.id}/edit`)}>
                                                 <Eye className="w-4 h-4 mr-1" />
                                                 Preview
@@ -297,7 +285,7 @@ export default function TemplatesPage() {
                                             <Button size="sm" variant="ghost" title="Duplicate" onClick={() => handleDuplicate(template.id)} disabled={duplicateMutation.isPending}>
                                                 <Copy className="w-4 h-4" />
                                             </Button>
-                                            <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-600" onClick={() => handleDelete(template.id)} disabled={deleteMutation.isPending}>
+                                            <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive/80" onClick={() => handleDelete(template.id)} disabled={deleteMutation.isPending}>
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
                                         </div>
@@ -312,7 +300,7 @@ export default function TemplatesPage() {
             {/* Pagination */}
             {data?.pagination && data.pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                         Page {page} of {data.pagination.totalPages}
                     </p>
                     <div className="flex gap-2">

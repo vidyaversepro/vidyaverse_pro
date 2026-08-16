@@ -1,127 +1,110 @@
 import { motion } from 'framer-motion';
-import { Check, X, Minus } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
-const rows = [
-    {
-        feature: 'Cost',
-        traditional: { text: '$50-200/user/month', bad: true },
-        vidyaverse: { text: 'Self-hosted — $0/month', good: true },
-        manual: { text: 'Paper-based chaos', bad: true },
-    },
-    {
-        feature: 'Data Ownership',
-        traditional: { text: 'Third-party servers', bad: true },
-        vidyaverse: { text: 'Your server, your control', good: true },
-        manual: { text: 'No digital records', bad: true },
-    },
-    {
-        feature: 'Scope',
-        traditional: { text: '3-5 separate vendors', bad: true },
-        vidyaverse: { text: '47 modules, 1 platform', good: true },
-        manual: { text: 'Disconnected workflows', bad: true },
-    },
-    {
-        feature: 'Parent Reach',
-        traditional: { text: 'Email/SMS (rarely opened)', bad: true },
-        vidyaverse: { text: 'Native WhatsApp + AI replies', good: true },
-        manual: { text: 'Diary notes & calls', bad: true },
-    },
-    {
-        feature: 'Identity',
-        traditional: { text: 'A login per tool', bad: true },
-        vidyaverse: { text: 'One SSO across the stack', good: true },
-        manual: { text: 'No digital identity', bad: true },
-    },
-    {
-        feature: 'Scalability',
-        traditional: { text: 'Costs increase linearly', bad: true },
-        vidyaverse: { text: 'Multi-tenant, 10,000+ ready', good: true },
-        manual: { text: 'Not scalable', bad: true },
-    },
+const oldWay = [
+    'ID cards from one vendor',
+    'Certificates from another',
+    'Marksheets in spreadsheets',
+    'Hall tickets manually printed',
+    'Hours of repetitive work',
+    'Stressed staff, unhappy parents',
 ];
 
-function CellIcon({ bad, good }: { bad?: boolean; good?: boolean; neutral?: boolean }) {
-    if (good) return <Check size={16} className="flex-shrink-0" style={{ color: 'var(--gold)' }} />;
-    if (bad) return <X size={16} className="text-white/25 flex-shrink-0" />;
-    return <Minus size={16} className="text-white/25 flex-shrink-0" />;
-}
+const newWay = [
+    'One platform for everything',
+    'Instant generation in 3 clicks',
+    'AI handles photo enhancement',
+    'Auto-email to parents & students',
+    'Tasks done in minutes, not hours',
+    'Happy staff, delighted parents',
+];
 
-const rowVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: (i: number) => ({
-        opacity: 1,
-        x: 0,
-        transition: { duration: 0.4, delay: i * 0.08 },
-    }),
+const fadeUp = {
+    initial: { opacity: 0, y: 28 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: '-60px' },
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
 };
 
 export default function ComparisonSection() {
     return (
-        <section id="comparison" className="indic-section--deep relative py-28 sm:py-36">
-            <div className="max-w-5xl mx-auto px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: '-80px' }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
-                >
-                    <span className="indic-eyebrow mb-4">The Difference</span>
-                    <h2 className="text-3xl sm:text-5xl mt-4">
-                        Why Vidyaverse Pro <span className="gradient-text-indic">Wins</span>
+        <section
+            id="compare"
+            className="relative overflow-hidden px-[clamp(16px,4vw,28px)] py-[clamp(64px,9vw,110px)]"
+            style={{ background: '#0A0F1E' }}
+        >
+            <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    backgroundImage:
+                        'linear-gradient(135deg, rgb(var(--kumkum-rgb) / 0.1), rgb(var(--lotus-deep-rgb) / 0.08) 50%, rgb(var(--peacock-teal-rgb) / 0.1)),' +
+                        'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),' +
+                        'linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+                    backgroundSize: '100% 100%, 42px 42px, 42px 42px',
+                }}
+            />
+            <div className="relative max-w-[1000px] mx-auto">
+                <motion.div {...fadeUp} className="text-center max-w-[660px] mx-auto mb-13">
+                    <span
+                        className="inline-block text-xs font-bold tracking-[0.16em] uppercase px-3 py-1 rounded-full"
+                        style={{ color: 'var(--gold)', background: 'rgb(var(--gold-rgb) / 0.14)', border: '1px solid rgb(var(--gold-rgb) / 0.34)' }}
+                    >
+                        Why Vidyaverse
+                    </span>
+                    <h2 className="my-3.5 leading-[1.1] text-[clamp(30px,5.2vw,52px)]" style={{ fontFamily: 'var(--font-display)', color: '#FFF8F0' }}>
+                        One platform beats a drawer of vendors
                     </h2>
                 </motion.div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[600px]">
-                        <thead>
-                            <tr>
-                                <th className="text-left text-white/40 text-sm font-medium p-4 w-[140px]">Feature</th>
-                                <th className="text-left text-white/50 text-sm font-medium p-4">Traditional ERPs</th>
-                                <th className="text-left text-sm font-bold p-4 relative">
-                                    <div
-                                        className="rounded-t-2xl px-4 py-2 -mx-4 -my-2"
-                                        style={{ background: 'rgb(var(--gold-rgb) / 0.12)', borderBottom: '2px solid var(--gold)' }}
-                                    >
-                                        <span className="gradient-text-indic font-extrabold">Vidyaverse Pro</span>
-                                    </div>
-                                </th>
-                                <th className="text-left text-white/50 text-sm font-medium p-4">Manual Process</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rows.map((row, i) => (
-                                <motion.tr
-                                    key={i}
-                                    custom={i}
-                                    variants={rowVariants}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    viewport={{ once: true }}
-                                    className="border-t border-white/5"
-                                >
-                                    <td className="p-4 text-white/60 text-sm font-medium">{row.feature}</td>
-                                    <td className="p-4">
-                                        <div className="flex items-center gap-2 text-sm text-white/40">
-                                            <CellIcon bad={row.traditional.bad} /> {row.traditional.text}
-                                        </div>
-                                    </td>
-                                    <td className="p-4 relative">
-                                        <div className="px-4 py-1 -mx-4 -my-1 rounded-lg" style={{ background: 'rgb(var(--gold-rgb) / 0.08)' }}>
-                                            <div className="flex items-center gap-2 text-sm text-white font-medium">
-                                                <CellIcon good={row.vidyaverse.good} /> {row.vidyaverse.text}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="p-4">
-                                        <div className="flex items-center gap-2 text-sm text-white/40">
-                                            <CellIcon bad={row.manual.bad} /> {row.manual.text}
-                                        </div>
-                                    </td>
-                                </motion.tr>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* The old way */}
+                    <motion.div
+                        {...fadeUp}
+                        className="p-8 rounded-[22px]"
+                        style={{ background: 'rgb(255 255 255 / 0.03)', border: '1px solid rgb(255 255 255 / 0.1)' }}
+                    >
+                        <h3 className="text-lg font-extrabold mb-5" style={{ color: 'rgb(255 248 240 / 0.75)' }}>
+                            The old way
+                        </h3>
+                        <ul className="flex flex-col gap-3.5">
+                            {oldWay.map((text, i) => (
+                                <li key={i} className="flex items-start gap-2.5 text-[14.5px] leading-relaxed" style={{ color: 'rgb(255 248 240 / 0.6)' }}>
+                                    <X size={17} className="shrink-0 mt-0.5" style={{ color: '#8a5a55' }} />
+                                    {text}
+                                </li>
                             ))}
-                        </tbody>
-                    </table>
+                        </ul>
+                    </motion.div>
+
+                    {/* The Vidyaverse way */}
+                    <motion.div
+                        {...fadeUp}
+                        transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                        className="relative p-8 rounded-[22px]"
+                        style={{
+                            background: 'linear-gradient(160deg, rgb(var(--kumkum-rgb) / 0.18), rgb(var(--lotus-deep-rgb) / 0.14))',
+                            border: '1px solid rgb(var(--gold-rgb) / 0.3)',
+                            boxShadow: '0 24px 60px rgb(0 0 0 / 0.4)',
+                        }}
+                    >
+                        <span
+                            className="absolute -top-3 right-[22px] px-3.5 py-1 rounded-full text-[11px] font-extrabold tracking-[0.05em] uppercase"
+                            style={{ color: 'var(--night-ink)', background: 'linear-gradient(135deg, var(--gold), var(--deep-saffron))' }}
+                        >
+                            Vidyaverse
+                        </span>
+                        <h3 className="text-lg font-extrabold mb-5" style={{ color: '#FFF8F0' }}>
+                            The Vidyaverse way
+                        </h3>
+                        <ul className="flex flex-col gap-3.5">
+                            {newWay.map((text, i) => (
+                                <li key={i} className="flex items-start gap-2.5 text-[14.5px] leading-relaxed" style={{ color: '#FFF8F0' }}>
+                                    <Check size={17} className="shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
+                                    {text}
+                                </li>
+                            ))}
+                        </ul>
+                    </motion.div>
                 </div>
             </div>
         </section>

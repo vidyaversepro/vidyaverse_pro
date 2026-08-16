@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSession } from '@/lib/auth.client';
-import { useThemeStore } from '@/stores/theme.store';
+import { useThemeStore, type Accent } from '@/stores/theme.store';
 import { useUpdateProfile, useChangePassword } from '@/lib/queries';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
@@ -47,7 +47,7 @@ export default function SettingsPage() {
     return (
         <div className="p-4 lg:p-8 max-w-5xl mx-auto w-full">
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+                <h1 className="arch-section-header text-2xl text-foreground">Settings</h1>
                 <p className="text-gray-500 dark:text-gray-400 mt-1">
                     Manage your account settings and preferences.
                 </p>
@@ -162,21 +162,24 @@ function ProfileSettings() {
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 lg:p-8 shadow-sm"
+            className="bg-card rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 lg:p-8 shadow-sm"
         >
             <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Profile Information</h2>
+                <h2 className="arch-section-header text-lg text-foreground">Profile Information</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                     Update your personal details here.
                 </p>
             </div>
 
             <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#E63946] to-[#C41E3A] flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                <div
+                    className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-md"
+                    style={{ background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-strong) 100%)' }}
+                >
                     {user?.name?.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() || 'U'}
                 </div>
                 <div>
-                    <h3 className="font-medium text-gray-900 dark:text-white">{user?.name}</h3>
+                    <h3 className="font-medium text-foreground">{user?.name}</h3>
                     <p className="text-sm text-gray-500">{user?.email}</p>
                     <div className="mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
                         {(user as {globalRole?: string})?.globalRole === 'super_admin' ? 'Super Admin' : (user as {globalRole?: string})?.globalRole || 'User'}
@@ -233,7 +236,7 @@ function ProfileSettings() {
                     <Button
                         type="submit"
                         disabled={updateProfile.isPending || !form.formState.isDirty}
-                        className="bg-[#E63946] hover:bg-[#C41E3A] text-white rounded-xl shadow-sm px-6"
+                        className="rounded-xl shadow-sm px-6"
                     >
                         {updateProfile.isPending ? (
                             <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -282,10 +285,10 @@ function SecuritySettings() {
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 lg:p-8 shadow-sm"
+            className="bg-card rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 lg:p-8 shadow-sm"
         >
             <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Change Password</h2>
+                <h2 className="arch-section-header text-lg text-foreground">Change Password</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                     Ensure your account is using a long, random password to stay secure.
                 </p>
@@ -338,7 +341,7 @@ function SecuritySettings() {
                     <Button
                         type="submit"
                         disabled={changePassword.isPending || !form.formState.isValid}
-                        className="bg-[#E63946] hover:bg-[#C41E3A] text-white rounded-xl shadow-sm px-6"
+                        className="rounded-xl shadow-sm px-6"
                     >
                         {changePassword.isPending ? (
                             <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -356,17 +359,22 @@ function SecuritySettings() {
 // ----------------------------------------------------------------------
 // Appearance Settings Component
 // ----------------------------------------------------------------------
+const ACCENT_OPTIONS: { key: Accent; label: string; description: string; swatch: string }[] = [
+    { key: 'kumkum', label: 'Kumkum', description: 'The default Vidyaverse red', swatch: 'var(--kumkum)' },
+    { key: 'peacock', label: 'Peacock', description: 'A cooler teal alternate', swatch: 'var(--peacock-teal)' },
+];
+
 function AppearanceSettings() {
-    const { isDarkMode, setDarkMode } = useThemeStore();
+    const { isDarkMode, setDarkMode, accent, setAccent } = useThemeStore();
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 lg:p-8 shadow-sm flex flex-col gap-8"
+            className="bg-card rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 lg:p-8 shadow-sm flex flex-col gap-8"
         >
             <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Appearance</h2>
+                <h2 className="arch-section-header text-lg text-foreground">Appearance</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                     Customize how Vidyaverse looks on your device.
                 </p>
@@ -379,7 +387,7 @@ function AppearanceSettings() {
                     className={cn(
                         'flex flex-col items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left bg-gray-50 dark:bg-gray-800/30',
                         !isDarkMode
-                            ? 'border-[#E63946] bg-[#E63946]/5 dark:bg-[#E63946]/10'
+                            ? 'border-primary bg-primary/5'
                             : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'
                     )}
                 >
@@ -395,16 +403,16 @@ function AppearanceSettings() {
                     </div>
                     <div className="flex items-center justify-between w-full mt-1">
                         <div className="flex flex-col">
-                            <span className="font-medium text-gray-900 dark:text-white">Light Mode</span>
+                            <span className="font-medium text-foreground">Light Mode</span>
                             <span className="text-xs text-gray-500">Bright and clean</span>
                         </div>
                         <div
                             className={cn(
                                 'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0',
-                                !isDarkMode ? 'border-[#E63946]' : 'border-gray-300 dark:border-gray-600'
+                                !isDarkMode ? 'border-primary' : 'border-gray-300 dark:border-gray-600'
                             )}
                         >
-                            {!isDarkMode && <div className="w-2.5 h-2.5 rounded-full bg-[#E63946]" />}
+                            {!isDarkMode && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
                         </div>
                     </div>
                 </button>
@@ -415,7 +423,7 @@ function AppearanceSettings() {
                     className={cn(
                         'flex flex-col items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left bg-gray-50 dark:bg-gray-800/30',
                         isDarkMode
-                            ? 'border-[#E63946] bg-[#E63946]/5 dark:bg-[#E63946]/10'
+                            ? 'border-primary bg-primary/5'
                             : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'
                     )}
                 >
@@ -431,19 +439,62 @@ function AppearanceSettings() {
                     </div>
                     <div className="flex items-center justify-between w-full mt-1">
                         <div className="flex flex-col">
-                            <span className="font-medium text-gray-900 dark:text-white">Dark Mode</span>
+                            <span className="font-medium text-foreground">Dark Mode</span>
                             <span className="text-xs text-gray-500">Easy on the eyes</span>
                         </div>
                         <div
                             className={cn(
                                 'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0',
-                                isDarkMode ? 'border-[#E63946]' : 'border-gray-300 dark:border-gray-600'
+                                isDarkMode ? 'border-primary' : 'border-gray-300 dark:border-gray-600'
                             )}
                         >
-                            {isDarkMode && <div className="w-2.5 h-2.5 rounded-full bg-[#E63946]" />}
+                            {isDarkMode && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
                         </div>
                     </div>
                 </button>
+            </div>
+
+            <div>
+                <h3 className="text-sm font-semibold text-foreground mb-1">Accent</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    Choose the accent colour used across buttons, links and the sidebar.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+                    {ACCENT_OPTIONS.map((opt) => {
+                        const selected = accent === opt.key;
+                        return (
+                            <button
+                                key={opt.key}
+                                onClick={() => setAccent(opt.key)}
+                                className={cn(
+                                    'flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left bg-gray-50 dark:bg-gray-800/30',
+                                    selected
+                                        ? 'border-primary bg-primary/5'
+                                        : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                                )}
+                            >
+                                <div
+                                    className="w-10 h-10 rounded-full shrink-0 shadow-sm"
+                                    style={{ background: `linear-gradient(135deg, ${opt.swatch}, ${opt.swatch})` }}
+                                />
+                                <div className="flex-1 flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                        <span className="font-medium text-foreground">{opt.label}</span>
+                                        <span className="text-xs text-gray-500">{opt.description}</span>
+                                    </div>
+                                    <div
+                                        className={cn(
+                                            'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0',
+                                            selected ? 'border-primary' : 'border-gray-300 dark:border-gray-600'
+                                        )}
+                                    >
+                                        {selected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
+                                    </div>
+                                </div>
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             <div className="bg-blue-50 dark:bg-blue-950/20 text-blue-800 dark:text-blue-300 rounded-xl p-4 text-sm flex gap-3 items-start border border-blue-100 dark:border-blue-900/40">

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Yatra+One&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+.vv{
+ --saffron:#FF6B35;--deep-saffron:#FF9933;--turmeric:#F5A623;--kumkum:#C0392B;
+ --gold:#FFD700;--temple-stone:#B8860B;--peacock:#006A6E;--teal-light:#00897B;
+ --indigo:#1A237E;--lotus-pink:#E91E8C;--lotus-deep:#AD1457;
+ --saffron-rgb:255 107 53;--gold-rgb:255 215 0;
+ --bg:#FFFCF7;--surface:#FFF8F0;--sand:#FFF3E6;--elevated:#ffffff;
+ --text:#241B0F;--text2:#5A4E3C;--text3:#9a8a72;
+ --brand:var(--kumkum);--brand-2:var(--lotus-deep);
+ --border:rgb(184 134 11 / .22);--border-soft:rgb(184 134 11 / .12);
+ --glass:rgb(255 252 247 / .72);
+ --studio:#efe6d8;
+ --font-display:'Yatra One','Noto Sans Devanagari',serif;
+ --font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+ --font-deva:'Noto Sans Devanagari',serif;
+ -webkit-font-smoothing:antialiased;
+}
+.vv.acc-peacock{--brand:var(--peacock);--brand-2:var(--teal-light)}
+.vv.dark{
+ --bg:#0A0F1E;--surface:#0B1233;--sand:#0B1233;--elevated:#16213E;
+ --text:#FFF8F0;--text2:rgb(255 248 240 / .74);--text3:rgb(255 248 240 / .5);
+ --brand:#E2685A;--brand-2:#FFB27A;
+ --border:rgb(255 215 0 / .16);--border-soft:rgb(255 215 0 / .09);
+ --glass:rgb(10 15 30 / .6);--studio:#05070f;
+}
+.vv.dark.acc-peacock{--brand:#3fb0a5;--brand-2:#6fd3c4}
+@keyframes vvspin{to{transform:rotate(360deg)}}
+@keyframes vvrise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes vvsheet{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.vv-scroll::-webkit-scrollbar{width:8px;height:8px}
+.vv-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+.vv-scroll{scrollbar-width:thin}
+@media (prefers-reduced-motion:reduce){.vv *{animation:none!important}}
+</style>
+</helmet>
+
+<div class="vv {{ themeClass }} {{ accentClass }}" style="font-family:var(--font-body);min-height:100vh;background:var(--studio);display:flex;flex-direction:column">
+
+  <!-- ═══ Design harness (not part of the product) ═══ -->
+  <div style="position:sticky;top:0;z-index:80;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:var(--glass);border-bottom:1px solid var(--border);padding:11px clamp(14px,3vw,26px);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:11px;color:var(--text);margin-right:auto">
+      <span style="display:inline-flex;width:32px;height:32px;animation:vvspin 26s linear infinite">
+        <svg viewBox="0 0 120 120" width="32" height="32" aria-hidden="true">
+          <defs><radialGradient id="mmk" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="var(--gold)"/><stop offset="70%" stop-color="var(--brand)"/><stop offset="100%" stop-color="var(--brand-2)"/></radialGradient></defs>
+          <circle cx="60" cy="60" r="58" fill="url(#mmk)"/>
+          <g><sc-for list="{{ petals }}" as="deg" hint-placeholder-count="8"><path d="M60,50 C50,40 50.1,30 57,26 Q60,25 63,26 C69.9,30 70,40 60,50 Z" fill="#fff" fill-opacity=".55" transform="rotate({{ deg }} 60 60)"></path></sc-for></g>
+          <circle cx="60" cy="60" r="14" fill="#fff" fill-opacity=".95"/><circle cx="60" cy="60" r="6" fill="var(--brand)"/>
+        </svg>
+      </span>
+      <div style="line-height:1.2">
+        <div style="font-family:var(--font-display);font-size:17px">Vidyaverse — App Shell</div>
+        <div style="font-size:11px;color:var(--text3);font-weight:600">Phone &amp; tablet → native app · Desktop → full website</div>
+      </div>
+    </div>
+
+    <div style="display:inline-flex;background:var(--elevated);border:1px solid var(--border);border-radius:12px;padding:3px;gap:2px">
+      <sc-for list="{{ deviceOpts }}" as="d" hint-placeholder-count="3">
+        <button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.label }}</button>
+      </sc-for>
+    </div>
+    <button onClick="{{ toggleAccent }}" aria-label="Accent" style="width:38px;height:38px;border-radius:11px;border:1px solid var(--border);background:linear-gradient(135deg,var(--brand),var(--brand-2));cursor:pointer"></button>
+    <button onClick="{{ toggleTheme }}" aria-label="Theme" style="width:38px;height:38px;border-radius:11px;border:1px solid var(--border);background:var(--elevated);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ themeIcon }}"></path></svg>
+    </button>
+  </div>
+
+  <!-- ═══ Stage ═══ -->
+  <div class="vv-scroll" style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:clamp(16px,4vw,44px)">
+    <div style="{{ frameStyle }}">
+      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+        <div style="height:38px;background:var(--surface);border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:7px;padding:0 14px">
+          <span style="width:11px;height:11px;border-radius:50%;background:#ff5f57"></span>
+          <span style="width:11px;height:11px;border-radius:50%;background:#febc2e"></span>
+          <span style="width:11px;height:11px;border-radius:50%;background:#28c840"></span>
+          <span style="margin-left:14px;font-size:12px;color:var(--text3);background:var(--bg);border:1px solid var(--border-soft);border-radius:7px;padding:3px 12px">app.vidyaverse.in/app/dashboard</span>
+        </div>
+      </sc-if>
+
+      <div style="{{ screenStyle }}">
+        <!-- Mobile status bar -->
+        <sc-if value="{{ isCompact }}" hint-placeholder-val="{{ false }}">
+          <div style="height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:13px;font-weight:700;color:var(--text);flex-shrink:0">
+            <span>9:41</span>
+            <span style="display:flex;gap:6px;align-items:center">
+              <svg viewBox="0 0 24 16" width="18" height="12" fill="currentColor"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="5" y="6" width="3" height="8" rx="1"/><rect x="10" y="3" width="3" height="11" rx="1"/><rect x="15" y="0" width="3" height="14" rx="1"/></svg>
+              <svg viewBox="0 0 26 14" width="22" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="20" height="12" rx="3"/><rect x="3" y="3" width="14" height="8" rx="1.5" fill="currentColor" stroke="none"/><path d="M23 5v4" stroke-linecap="round"/></svg>
+            </span>
+          </div>
+        </sc-if>
+
+        <!-- ═══ SHELL ═══ -->
+        <div style="flex:1;display:flex;min-height:0;position:relative">
+
+          <!-- Desktop sidebar -->
+          <aside class="vv-scroll" style="display:{{ sidebarDisplay }};flex-direction:column;width:262px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border-soft)">
+            <div style="height:62px;display:flex;align-items:center;gap:11px;padding:0 20px;border-bottom:1px solid var(--border-soft);flex-shrink:0">
+              <span style="display:inline-flex;width:30px;height:30px;animation:vvspin 30s linear infinite">
+                <svg viewBox="0 0 120 120" width="30" height="30"><circle cx="60" cy="60" r="58" fill="url(#mmk)"/><g><sc-for list="{{ petals }}" as="deg" hint-placeholder-count="8"><path d="M60,50 C50,40 50.1,30 57,26 Q60,25 63,26 C69.9,30 70,40 60,50 Z" fill="#fff" fill-opacity=".55" transform="rotate({{ deg }} 60 60)"></path></sc-for></g><circle cx="60" cy="60" r="14" fill="#fff" fill-opacity=".95"/><circle cx="60" cy="60" r="6" fill="var(--brand)"/></svg>
+              </span>
+              <span style="font-family:var(--font-display);font-size:19px;color:var(--text)">Vidyaverse</span>
+            </div>
+            <div class="vv-scroll" style="flex:1;overflow:auto;padding:12px 12px 18px">
+              <sc-for list="{{ navGroups }}" as="grp" hint-placeholder-count="4">
+                <div style="font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);padding:14px 10px 6px">{{ grp.title }}</div>
+                <sc-for list="{{ grp.items }}" as="it" hint-placeholder-count="4">
+                  <a href="#" style="{{ it.linkStyle }}">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="{{ it.icon }}"></path></svg>
+                    <span>{{ it.label }}</span>
+                    <sc-if value="{{ it.badge }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;background:var(--brand);color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 7px">{{ it.badge }}</span></sc-if>
+                  </a>
+                </sc-for>
+              </sc-for>
+            </div>
+            <div style="padding:12px;border-top:1px solid var(--border-soft);flex-shrink:0">
+              <a href="#" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;color:#c0392b;font-weight:600;font-size:13px" style-hover="background:rgb(192 57 43 / .08)">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9"></path></svg>
+                Log out
+              </a>
+            </div>
+          </aside>
+
+          <!-- Main column -->
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+
+            <!-- Desktop topbar -->
+            <header style="display:{{ desktopTopDisplay }};align-items:center;gap:14px;height:62px;padding:0 24px;border-bottom:1px solid var(--border-soft);background:var(--glass);backdrop-filter:blur(12px);flex-shrink:0">
+              <div style="flex-shrink:0;white-space:nowrap">
+                <div style="font-family:var(--font-display);font-size:20px;color:var(--text);line-height:1">Dashboard</div>
+                <div style="font-size:11.5px;color:var(--text3);font-weight:600">Platform overview</div>
+              </div>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:10px;min-width:0;flex:1;justify-content:flex-end">
+                <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:8px 12px;color:var(--text3);flex:1;min-width:0;max-width:280px;overflow:hidden">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.3-4.3"></path></svg>
+                  <span style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search students, docs…</span>
+                </div>
+                <button style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:8px 12px;cursor:pointer;color:var(--text);font-weight:600;font-size:13px;flex-shrink:0;max-width:180px;overflow:hidden">
+                  <span style="width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,var(--brand),var(--brand-2));flex-shrink:0"></span>
+                  <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">Delhi Public School</span>
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0"><path d="M6 9l6 6 6-6"></path></svg>
+                </button>
+                <button aria-label="Notifications" style="position:relative;width:38px;height:38px;border-radius:10px;border:1px solid var(--border-soft);background:var(--surface);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9 M10 21a2 2 0 0 0 4 0"></path></svg>
+                  <span style="position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--brand);border:1.5px solid var(--surface)"></span>
+                </button>
+                <span style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center">AN</span>
+              </div>
+            </header>
+
+            <!-- Mobile app bar -->
+            <header style="display:{{ mobileTopDisplay }};align-items:center;gap:12px;height:56px;padding:0 18px;border-bottom:1px solid var(--border-soft);background:var(--glass);backdrop-filter:blur(12px);flex-shrink:0">
+              <span style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center">AN</span>
+              <div style="min-width:0">
+                <div style="font-size:11px;color:var(--text3);font-weight:600;line-height:1">Good morning</div>
+                <div style="font-family:var(--font-display);font-size:17px;color:var(--text);line-height:1.15">Dashboard</div>
+              </div>
+              <button aria-label="Notifications" style="margin-left:auto;position:relative;width:40px;height:40px;border-radius:12px;border:1px solid var(--border-soft);background:var(--surface);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer">
+                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9 M10 21a2 2 0 0 0 4 0"></path></svg>
+                <span style="position:absolute;top:9px;right:10px;width:7px;height:7px;border-radius:50%;background:var(--brand);border:1.5px solid var(--surface)"></span>
+              </button>
+            </header>
+
+            <!-- Content (shared) -->
+            <main class="vv-scroll" style="flex:1;overflow:auto;background:var(--bg);padding:{{ contentPad }}">
+              <div style="max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:20px;animation:vvrise .5s ease both">
+
+                <sc-if value="{{ isCompact }}" hint-placeholder-val="{{ false }}">
+                  <div>
+                    <div style="font-family:var(--font-display);font-size:24px;color:var(--text);line-height:1.15">नमस्ते, Ananya</div>
+                    <div style="font-size:13px;color:var(--text2);font-weight:500;margin-top:3px">Here's what's happening across your institutions today.</div>
+                  </div>
+                </sc-if>
+
+                <!-- Stats -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:13px">
+                  <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+                    <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:11px">
+                      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                        <span style="width:38px;height:38px;border-radius:11px;background:{{ s.tintBg }};color:{{ s.tint }};display:flex;align-items:center;justify-content:center">
+                          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ s.icon }}"></path></svg>
+                        </span>
+                        <span style="font-size:11px;font-weight:700;color:{{ s.tint }};background:{{ s.tintBg }};border-radius:999px;padding:3px 9px">{{ s.delta }}</span>
+                      </div>
+                      <div style="font-family:var(--font-display);font-size:26px;color:var(--text);line-height:1">{{ s.value }}</div>
+                      <div style="font-size:12.5px;color:var(--text2);font-weight:600">{{ s.label }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <!-- Two-column region -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;align-items:start">
+
+                  <!-- Quick actions + activity -->
+                  <div style="display:flex;flex-direction:column;gap:16px">
+                    <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:18px;padding:18px">
+                      <div style="font-family:var(--font-display);font-size:16px;color:var(--text);margin-bottom:13px">Quick actions</div>
+                      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px">
+                        <sc-for list="{{ quick }}" as="q" hint-placeholder-count="6">
+                          <button style="display:flex;flex-direction:column;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--border-soft);border-radius:13px;padding:13px;cursor:pointer;text-align:left;color:var(--text)" style-hover="border-color:var(--brand);transform:translateY(-2px)">
+                            <span style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;display:flex;align-items:center;justify-content:center">
+                              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ q.icon }}"></path></svg>
+                            </span>
+                            <span style="font-size:12.5px;font-weight:600;line-height:1.25">{{ q.label }}</span>
+                          </button>
+                        </sc-for>
+                      </div>
+                    </div>
+
+                    <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:18px;padding:18px">
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                        <div style="font-family:var(--font-display);font-size:16px;color:var(--text)">Recent activity</div>
+                        <a href="#" style="font-size:12px;font-weight:700;color:var(--brand)">View all</a>
+                      </div>
+                      <sc-for list="{{ activity }}" as="a" hint-placeholder-count="4">
+                        <div style="display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--border-soft)">
+                          <span style="width:9px;height:9px;border-radius:50%;background:{{ a.tint }};margin-top:5px;flex-shrink:0"></span>
+                          <div style="flex:1;min-width:0">
+                            <div style="font-size:13px;color:var(--text);line-height:1.4"><b style="font-weight:700">{{ a.who }}</b> {{ a.what }}</div>
+                            <div style="font-size:11.5px;color:var(--text3);font-weight:600;margin-top:2px">{{ a.when }}</div>
+                          </div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+
+                  <!-- Chart + approvals -->
+                  <div style="display:flex;flex-direction:column;gap:16px">
+                    <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:18px;padding:18px">
+                      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px">
+                        <div style="font-family:var(--font-display);font-size:16px;color:var(--text)">Fee collections</div>
+                        <div style="font-size:12px;color:var(--text3);font-weight:600">This term · ₹ Lakh</div>
+                      </div>
+                      <div style="display:flex;align-items:flex-end;gap:10px;height:150px">
+                        <sc-for list="{{ bars }}" as="b" hint-placeholder-count="6">
+                          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end">
+                            <div style="width:100%;height:{{ b.h }};border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--brand),var(--brand-2))"></div>
+                            <span style="font-size:11px;color:var(--text3);font-weight:600">{{ b.m }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+
+                    <div style="background:linear-gradient(135deg,var(--brand),var(--brand-2));border-radius:18px;padding:18px;color:#fff">
+                      <div style="font-size:12px;font-weight:700;opacity:.85;text-transform:uppercase;letter-spacing:.06em">Needs your review</div>
+                      <div style="font-family:var(--font-display);font-size:34px;line-height:1.1;margin:6px 0 4px">37 approvals</div>
+                      <div style="font-size:13px;opacity:.9;line-height:1.4">Admissions, photo uploads and role requests pending across 6 institutions.</div>
+                      <button style="margin-top:14px;background:#fff;color:var(--brand);border:none;border-radius:11px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer">Review queue →</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="height:8px"></div>
+              </div>
+            </main>
+
+            <!-- Bottom tab bar (mobile app) -->
+            <nav style="display:{{ bottomDisplay }};align-items:stretch;background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border-soft);padding:8px 8px 14px;flex-shrink:0">
+              <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+                <button onClick="{{ t.onClick }}" style="{{ t.style }}">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ t.icon }}"></path></svg>
+                  <span style="font-size:10.5px;font-weight:700">{{ t.label }}</span>
+                </button>
+              </sc-for>
+            </nav>
+          </div>
+
+          <!-- Drawer (More) bottom sheet -->
+          <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;background:rgb(0 0 0 / .4);z-index:40"></div>
+            <div class="vv-scroll" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow:auto;background:var(--surface);border-radius:22px 22px 0 0;z-index:41;padding:10px 18px 24px;animation:vvsheet .28s cubic-bezier(.16,1,.3,1) both;box-shadow:0 -20px 50px -20px rgb(0 0 0 / .4)">
+              <div style="width:40px;height:4px;border-radius:999px;background:var(--border);margin:6px auto 14px"></div>
+              <div style="font-family:var(--font-display);font-size:18px;color:var(--text);margin-bottom:6px">All modules</div>
+              <sc-for list="{{ navGroups }}" as="grp" hint-placeholder-count="4">
+                <div style="font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);padding:14px 4px 8px">{{ grp.title }}</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px">
+                  <sc-for list="{{ grp.items }}" as="it" hint-placeholder-count="4">
+                    <a href="#" onClick="{{ closeDrawer }}" style="display:flex;align-items:center;gap:11px;padding:12px;border-radius:13px;background:var(--elevated);border:1px solid var(--border-soft);color:var(--text);font-weight:600;font-size:13px">
+                      <span style="width:32px;height:32px;border-radius:9px;background:{{ it.tintBg }};color:{{ it.tint }};display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ it.icon }}"></path></svg></span>
+                      {{ it.label }}
+                    </a>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1400,&quot;height&quot;:950},&quot;device&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;phone&quot;,&quot;tablet&quot;,&quot;desktop&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;kumkum&quot;,&quot;peacock&quot;],&quot;default&quot;:&quot;kumkum&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const I = {
+  dash:"M4 4h7v7H4z M13 4h7v7h-7z M13 13h7v7h-7z M4 13h7v7H4z",
+  building:"M3 21h18 M6 21V4h12v17 M9 8h1 M14 8h1 M9 12h1 M14 12h1 M9 16h1 M14 16h1",
+  users:"M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75",
+  cap:"M22 10 12 5 2 10l10 5 10-5z M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5 M22 10v6",
+  card:"M2 5.5h20v13H2z M2 10h20 M6 15h5",
+  bar:"M6 20V9 M12 20V4 M18 20v-7 M3 21h18",
+  clip:"M9 3h6v3H9z M8 3H6a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2 M8 12h8 M8 16h5",
+  award:"M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12z M8.5 13.5 7 22l5-3 5 3-1.5-8.5",
+  file:"M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z M14 3v5h5 M9 13h6 M9 17h4",
+  msg:"M21 11.5a8.4 8.4 0 0 1-11.4 7.6L3 21l1.9-6.6A8.4 8.4 0 1 1 21 11.5z",
+  userplus:"M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M11.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0 M19 8v6 M22 11h-6",
+  mega:"M3 11v2a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1z M15 8a4 4 0 0 1 0 8 M18 5a8 8 0 0 1 0 14",
+  heart:"M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1z",
+  wallet:"M20 7H5a2 2 0 0 1 0-4h13v4 M3 5v14a2 2 0 0 0 2 2h15V7 M16 13h.01",
+  check:"M9 12l2 2 4-4 M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
+  cal:"M4 5h16v16H4z M4 10h16 M8 3v4 M16 3v4",
+  chart:"M4 4v16h16 M8 14l3-3 3 2 4-5",
+  gear:"M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.8 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 8 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.8H2a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 3.2 8a1.6 1.6 0 0 0-.3-1.8l-.1-.1A2 2 0 1 1 5.6 3.3l.1.1A1.6 1.6 0 0 0 8 3.5h.1A1.6 1.6 0 0 0 9 2V2a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.8 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V8a1.6 1.6 0 0 0 1.5 1H22a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z",
+  grid:"M4 4h6v6H4z M14 4h6v6h-6z M14 14h6v6h-6z M4 14h6v6H4z",
+  camera:"M3 8h3l2-2h8l2 2h3v12H3z M12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
+  home:"M3 11l9-8 9 8 M5 9v11h5v-6h4v6h5V9",
+};
+const TONES = {
+  peacock:{t:"#006A6E",bg:"rgb(0 106 110 / .13)"},
+  brand:{t:"var(--brand)",bg:"rgb(192 57 43 / .12)"},
+  temple:{t:"#B8860B",bg:"rgb(184 134 11 / .15)"},
+  lotus:{t:"#AD1457",bg:"rgb(173 20 87 / .12)"},
+  indigo:{t:"#1A237E",bg:"rgb(26 35 126 / .12)"},
+};
+class Component extends DCLogic {
+  state = {
+    device: this.props.device || 'desktop',
+    theme: this.props.theme || 'light',
+    accent: this.props.accent || 'kumkum',
+    activeTab: 'home',
+    drawer: false,
+  };
+  set(p){ this.setState(p); }
+  renderVals(){
+    const s = this.state;
+    const isDesktop = s.device === 'desktop';
+    const isCompact = !isDesktop;
+    const frames = {
+      phone:  { frame:"width:392px;padding:13px;background:#0c0c12;border-radius:46px;box-shadow:0 40px 90px -34px rgb(0 0 0 / .55);flex-shrink:0", screen:"height:812px" },
+      tablet: { frame:"width:760px;padding:18px;background:#0c0c12;border-radius:30px;box-shadow:0 40px 90px -34px rgb(0 0 0 / .55);flex-shrink:0", screen:"height:940px" },
+      desktop:{ frame:"width:min(1180px,100%);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 40px 90px -40px rgb(0 0 0 / .45);background:var(--elevated)", screen:"height:770px" },
+    };
+    const f = frames[s.device];
+    const screenBase = isDesktop
+      ? "display:flex;flex-direction:column;background:var(--bg);"
+      : "display:flex;flex-direction:column;background:var(--bg);border-radius:33px;overflow:hidden;";
+
+    const nav = (label,icon,tone,badge)=>({label,icon:I[icon],tint:TONES[tone].t,tintBg:TONES[tone].bg,badge:badge||null});
+    const navGroups = [
+      { title:'Overview', items:[
+        {...nav('Dashboard','dash','brand'), active:true},
+        nav('Institutions','building','peacock'),
+        nav('Users','users','indigo'),
+        nav('Students','cap','lotus'),
+      ]},
+      { title:'Document Studio', items:[
+        nav('ID Cards','card','peacock'),
+        nav('Marksheets','bar','brand'),
+        nav('Hall Tickets','clip','indigo'),
+        nav('Certificates','award','temple'),
+        nav('Templates','file','lotus'),
+      ]},
+      { title:'Engage', items:[
+        nav('Communications','msg','peacock','3'),
+        nav('Admissions','userplus','brand','12'),
+        nav('Notices','mega','temple'),
+        nav('Saathi Network','heart','lotus'),
+      ]},
+      { title:'Operate', items:[
+        nav('Fees','wallet','temple'),
+        nav('Attendance','check','peacock'),
+        nav('Timetable','cal','indigo'),
+        nav('Reports & BI','chart','brand'),
+        nav('Settings','gear','lotus'),
+      ]},
+    ];
+    navGroups.forEach(g=>g.items.forEach(it=>{
+      const on = it.active;
+      it.linkStyle = "display:flex;align-items:center;gap:12px;padding:9px 11px;margin-bottom:2px;border-radius:11px;font-size:13px;font-weight:"+(on?"700":"600")+";text-decoration:none;"
+        + (on ? "background:linear-gradient(135deg,rgb(192 57 43 / .12),rgb(173 20 87 / .05));color:var(--brand);box-shadow:inset 3px 0 0 var(--brand)"
+              : "color:var(--text2)");
+    }));
+
+    const tabDefs = [
+      {key:'home',label:'Home',icon:I.home},
+      {key:'students',label:'Students',icon:I.cap},
+      {key:'docs',label:'Docs',icon:I.file},
+      {key:'chat',label:'Chat',icon:I.msg},
+      {key:'more',label:'More',icon:I.grid},
+    ];
+    const tabs = tabDefs.map(t=>{
+      const on = s.activeTab === t.key;
+      return { label:t.label, icon:t.icon,
+        onClick:()=> t.key==='more' ? this.set({drawer:true,activeTab:'more'}) : this.set({activeTab:t.key,drawer:false}),
+        style:"flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 2px;border:none;background:transparent;cursor:pointer;border-radius:12px;color:"+(on?"var(--brand)":"var(--text3)")+";"+(on?"background:rgb(192 57 43 / .10)":"") };
+    });
+
+    const devDefs = [{k:'phone',l:'Phone'},{k:'tablet',l:'Tablet'},{k:'desktop',l:'Desktop'}];
+    const deviceOpts = devDefs.map(d=>{
+      const on = s.device === d.k;
+      return { label:d.l, onClick:()=>this.set({device:d.k, drawer:false}),
+        style:"border:none;cursor:pointer;font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:9px;color:"+(on?"#fff":"var(--text2)")+";background:"+(on?"linear-gradient(135deg,var(--brand),var(--brand-2))":"transparent") };
+    });
+
+    const stats = [
+      {label:'Institutions', value:'24', delta:'+3', icon:I.building, ...tone2('peacock')},
+      {label:'Students', value:'18,432', delta:'+512', icon:I.cap, ...tone2('brand')},
+      {label:'Fees collected', value:'₹2.41 Cr', delta:'82%', icon:I.wallet, ...tone2('temple')},
+      {label:'Pending approvals', value:'37', delta:'Review', icon:I.check, ...tone2('lotus')},
+    ];
+    function tone2(k){ return { tint:TONES[k].t, tintBg:TONES[k].bg }; }
+
+    const quick = [
+      {label:'Add Institution', icon:I.building},
+      {label:'Review Approvals', icon:I.check},
+      {label:'Generate ID Cards', icon:I.card},
+      {label:'Templates', icon:I.file},
+      {label:'Group Photos', icon:I.camera},
+      {label:'Marksheets', icon:I.bar},
+    ];
+    const activity = [
+      {who:'Delhi Public School', what:'onboarded 240 students', when:'12 min ago', tint:TONES.brand.t},
+      {who:"St. Xavier's", what:'generated 180 ID cards', when:'1 hour ago', tint:TONES.peacock.t},
+      {who:'Ananya (Admin)', what:'approved 12 admissions', when:'3 hours ago', tint:TONES.lotus.t},
+      {who:'Green Valley', what:'published Term-1 marksheets', when:'Today, 9:04', tint:TONES.temple.t},
+    ];
+    const bars = [['Apr','52%'],['May','68%'],['Jun','61%'],['Jul','88%'],['Aug','74%'],['Sep','96%']]
+      .map(([m,h])=>({m,h}));
+
+    return {
+      themeClass: s.theme==='dark' ? 'dark' : '',
+      accentClass: s.accent==='peacock' ? 'acc-peacock' : '',
+      themeIcon: s.theme==='dark'
+        ? "M12 3v2 M12 19v2 M4.2 4.2l1.4 1.4 M18.4 18.4l1.4 1.4 M3 12h2 M19 12h2 M4.2 19.8l1.4-1.4 M18.4 5.6l1.4-1.4 M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"
+        : "M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z",
+      petals:[0,45,90,135,180,225,270,315],
+      isDesktop, isCompact,
+      frameStyle: f.frame, screenStyle: screenBase + f.screen,
+      contentPad: isCompact ? '16px' : '26px',
+      sidebarDisplay: isDesktop ? 'flex' : 'none',
+      desktopTopDisplay: isDesktop ? 'flex' : 'none',
+      mobileTopDisplay: isCompact ? 'flex' : 'none',
+      bottomDisplay: isCompact ? 'flex' : 'none',
+      navGroups, tabs, deviceOpts, stats, quick, activity, bars,
+      drawerOpen: s.drawer,
+      closeDrawer: ()=>this.set({drawer:false, activeTab:'home'}),
+      toggleTheme: ()=>this.set({theme: s.theme==='dark'?'light':'dark'}),
+      toggleAccent: ()=>this.set({accent: s.accent==='peacock'?'kumkum':'peacock'}),
+    };
+  }
+}
+</script>
+</body>
+</html>

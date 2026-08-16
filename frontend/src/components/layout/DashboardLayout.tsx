@@ -1,49 +1,16 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-    LayoutDashboard,
-    Users,
-    GraduationCap,
-    CreditCard,
-    FileText,
-    Camera,
-    Award,
-    Briefcase,
-    ClipboardList,
-    BarChart3,
-    Library,
-    FileCheck,
-    Settings,
     LogOut,
     Sun,
     Moon,
-    X,
-    BookOpen,
-    Heart,
-    Activity,
-    Contact,
+    Home,
+    LayoutGrid,
+    GraduationCap,
+    FileText,
     MessageCircle,
-    UserPlus,
-    Bus,
-    Wallet,
-    Landmark,
-    CalendarClock,
-    BookMarked,
-    Sparkles,
-    KeyRound,
-    Building2,
-    Package,
-    HeartPulse,
-    UserCheck,
-    GraduationCap as GradCap,
-    ClipboardList as ClipboardListIcon,
-    Megaphone,
-    BarChart3 as BarChart,
-    Building,
-    Fingerprint,
-    Percent,
-    Video,
-    Smartphone,
-    FileQuestion,
+    Users,
+    BookOpen,
+    LayoutDashboard,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -59,62 +26,38 @@ import UserProfileDropdown from '@/components/layout/UserProfileDropdown';
 import HamburgerButton from '@/components/layout/HamburgerButton';
 import InstitutionSwitcher from '@/components/layout/InstitutionSwitcher';
 import { MandalaMark } from '@/design/indic/motifs/mandala-mark';
+import {
+    adminNavGroups,
+    adminSidebarItems,
+    studentSidebarItems,
+    type NavGroup,
+    type SidebarItem,
+} from '@/components/layout/nav-config';
 
-type SidebarItem = { label: string; icon: typeof LayoutDashboard; href: string; module?: string };
+type BottomTab = { key: string; label: string; icon: typeof Home; href?: string };
 
-const adminSidebarItems: SidebarItem[] = [
-    { label: 'Dashboard', icon: LayoutDashboard, href: '/app/dashboard' },
-    { label: 'Institutions', icon: GraduationCap, href: '/app/institutions' },
-    { label: 'Users', icon: Users, href: '/app/users' },
-    { label: 'Students', icon: Users, href: '/app/students' },
-    { label: 'Visiting Cards', icon: Contact, href: '/app/visiting-cards', module: 'visiting_card' },
-    { label: 'ID Cards', icon: CreditCard, href: '/app/id-cards', module: 'id_card' },
-    { label: 'Group Photos', icon: Camera, href: '/app/group-photos', module: 'group_photo' },
-    { label: 'Certificates', icon: Award, href: '/app/certificates', module: 'certificate' },
-    { label: 'Communications', icon: MessageCircle, href: '/app/communications', module: 'whatsapp_messaging' },
-    { label: 'Admissions', icon: UserPlus, href: '/app/admissions', module: 'admissions_crm' },
-    { label: 'Transport', icon: Bus, href: '/app/transport', module: 'transport' },
-    { label: 'HR & Payroll', icon: Wallet, href: '/app/hr', module: 'hr_payroll' },
-    { label: 'Finance', icon: Landmark, href: '/app/finance', module: 'finance_accounting' },
-    { label: 'Timetable', icon: CalendarClock, href: '/app/timetable', module: 'timetable' },
-    { label: 'Library', icon: BookMarked, href: '/app/library', module: 'library' },
-    { label: 'AI Tutor', icon: Sparkles, href: '/app/ai-tutor', module: 'ai_tutor' },
-    { label: 'Gradebook (CCE)', icon: GradCap, href: '/app/gradebook', module: 'gradebook_cce' },
-    { label: 'Assignments', icon: ClipboardListIcon, href: '/app/assignments', module: 'assignments' },
-    { label: 'Online Tests', icon: FileQuestion, href: '/app/online-tests', module: 'assessments_online' },
-    { label: 'Hostel & Mess', icon: Building2, href: '/app/hostel', module: 'hostel' },
-    { label: 'Inventory', icon: Package, href: '/app/inventory', module: 'inventory' },
-    { label: 'Health', icon: HeartPulse, href: '/app/health', module: 'health' },
-    { label: 'Visitor', icon: UserCheck, href: '/app/visitor', module: 'visitor' },
-    { label: 'Notices & Calendar', icon: Megaphone, href: '/app/notices', module: 'notices_events' },
-    { label: 'Reports & BI', icon: BarChart, href: '/app/reports', module: 'reports_bi' },
-    { label: 'Alumni', icon: GradCap, href: '/app/alumni', module: 'alumni' },
-    { label: 'Placement', icon: Building, href: '/app/placement', module: 'placement' },
-    { label: 'Biometric', icon: Fingerprint, href: '/app/biometric', module: 'attendance_biometric' },
-    { label: 'Concessions & EMI', icon: Percent, href: '/app/fees-advanced', module: 'fees_advanced' },
-    { label: 'Live Classes', icon: Video, href: '/app/live-classes', module: 'live_classes' },
-    { label: 'Mobile App', icon: Smartphone, href: '/app/mobile-app', module: 'mobile_app' },
-    { label: 'Portfolios', icon: Briefcase, href: '/app/portfolios', module: 'portfolio' },
-    { label: 'Exam Schedules', icon: ClipboardList, href: '/app/hall-tickets/exam-schedules', module: 'examination' },
-    { label: 'Hall Tickets', icon: ClipboardList, href: '/app/hall-tickets', module: 'hall_ticket' },
-    { label: 'Marksheets', icon: BarChart3, href: '/app/marksheets', module: 'marksheet' },
-    { label: 'Library Cards', icon: Library, href: '/app/library-cards', module: 'library_card' },
-    { label: 'Transfer Certs', icon: FileCheck, href: '/app/transfer-certificates', module: 'transfer_certificate' },
-    { label: 'Jobs', icon: Activity, href: '/app/jobs' },
-    { label: 'Templates', icon: FileText, href: '/app/templates' },
-    { label: 'Visionarium', icon: BookOpen, href: '/app/visionarium', module: 'visionarium' },
-    { label: 'Saathi Network', icon: Heart, href: '/app/saathi', module: 'social' },
-    { label: 'OAuth Clients', icon: KeyRound, href: '/app/oauth-clients' },
-    { label: 'Settings', icon: Settings, href: '/app/settings' },
+const adminBottomTabs: BottomTab[] = [
+    { key: 'home', label: 'Home', icon: Home, href: '/app/dashboard' },
+    { key: 'students', label: 'Students', icon: GraduationCap, href: '/app/students' },
+    { key: 'docs', label: 'Docs', icon: FileText, href: '/app/id-cards' },
+    { key: 'chat', label: 'Chat', icon: MessageCircle, href: '/app/communications' },
+    { key: 'more', label: 'More', icon: LayoutGrid },
 ];
 
-const studentSidebarItems: SidebarItem[] = [
-    { label: 'Dashboard', icon: LayoutDashboard, href: '/student/dashboard' },
-    { label: 'Saathi Feed', icon: Heart, href: '/student/feed' },
-    { label: 'Connections', icon: Users, href: '/student/connections' },
-    { label: 'Visionarium', icon: BookOpen, href: '/student/visionarium' },
-    { label: 'Settings', icon: Settings, href: '/student/settings' },
+const studentBottomTabs: BottomTab[] = [
+    { key: 'home', label: 'Home', icon: Home, href: '/student/feed' },
+    { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/student/dashboard' },
+    { key: 'connections', label: 'Connections', icon: Users, href: '/student/connections' },
+    { key: 'visionarium', label: 'Visionarium', icon: BookOpen, href: '/student/visionarium' },
+    { key: 'more', label: 'More', icon: LayoutGrid },
 ];
+
+function greeting() {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+}
 
 export default function DashboardLayout() {
     const navigate = useNavigate();
@@ -125,17 +68,26 @@ export default function DashboardLayout() {
 
     // Pick sidebar items based on whether we are in admin or student routes
     const isStudentRoute = location.pathname.startsWith('/student');
-    const sidebarItems = isStudentRoute ? studentSidebarItems : adminSidebarItems;
+    const flatSidebarItems = isStudentRoute ? studentSidebarItems : adminSidebarItems;
     const homeLink = isStudentRoute ? '/student/feed' : '/app/dashboard';
+    const bottomTabs = isStudentRoute ? studentBottomTabs : adminBottomTabs;
 
     // Gate nav by the institution's enabled modules. Fail-open: items without a
     // module key, or when entitlements aren't available (e.g. super-admin without
-    // an active institution), are always shown.
+    // an active institution), are always shown. Student routes are never gated.
     const enabledSet =
         !isStudentRoute && myEnt
             ? new Set<string>([...(myEnt.enabledModules ?? []), ...(myEnt.coreModules ?? [])])
             : null;
-    const visibleItems = sidebarItems.filter((i) => !i.module || !enabledSet || enabledSet.has(i.module));
+    const isVisible = (i: SidebarItem) => !i.module || !enabledSet || enabledSet.has(i.module);
+
+    // Grouped nav for the desktop sidebar and the mobile "More" sheet — same
+    // filtered set feeds both so they never diverge.
+    const navGroups: NavGroup[] = isStudentRoute
+        ? [{ title: '', items: studentSidebarItems }]
+        : adminNavGroups
+              .map((g) => ({ title: g.title, items: g.items.filter(isVisible) }))
+              .filter((g) => g.items.length > 0);
 
     const handleLogout = async () => {
         await signOut({
@@ -147,87 +99,84 @@ export default function DashboardLayout() {
         });
     };
 
-    const currentPage = sidebarItems.find((i) => location.pathname.startsWith(i.href))?.label || (isStudentRoute ? 'Saathi Feed' : 'Dashboard');
+    const currentPage = flatSidebarItems.find((i) => location.pathname.startsWith(i.href))?.label || (isStudentRoute ? 'Saathi Feed' : 'Dashboard');
+
+    const renderNavLink = (item: SidebarItem, collapsedTooltip: boolean, onClick?: () => void) => {
+        const isActive = location.pathname.startsWith(item.href);
+        const linkContent = (
+            <Link
+                to={item.href}
+                onClick={onClick}
+                className={cn(
+                    'flex items-center px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group outline-none',
+                    collapsedTooltip ? 'justify-center lg:px-0' : 'justify-start gap-3',
+                    isActive ? 'sidebar-indic-active' : 'sidebar-indic-inactive'
+                )}
+            >
+                <item.icon className="w-5 h-5 shrink-0 transition-colors" />
+                <span
+                    className={cn(
+                        'transition-all duration-300 whitespace-nowrap overflow-hidden',
+                        collapsedTooltip ? 'opacity-0 max-w-0 lg:hidden' : 'opacity-100 max-w-[200px]'
+                    )}
+                >
+                    {item.label}
+                </span>
+            </Link>
+        );
+
+        if (!collapsedTooltip) return linkContent;
+
+        return (
+            <Tooltip>
+                <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+                <TooltipContent side="right" className="ml-2 bg-gray-900 text-white border-gray-800 text-xs">
+                    {item.label}
+                </TooltipContent>
+            </Tooltip>
+        );
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors flex">
-            {/* ─── Sidebar ─── */}
+            {/* ─── Desktop sidebar — hidden below lg, replaced by the bottom tab bar + sheet ─── */}
             <aside
                 className={cn(
-                    'sidebar-indic sidebar-toran-top fixed left-0 top-0 z-40 h-screen flex flex-col transition-all duration-300 ease-in-out',
-                    /* Desktop Width */
-                    'max-lg:w-64',
-                    sidebarOpen ? 'lg:w-64' : 'lg:w-[72px]',
-                    /* Mobile Visibility */
-                    mobileSidebar ? 'translate-x-0' : 'max-lg:-translate-x-full lg:translate-x-0'
+                    'sidebar-indic sidebar-toran-top hidden lg:flex fixed left-0 top-0 z-40 h-screen flex-col transition-all duration-300 ease-in-out',
+                    sidebarOpen ? 'w-64' : 'w-[72px]'
                 )}
             >
                 {/* Logo */}
-                <div className="flex h-16 items-center justify-between px-4 border-b border-black/5 dark:border-white/10 shrink-0 overflow-hidden">
+                <div className="flex h-16 items-center px-4 border-b border-black/5 dark:border-white/10 shrink-0 overflow-hidden">
                     <Link to={homeLink} className={cn('flex items-center gap-2.5 transition-all outline-none', sidebarOpen ? 'w-auto opacity-100' : 'w-0 opacity-0 overflow-hidden')}>
                         <img src="/vidyaverse-logo.png" alt="Vidyaverse" className="h-7 min-w-max" />
                     </Link>
 
                     {/* Collapsed Logo view */}
                     {!sidebarOpen && (
-                        <div className="hidden lg:flex w-full items-center justify-center">
+                        <div className="flex w-full items-center justify-center">
                             <MandalaMark size={32} />
                         </div>
                     )}
-
-                    <button
-                        onClick={() => setMobileSidebar(false)}
-                        className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    >
-                        <X size={18} className="text-gray-500" />
-                    </button>
                 </div>
 
                 {/* Navigation */}
                 <TooltipProvider delayDuration={0}>
                     <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1 custom-scrollbar">
-                        {visibleItems.map((item) => {
-                            const isActive = location.pathname.startsWith(item.href);
-
-                            const linkContent = (
-                                <Link
-                                    to={item.href}
-                                    onClick={() => setMobileSidebar(false)}
-                                    className={cn(
-                                        'flex items-center px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group outline-none',
-                                        sidebarOpen ? 'justify-start gap-3' : 'justify-center lg:px-0',
-                                        isActive ? 'sidebar-indic-active' : 'sidebar-indic-inactive'
-                                    )}
-                                >
-                                    <item.icon className="w-5 h-5 shrink-0 transition-colors" />
-                                    <span
-                                        className={cn(
-                                            'transition-all duration-300 whitespace-nowrap overflow-hidden',
-                                            sidebarOpen ? 'opacity-100 max-w-[200px]' : 'opacity-0 max-w-0 lg:hidden'
-                                        )}
-                                    >
-                                        {item.label}
-                                    </span>
-                                </Link>
-                            );
-
-                            return (
-                                <div key={item.href}>
-                                    {!sidebarOpen ? (
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                {linkContent}
-                                            </TooltipTrigger>
-                                            <TooltipContent side="right" className="ml-2 bg-gray-900 text-white border-gray-800 text-xs">
-                                                {item.label}
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    ) : (
-                                        linkContent
-                                    )}
+                        {navGroups.map((group) => (
+                            <div key={group.title || 'ungrouped'}>
+                                {group.title && sidebarOpen && (
+                                    <div className="px-3 pt-4 pb-1.5 text-[10.5px] font-bold tracking-wider uppercase text-gray-400 dark:text-gray-500">
+                                        {group.title}
+                                    </div>
+                                )}
+                                <div className="space-y-1">
+                                    {group.items.map((item) => (
+                                        <div key={item.href}>{renderNavLink(item, !sidebarOpen)}</div>
+                                    ))}
                                 </div>
-                            );
-                        })}
+                            </div>
+                        ))}
                     </nav>
                 </TooltipProvider>
 
@@ -249,23 +198,10 @@ export default function DashboardLayout() {
                 </div>
             </aside>
 
-            {/* Mobile overlay */}
-            <AnimatePresence>
-                {mobileSidebar && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 0.4 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setMobileSidebar(false)}
-                        className="fixed inset-0 bg-black z-30 lg:hidden"
-                    />
-                )}
-            </AnimatePresence>
-
             {/* ─── Main Content ─── */}
             <div className={cn('flex-1 transition-all duration-300 ease-in-out flex flex-col min-w-0', sidebarOpen ? 'lg:pl-64' : 'lg:pl-[72px]')}>
-                {/* Top bar — glass effect */}
-                <header className="sticky top-0 z-20 h-16 flex items-center justify-between px-4 lg:px-6 border-b border-gray-200/60 dark:border-gray-800/60 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl">
+                {/* Desktop top bar — glass effect */}
+                <header className="hidden lg:flex sticky top-0 z-20 h-16 items-center justify-between px-6 border-b border-gray-200/60 dark:border-gray-800/60 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl">
                     <div className="flex items-center gap-2">
                         <HamburgerButton />
                         <h1 className="text-base font-semibold text-gray-900 dark:text-white ml-2">
@@ -295,11 +231,90 @@ export default function DashboardLayout() {
                     </div>
                 </header>
 
+                {/* Mobile app bar — status-bar-safe top inset, no sidebar toggle (bottom tab bar replaces it) */}
+                <header
+                    className="flex lg:hidden sticky top-0 z-20 items-center gap-3 px-4 border-b border-gray-200/60 dark:border-gray-800/60 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl"
+                    style={{ paddingTop: 'max(12px, env(safe-area-inset-top))', paddingBottom: '12px' }}
+                >
+                    <UserProfileDropdown />
+                    <div className="min-w-0 flex-1">
+                        <div className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 leading-none">{greeting()}</div>
+                        <h1 className="text-base font-semibold text-gray-900 dark:text-white leading-tight truncate">{currentPage}</h1>
+                    </div>
+                    <NotificationBell />
+                </header>
+
                 {/* Page content */}
-                <main className="p-4 lg:p-6">
+                <main className="flex-1 p-4 pb-24 lg:p-6 lg:pb-6">
                     <Outlet />
                 </main>
+
+                {/* Mobile bottom tab bar */}
+                <nav
+                    className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-stretch gap-1 px-2 border-t border-gray-200/60 dark:border-gray-800/60 bg-white/85 dark:bg-gray-900/85 backdrop-blur-xl"
+                    style={{ paddingTop: '8px', paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
+                >
+                    {bottomTabs.map((tab) => {
+                        const isActive = tab.key === 'more' ? mobileSidebar : !!tab.href && location.pathname.startsWith(tab.href);
+                        return (
+                            <button
+                                key={tab.key}
+                                onClick={() => (tab.key === 'more' ? setMobileSidebar(true) : tab.href && navigate(tab.href))}
+                                className={cn(
+                                    'flex-1 flex flex-col items-center gap-1 py-1.5 rounded-xl text-[10.5px] font-bold transition-colors',
+                                    isActive ? 'text-primary bg-primary/10' : 'text-gray-400 dark:text-gray-500'
+                                )}
+                            >
+                                <tab.icon className="w-[22px] h-[22px]" />
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </nav>
             </div>
+
+            {/* "More" bottom sheet — replaces the full sidebar nav below lg */}
+            <AnimatePresence>
+                {mobileSidebar && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.4 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setMobileSidebar(false)}
+                            className="fixed inset-0 bg-black z-40 lg:hidden"
+                        />
+                        <motion.div
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                            className="fixed inset-x-0 bottom-0 z-50 lg:hidden max-h-[82%] overflow-y-auto rounded-t-[22px] bg-white dark:bg-gray-900 shadow-2xl"
+                        >
+                            <div className="sticky top-0 bg-white dark:bg-gray-900 pt-2.5 pb-1">
+                                <div className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700 mx-auto" />
+                            </div>
+                            <div className="px-4 pb-6">
+                                <div className="font-semibold text-lg text-gray-900 dark:text-white mb-2 mt-1">All modules</div>
+                                {navGroups.map((group) => (
+                                    <div key={group.title || 'ungrouped'}>
+                                        {group.title && (
+                                            <div className="pt-3.5 pb-2 text-[10.5px] font-bold tracking-wider uppercase text-gray-400 dark:text-gray-500">
+                                                {group.title}
+                                            </div>
+                                        )}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {group.items.map((item) => (
+                                                <div key={item.href}>{renderNavLink(item, false, () => setMobileSidebar(false))}</div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

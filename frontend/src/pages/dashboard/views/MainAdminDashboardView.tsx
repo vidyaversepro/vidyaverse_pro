@@ -1,6 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { StatCard } from '@/components/shared/StatCard';
 import { useFeeSummary } from '@/lib/queries/payments-queries';
 import { usePipelineStats, useEnquiries } from '@/lib/queries/admissions/admissions-queries';
 import {
@@ -49,50 +51,23 @@ export default function MainAdminDashboardView({ institutionId }: Props) {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Institution Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {new Date().toLocaleDateString('en-IN', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })}
-        </p>
-      </div>
+    <div className="space-y-6 max-w-[1600px] mx-auto pb-8">
+      <PageHeader
+        breadcrumb={[{ label: 'Dashboard' }]}
+        title="Institution Dashboard"
+        description={new Date().toLocaleDateString('en-IN', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })}
+      />
 
       {/* Fee summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Collected</CardDescription>
-            <CardTitle className="text-2xl flex items-center gap-1">
-              <IndianRupee className="h-5 w-5 text-green-500" />
-              {collected.toLocaleString('en-IN')}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Outstanding</CardDescription>
-            <CardTitle className="text-2xl flex items-center gap-1">
-              <IndianRupee className="h-5 w-5 text-red-500" />
-              {outstanding.toLocaleString('en-IN')}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Collection Rate</CardDescription>
-            <CardTitle className="text-2xl flex items-center gap-1">
-              <TrendingUp className="h-5 w-5 text-blue-500" />
-              {collectionRate.toFixed(1)}%
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <StatCard title="Collected" value={`₹${collected.toLocaleString('en-IN')}`} icon={IndianRupee} tone="teal" />
+        <StatCard title="Outstanding" value={`₹${outstanding.toLocaleString('en-IN')}`} icon={IndianRupee} tone="gold" />
+        <StatCard title="Collection Rate" value={`${collectionRate.toFixed(1)}%`} icon={TrendingUp} tone="indigo" />
       </div>
 
       {/* Pipeline + recent enquiries */}

@@ -1,10 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { StatCard } from '@/components/shared/StatCard';
 import { useDailyAttendanceStats } from '@/lib/queries/attendance-queries';
 import { useFeeSummary } from '@/lib/queries/payments-queries';
 import { useEnquiries } from '@/lib/queries/admissions/admissions-queries';
-import { Loader2, UserCheck, IndianRupee, CalendarCheck, ArrowRight } from 'lucide-react';
+import { UserCheck, IndianRupee, CalendarCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Props {
@@ -29,58 +31,23 @@ export default function SchoolAdminDashboardView({ institutionId }: Props) {
   const outstanding = feeSummary?.outstanding ?? 0;
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">School Operations</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {new Date().toLocaleDateString('en-IN', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })}
-        </p>
-      </div>
+    <div className="space-y-6 max-w-[1600px] mx-auto pb-8">
+      <PageHeader
+        breadcrumb={[{ label: 'Dashboard' }]}
+        title="School Operations"
+        description={new Date().toLocaleDateString('en-IN', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })}
+      />
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Present Today</CardDescription>
-            {attLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mt-1" />
-            ) : (
-              <CardTitle className="text-2xl flex items-center gap-1">
-                <UserCheck className="h-5 w-5 text-green-500" />
-                {attendanceStats?.totals?.present ?? '—'}
-              </CardTitle>
-            )}
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Outstanding Fees</CardDescription>
-            {feeLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mt-1" />
-            ) : (
-              <CardTitle className="text-2xl flex items-center gap-1">
-                <IndianRupee className="h-5 w-5 text-amber-500" />
-                {outstanding.toLocaleString('en-IN')}
-              </CardTitle>
-            )}
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Active Enquiries</CardDescription>
-            <CardTitle className="text-2xl flex items-center gap-1">
-              <CalendarCheck className="h-5 w-5 text-blue-500" />
-              {pendingEnquiries.length}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <StatCard title="Present Today" value={attLoading ? '—' : (attendanceStats?.totals?.present ?? '—')} icon={UserCheck} tone="teal" />
+        <StatCard title="Outstanding Fees" value={feeLoading ? '—' : `₹${outstanding.toLocaleString('en-IN')}`} icon={IndianRupee} tone="gold" />
+        <StatCard title="Active Enquiries" value={pendingEnquiries.length} icon={CalendarCheck} tone="indigo" />
       </div>
 
       {/* Detail cards */}

@@ -16,11 +16,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { useVisitingCards, type VisitingCard, useDeleteVisitingCard, useGenerateBulkVisitingCards } from '@/lib/queries';
 import { usePageInstitution } from '@/hooks/usePageInstitution';
 import { GenerateDocsModal } from '@/components/printables/GenerateDocsModal';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { cn } from '@/lib/utils';
 import {
     AlertDialog,
@@ -101,74 +102,71 @@ export default function VisitingCardsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Visiting Cards</h1>
-                    <p className="text-gray-500 dark:text-gray-400">
-                        View and manage generated visiting cards
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    {selectedCards.length > 0 && (
-                        <>
-                            <Button variant="outline" onClick={() => setShowBulkDelete(true)} className="text-red-500 border-red-200 hover:bg-red-50">
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Delete ({selectedCards.length})
-                            </Button>
-                            <Button variant="outline" onClick={handlePrintSelected}>
-                                <Printer className="w-4 h-4 mr-2" />
-                                Print ({selectedCards.length})
-                            </Button>
-                        </>
-                    )}
-                    <Button onClick={handleGenerateNew} className="bg-gradient-to-r from-[#E63946] to-[#C41E3A] hover:from-[#D32F3F] hover:to-[#B01A30] shadow-lg shadow-red-500/20">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Generate New
-                    </Button>
-                </div>
-            </div>
+        <div className="p-4 sm:p-6">
+            <PageHeader
+                breadcrumb={[
+                    { label: 'Dashboard', href: '/app/dashboard' },
+                    { label: 'Visiting Cards' },
+                ]}
+                title="Visiting Cards"
+                description="View and manage generated visiting cards"
+                action={
+                    <>
+                        {selectedCards.length > 0 && (
+                            <>
+                                <Button variant="outline" onClick={() => setShowBulkDelete(true)} className="text-destructive border-destructive/30 hover:bg-destructive/10">
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete ({selectedCards.length})
+                                </Button>
+                                <Button variant="outline" onClick={handlePrintSelected}>
+                                    <Printer className="w-4 h-4 mr-2" />
+                                    Print ({selectedCards.length})
+                                </Button>
+                            </>
+                        )}
+                        <Button onClick={handleGenerateNew}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            <span className="hidden sm:inline">Generate New</span>
+                            <span className="sm:hidden">Generate</span>
+                        </Button>
+                    </>
+                }
+            />
 
             {/* Filters */}
-            <Card className="border-0 shadow-lg">
-                <CardContent className="p-4">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input
-                                placeholder="Search by name or card no..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10"
-                            />
-                        </div>
-                        <Button variant="outline">
-                            <Filter className="w-4 h-4 mr-2" />
-                            Filters
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="flex flex-col sm:flex-row gap-2.5 mb-4">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search by name or card no…"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-11 rounded-xl pl-10"
+                    />
+                </div>
+                <Button variant="outline" className="h-11">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filters
+                </Button>
+            </div>
 
             {/* Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {isLoading ? (
-                    Array.from({ length: 8 }).map((_, i) => (
-                        <div key={i} className="animate-pulse">
-                            <div className="aspect-[1.586] bg-gray-100 dark:bg-gray-800 rounded-lg" />
-                        </div>
-                    ))
-                ) : data?.data?.length === 0 ? (
-                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-                            <Contact className="w-8 h-8 text-[#E63946]" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">No Visiting Cards Yet</h3>
-                        <p className="text-gray-500 mt-1">Generate visiting cards to see them here.</p>
-                    </div>
-                ) : (
-                    data?.data?.map((card: VisitingCard) => {
+            {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <div key={i} className="aspect-[1.586] rounded-lg bg-muted animate-pulse" />
+                    ))}
+                </div>
+            ) : data?.data?.length === 0 ? (
+                <EmptyState
+                    icon={Contact}
+                    title="No visiting cards yet"
+                    description="Generate visiting cards to see them here."
+                    action={{ label: 'Generate New', onClick: handleGenerateNew }}
+                />
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {data?.data?.map((card: VisitingCard) => {
                         const personName = card.student?.name || card.user?.name || 'Unknown';
                         const info1 = card.student?.admissionNo || card.user?.email || card.cardNumber;
                         const photo = card.student?.photoUrl || card.user?.image || null;
@@ -181,28 +179,28 @@ export default function VisitingCardsPage() {
                                 className={cn(
                                     'group relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all',
                                     selectedCards.includes(card.id)
-                                        ? 'border-[#E63946] ring-2 ring-red-500/20'
-                                        : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                                        ? 'border-primary ring-2 ring-primary/20'
+                                        : 'border-transparent hover:border-border'
                                 )}
                                 onClick={() => toggleSelectCard(card.id)}
                             >
                                 {/* Thumbnail */}
-                                <div className="aspect-[1.586] bg-gray-100 relative group-hover:scale-105 transition-transform duration-300">
+                                <div className="aspect-[1.586] bg-muted relative group-hover:scale-105 transition-transform duration-300">
                                     {card.thumbnailUrl ? (
                                         <div className="absolute inset-0">
                                             <img src={card.thumbnailUrl} alt={personName} className="w-full h-full object-cover" />
                                         </div>
                                     ) : (
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-                                            <div className="w-16 h-16 rounded-full bg-gray-200 mb-2 overflow-hidden">
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-card">
+                                            <div className="w-16 h-16 rounded-full bg-muted mb-2 overflow-hidden">
                                                 {photo ? (
                                                     <img src={photo} alt={personName} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <Contact className="w-8 h-8 text-gray-400 m-auto mt-4" />
+                                                    <Contact className="w-8 h-8 text-muted-foreground m-auto mt-4" />
                                                 )}
                                             </div>
-                                            <h3 className="font-bold text-sm truncate w-full">{personName}</h3>
-                                            <p className="text-xs text-gray-500">{info1}</p>
+                                            <h3 className="text-sm truncate w-full">{personName}</h3>
+                                            <p className="text-xs text-muted-foreground">{info1}</p>
                                         </div>
                                     )}
                                 </div>
@@ -212,8 +210,8 @@ export default function VisitingCardsPage() {
                                     className={cn(
                                         'absolute top-2 left-2 w-5 h-5 rounded border-2 transition-colors flex items-center justify-center',
                                         selectedCards.includes(card.id)
-                                            ? 'bg-[#E63946] border-[#E63946]'
-                                            : 'bg-white border-gray-300'
+                                            ? 'bg-primary border-primary'
+                                            : 'bg-background border-input'
                                     )}
                                 >
                                     {selectedCards.includes(card.id) && (
@@ -237,12 +235,12 @@ export default function VisitingCardsPage() {
                                 </div>
 
                                 {/* Info */}
-                                <div className="p-3 bg-white dark:bg-gray-800">
-                                    <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                                <div className="p-3 bg-card border-t border-border">
+                                    <p className="font-medium text-sm text-foreground truncate">
                                         {personName}
                                     </p>
                                     <div className="flex items-center justify-between mt-1">
-                                        <span className="text-xs text-gray-500">{card.cardNumber}</span>
+                                        <span className="text-xs text-muted-foreground">{card.cardNumber}</span>
                                         <span
                                             className={cn(
                                                 'text-xs px-1.5 py-0.5 rounded',
@@ -257,14 +255,14 @@ export default function VisitingCardsPage() {
                                 </div>
                             </motion.div>
                         );
-                    })
-                )}
-            </div>
+                    })}
+                </div>
+            )}
 
             {/* Pagination */}
             {data?.pagination && (
                 <div className="flex items-center justify-between mt-6">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                         Page {page} of {data.pagination.totalPages}
                     </p>
                     <div className="flex gap-2">
@@ -348,7 +346,7 @@ export default function VisitingCardsPage() {
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className="bg-destructive hover:bg-destructive/90"
                             onClick={() => {
                                 if (showBulkDelete) {
                                     handleBulkDelete();

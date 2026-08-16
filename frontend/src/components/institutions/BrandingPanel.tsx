@@ -32,7 +32,7 @@ const roleLabel = (v: string) => ROLE_TYPES.find((r) => r.value === v)?.label ||
 export default function BrandingPanel({ institution }: { institution: Institution }) {
     return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="flex items-start gap-2 rounded-xl border border-blue-200/70 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/20 p-3.5 text-xs text-blue-900 dark:text-blue-200">
+            <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3.5 text-xs text-foreground/80">
                 <Info className="w-4 h-4 mt-0.5 shrink-0" />
                 <span>
                     <b>Recommended sizes</b> — Logo: square (1:1), ~512×512px transparent PNG · Signature: wide (~3:1), ~600×200px transparent PNG · Student photo: portrait 3:4.
@@ -85,13 +85,13 @@ function LogoSection({ institution }: { institution: Institution }) {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 lg:p-8 shadow-sm">
+        <div className="bg-card rounded-2xl border border-border p-6 lg:p-8 shadow-sm">
             <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Logo</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Printed on ID cards, certificates and other documents.</p>
+                    <h2 className="text-lg text-foreground">Logo</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Printed on ID cards, certificates and other documents.</p>
                 </div>
-                <Button onClick={save} disabled={(!logo && !darkLogo) || update.isPending} className="bg-[#E63946] hover:bg-[#C41E3A] text-white shrink-0">
+                <Button onClick={save} disabled={(!logo && !darkLogo) || update.isPending} className="shrink-0">
                     {update.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                     Save Logo
                 </Button>
@@ -105,12 +105,12 @@ function LogoSection({ institution }: { institution: Institution }) {
                     return (
                         <div key={t.label} className="flex flex-col">
                             <div className="flex items-center gap-2 mb-2">
-                                <t.icon className="w-4 h-4 text-[#E63946]" />
-                                <span className="text-sm font-medium text-gray-900 dark:text-white">{t.label}</span>
-                                {t.preview && <span className="text-[10px] font-semibold text-emerald-600 uppercase">New · unsaved</span>}
+                                <t.icon className="w-4 h-4 text-primary" />
+                                <span className="text-sm font-medium text-foreground">{t.label}</span>
+                                {t.preview && <span className="text-[10px] font-semibold text-primary uppercase">New · unsaved</span>}
                             </div>
                             <button type="button" onClick={() => t.ref.current?.click()}
-                                className="group relative aspect-[16/7] w-full rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-[#E63946] hover:bg-red-50/40 dark:hover:bg-red-950/10 transition-colors overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-800/50">
+                                className="group relative aspect-[16/7] w-full rounded-xl border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 transition-colors overflow-hidden flex items-center justify-center bg-muted/50">
                                 {imgSrc ? (
                                     <img
                                         src={imgSrc}
@@ -119,11 +119,11 @@ function LogoSection({ institution }: { institution: Institution }) {
                                         onError={() => imgSrc && setErroredUrls((s) => ({ ...s, [imgSrc]: true }))}
                                     />
                                 ) : (
-                                    <div className="flex flex-col items-center text-gray-400"><Upload className="w-6 h-6 mb-1" /><span className="text-xs">Click to upload</span></div>
+                                    <div className="flex flex-col items-center text-muted-foreground"><Upload className="w-6 h-6 mb-1" /><span className="text-xs">Click to upload</span></div>
                                 )}
                             </button>
                             <input ref={t.ref} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="hidden" onChange={t.onPick} />
-                            <p className="text-[11px] mt-1.5 leading-snug text-gray-400">
+                            <p className="text-[11px] mt-1.5 leading-snug text-muted-foreground">
                                 {t.current && erroredUrls[t.current] && !t.preview ? (
                                     <span className="text-amber-600">Saved image couldn&apos;t load — upload a new one.</span>
                                 ) : t.hint}
@@ -156,13 +156,13 @@ function AuthoritiesSection({ institutionId }: { institutionId: string }) {
     const cardSignatory = authorities.find((a) => a.roleType === 'PRINCIPAL') || authorities[0] || null;
 
     return (
-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 p-6 lg:p-8 shadow-sm">
+        <div className="bg-card rounded-2xl border border-border p-6 lg:p-8 shadow-sm">
             <div className="flex items-start justify-between gap-4 mb-2">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Signing Authorities</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Principal, Director, etc. Their signature is printed on ID cards & certificates.</p>
+                    <h2 className="text-lg text-foreground">Signing Authorities</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Principal, Director, etc. Their signature is printed on ID cards & certificates.</p>
                 </div>
-                <Button onClick={openAdd} className="bg-[#E63946] hover:bg-[#C41E3A] text-white shrink-0">
+                <Button onClick={openAdd} className="shrink-0">
                     <Plus className="w-4 h-4 mr-2" /> Add Signatory
                 </Button>
             </div>
@@ -173,33 +173,33 @@ function AuthoritiesSection({ institutionId }: { institutionId: string }) {
             </div>
 
             {isLoading ? (
-                <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
+                <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
             ) : authorities.length === 0 ? (
-                <div className="text-center py-10 border border-dashed rounded-xl border-gray-200 dark:border-gray-700 text-sm text-gray-500">
+                <div className="text-center py-10 border border-dashed rounded-xl border-border text-sm text-muted-foreground">
                     No signatories yet. Add a Principal so their signature appears on cards.
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {authorities.map((a) => (
-                        <div key={a.id} className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 flex gap-4">
-                            <div className="w-24 h-16 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 flex items-center justify-center overflow-hidden shrink-0">
+                        <div key={a.id} className="rounded-xl border border-border p-4 flex gap-4">
+                            <div className="w-24 h-16 rounded-md bg-muted/50 border border-border flex items-center justify-center overflow-hidden shrink-0">
                                 {a.signatureUrl ? (
                                     <img src={a.signatureUrl} alt="signature" className="w-full h-full object-contain p-1" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                                 ) : (
-                                    <PenLine className="w-5 h-5 text-gray-300" />
+                                    <PenLine className="w-5 h-5 text-muted-foreground" />
                                 )}
                             </div>
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-1.5">
-                                    <span className="font-semibold text-gray-900 dark:text-white truncate">{a.name || '(unnamed)'}</span>
+                                    <span className="font-semibold text-foreground truncate">{a.name || '(unnamed)'}</span>
                                     {cardSignatory?.id === a.id && (
                                         <span title="Used on ID cards" className="inline-flex items-center text-[10px] font-semibold text-amber-600"><Star className="w-3 h-3 mr-0.5 fill-amber-500 text-amber-500" />ON CARD</span>
                                     )}
                                 </div>
-                                <p className="text-xs text-gray-500 truncate">{a.designation || roleLabel(a.roleType)}</p>
+                                <p className="text-xs text-muted-foreground truncate">{a.designation || roleLabel(a.roleType)}</p>
                                 <div className="flex gap-1 mt-2">
                                     <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => openEdit(a)}><Edit className="w-3.5 h-3.5 mr-1" />Edit</Button>
-                                    <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-red-600 hover:text-red-700" onClick={() => handleDelete(a)}><Trash2 className="w-3.5 h-3.5 mr-1" />Delete</Button>
+                                    <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-destructive hover:text-destructive/80" onClick={() => handleDelete(a)}><Trash2 className="w-3.5 h-3.5 mr-1" />Delete</Button>
                                 </div>
                             </div>
                         </div>
@@ -303,20 +303,20 @@ function AuthorityDialog({ institutionId, open, onOpenChange, authority }: {
                     <div className="space-y-1.5">
                         <label className="text-sm font-medium">Signature</label>
                         <button type="button" onClick={() => sigRef.current?.click()}
-                            className="w-full h-28 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-[#E63946] transition-colors flex items-center justify-center bg-gray-50 dark:bg-gray-800/50 overflow-hidden">
+                            className="w-full h-28 rounded-xl border-2 border-dashed border-border hover:border-primary transition-colors flex items-center justify-center bg-muted/50 overflow-hidden">
                             {preview ? (
                                 <img src={preview} alt="signature" className="h-full object-contain p-2" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                             ) : (
-                                <div className="flex flex-col items-center text-gray-400 text-center px-3"><Upload className="w-6 h-6 mb-1" /><span className="text-xs">Wide (~3:1), ~600×200px · transparent PNG preferred · max 2 MB</span></div>
+                                <div className="flex flex-col items-center text-muted-foreground text-center px-3"><Upload className="w-6 h-6 mb-1" /><span className="text-xs">Wide (~3:1), ~600×200px · transparent PNG preferred · max 2 MB</span></div>
                             )}
                         </button>
                         <input ref={sigRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={pickSig} />
-                        <p className="text-[11px] text-gray-400">A transparent background keeps the card clean; a white background will show a white box.</p>
+                        <p className="text-[11px] text-muted-foreground">A transparent background keeps the card clean; a white background will show a white box.</p>
                     </div>
                 </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Cancel</Button>
-                    <Button onClick={submit} disabled={isPending} className="bg-[#E63946] hover:bg-[#C41E3A] text-white">
+                    <Button onClick={submit} disabled={isPending}>
                         {isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                         {authority ? 'Save Changes' : 'Add Signatory'}
                     </Button>

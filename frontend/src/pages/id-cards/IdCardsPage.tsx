@@ -18,10 +18,11 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { useIdCards, type IdCard, useDeleteIdCard } from '@/lib/queries';
 import { cn } from '@/lib/utils';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { IdCardPreviewModal } from './components/IdCardPreviewModal';
 import { IdCardEditSheet } from './components/IdCardEditSheet';
 import { BulkGenerateModal } from './components/BulkGenerateModal';
@@ -100,77 +101,71 @@ export default function IdCardsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">ID Cards</h1>
-                    <p className="text-gray-500 dark:text-gray-400">
-                        View and manage generated ID cards
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    {selectedCards.length > 0 && (
-                        <>
-                            <Button variant="outline" onClick={() => setShowBulkDelete(true)} className="text-red-500 border-red-200 hover:bg-red-50">
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Delete ({selectedCards.length})
-                            </Button>
-                            <Button variant="outline" onClick={handlePrintSelected}>
-                                <Printer className="w-4 h-4 mr-2" />
-                                Print ({selectedCards.length})
-                            </Button>
-                        </>
-                    )}
-                    <Button 
-                        className="bg-gradient-to-r from-[#E63946] to-[#C41E3A] hover:from-[#D32F3F] hover:to-[#B01A30] shadow-lg shadow-red-500/20"
-                        onClick={() => setIsGenerateModalOpen(true)}
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Generate New
-                    </Button>
-                </div>
-            </div>
+        <div className="p-4 sm:p-6">
+            <PageHeader
+                breadcrumb={[
+                    { label: 'Dashboard', href: '/app/dashboard' },
+                    { label: 'ID Cards' },
+                ]}
+                title="ID Cards"
+                description="View and manage generated ID cards"
+                action={
+                    <>
+                        {selectedCards.length > 0 && (
+                            <>
+                                <Button variant="outline" onClick={() => setShowBulkDelete(true)} className="text-destructive border-destructive/30 hover:bg-destructive/10">
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete ({selectedCards.length})
+                                </Button>
+                                <Button variant="outline" onClick={handlePrintSelected}>
+                                    <Printer className="w-4 h-4 mr-2" />
+                                    Print ({selectedCards.length})
+                                </Button>
+                            </>
+                        )}
+                        <Button onClick={() => setIsGenerateModalOpen(true)}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            <span className="hidden sm:inline">Generate New</span>
+                            <span className="sm:hidden">Generate</span>
+                        </Button>
+                    </>
+                }
+            />
 
             {/* Filters */}
-            <Card className="border-0 shadow-lg">
-                <CardContent className="p-4">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input
-                                placeholder="Search by student name or admission no..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10"
-                            />
-                        </div>
-                        <Button variant="outline">
-                            <Filter className="w-4 h-4 mr-2" />
-                            Filters
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="flex flex-col sm:flex-row gap-2.5 mb-4">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search by student name or admission no…"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-11 rounded-xl pl-10"
+                    />
+                </div>
+                <Button variant="outline" className="h-11">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filters
+                </Button>
+            </div>
 
             {/* ID Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {isLoading ? (
-                    Array.from({ length: 8 }).map((_, i) => (
-                        <div key={i} className="animate-pulse">
-                            <div className="aspect-[1.586] bg-gray-100 dark:bg-gray-800 rounded-lg" />
-                        </div>
-                    ))
-                ) : data?.data?.length === 0 ? (
-                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-                            <CreditCard className="w-8 h-8 text-[#E63946]" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">No ID Cards Yet</h3>
-                        <p className="text-gray-500 mt-1">Generate ID cards from the Students page.</p>
-                    </div>
-                ) : (
-                    data?.data?.map((idCard: IdCard) => (
+            {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <div key={i} className="aspect-[1.586] rounded-lg bg-muted animate-pulse" />
+                    ))}
+                </div>
+            ) : data?.data?.length === 0 ? (
+                <EmptyState
+                    icon={CreditCard}
+                    title="No ID cards yet"
+                    description="Generate ID cards from the Students page."
+                    action={{ label: 'Generate New', onClick: () => setIsGenerateModalOpen(true) }}
+                />
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {data?.data?.map((idCard: IdCard) => (
                         <motion.div
                             key={idCard.id}
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -178,29 +173,29 @@ export default function IdCardsPage() {
                             className={cn(
                                 'group relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all',
                                 selectedCards.includes(idCard.id)
-                                    ? 'border-[#E63946] ring-2 ring-red-500/20'
-                                    : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                                    ? 'border-primary ring-2 ring-primary/20'
+                                    : 'border-transparent hover:border-border'
                             )}
                             onClick={() => toggleSelectCard(idCard.id)}
                         >
                             {/* Thumbnail */}
-                            <div className="aspect-[1.586] bg-gray-100 relative group-hover:scale-105 transition-transform duration-300">
+                            <div className="aspect-[1.586] bg-muted relative group-hover:scale-105 transition-transform duration-300">
                                 {idCard.cardFrontUrl && (
-                                    <img src={idCard.cardFrontUrl} alt={idCard.student?.name} className="absolute inset-0 w-full h-full object-contain bg-white" />
+                                    <img src={idCard.cardFrontUrl} alt={idCard.student?.name} className="absolute inset-0 w-full h-full object-contain bg-card" />
                                 )}
                                 {/* Fallback layout when no rendered card image is available */}
-                                <div className={cn('absolute inset-0 flex flex-col items-center justify-center p-4 text-center', idCard.cardFrontUrl && 'hidden')}>
-                                    <div className="w-16 h-16 rounded-full bg-gray-200 mb-2 overflow-hidden">
+                                <div className={cn('absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-card', idCard.cardFrontUrl && 'hidden')}>
+                                    <div className="w-16 h-16 rounded-full bg-muted mb-2 overflow-hidden">
                                         {idCard.student.photoUrl ? (
                                             <img src={idCard.student.photoUrl} alt={idCard.student.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <Users className="w-8 h-8 text-gray-400 m-auto mt-4" />
+                                            <Users className="w-8 h-8 text-muted-foreground m-auto mt-4" />
                                         )}
                                     </div>
-                                    <h3 className="font-bold text-sm truncate w-full">{idCard.student.name}</h3>
-                                    <p className="text-xs text-gray-500">{idCard.student.admissionNo}</p>
+                                    <h3 className="text-sm truncate w-full">{idCard.student.name}</h3>
+                                    <p className="text-xs text-muted-foreground">{idCard.student.admissionNo}</p>
                                     {idCard.student.section && (
-                                        <p className="text-xs text-gray-400 mt-1">
+                                        <p className="text-xs text-muted-foreground mt-1">
                                             {idCard.student.section.class.name} - {idCard.student.section.name}
                                         </p>
                                     )}
@@ -212,8 +207,8 @@ export default function IdCardsPage() {
                                 className={cn(
                                     'absolute top-2 left-2 w-5 h-5 rounded border-2 transition-colors flex items-center justify-center',
                                     selectedCards.includes(idCard.id)
-                                        ? 'bg-[#E63946] border-[#E63946]'
-                                        : 'bg-white border-gray-300'
+                                        ? 'bg-primary border-primary'
+                                        : 'bg-background border-input'
                                 )}
                             >
                                 {selectedCards.includes(idCard.id) && (
@@ -244,12 +239,12 @@ export default function IdCardsPage() {
                             </div>
 
                             {/* Info */}
-                            <div className="p-3 bg-white dark:bg-gray-800">
-                                <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                            <div className="p-3 bg-card border-t border-border">
+                                <p className="font-medium text-sm text-foreground truncate">
                                     {idCard.student?.name}
                                 </p>
                                 <div className="flex items-center justify-between mt-1">
-                                    <span className="text-xs text-gray-500">{idCard.student?.admissionNo}</span>
+                                    <span className="text-xs text-muted-foreground">{idCard.student?.admissionNo}</span>
                                     <span
                                         className={cn(
                                             'text-xs px-1.5 py-0.5 rounded',
@@ -263,14 +258,14 @@ export default function IdCardsPage() {
                                 </div>
                             </div>
                         </motion.div>
-                    ))
-                )}
-            </div>
+                    ))}
+                </div>
+            )}
 
             {/* Pagination */}
             {data?.pagination && (
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">
+                <div className="flex items-center justify-between mt-4">
+                    <p className="text-sm text-muted-foreground">
                         Page {page} of {data.pagination.totalPages}
                     </p>
                     <div className="flex gap-2">
@@ -324,7 +319,7 @@ export default function IdCardsPage() {
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                            className="bg-red-600 hover:bg-red-700"
+                            className="bg-destructive hover:bg-destructive/90"
                             onClick={() => {
                                 if (showBulkDelete) {
                                     handleBulkDelete();

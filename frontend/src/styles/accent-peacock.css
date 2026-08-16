@@ -1,0 +1,43 @@
+/* ============================================================
+   PEACOCK ACCENT — app-local, NOT part of the synced design system.
+
+   indic-app.css (generated, do-not-edit) hardcodes Vidyaverse's default
+   accent to kumkum. This file adds the alternate 'peacock' accent the
+   Settings > Appearance picker can switch to at runtime, applied via an
+   `.acc-peacock` class toggled onto <html> by App.tsx's ThemeSync.
+
+   Must load AFTER indic-app.css (and everything else that touches these
+   custom properties on :root) — `.acc-peacock` and `:root` have identical
+   specificity, so only source order makes this override win.
+
+   Values reference the existing pigment tokens from indic-tokens.css rather
+   than inventing new hex, mirroring how indic-app.css itself is written.
+   --accent-soft/--accent-contrast are derived (light tint / dark shade at
+   the same hue kumkum's soft/contrast use) since no exact values are
+   specified for peacock. --accent-primary-dark is NOT derived — it's lifted
+   directly from the design reference's `.vv.dark.acc-peacock{--brand:#3fb0a5}`.
+   ============================================================ */
+
+.acc-peacock {
+  --accent-primary: var(--peacock-teal);
+  --accent-primary-rgb: var(--peacock-teal-rgb);
+  --accent-primary-hsl: var(--peacock-teal-hsl);
+
+  --accent-strong: var(--peacock-teal);
+  --accent-strong-rgb: var(--peacock-teal-rgb);
+  --accent-strong-hsl: var(--peacock-teal-hsl);
+
+  --accent-soft: #E6F5F5;
+  --accent-soft-rgb: 230 245 245;
+  --accent-soft-hsl: 180 45% 93%;
+
+  --accent-contrast: #003D40;
+  --accent-contrast-rgb: 0 61 64;
+  --accent-contrast-hsl: 182 100% 12.5%;
+
+  /* used only inside .dark — matches kumkum's pattern of a lifted accent
+     for the near-black dashboard surface */
+  --accent-primary-dark: #3fb0a5;
+  --accent-primary-dark-rgb: 63 176 165;
+  --accent-primary-dark-hsl: 174.6 47.1% 46.9%;
+}

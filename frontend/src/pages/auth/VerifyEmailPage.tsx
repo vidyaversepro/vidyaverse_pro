@@ -3,9 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Loader2, MailCheck, CheckCircle2, AlertCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { authClient, useSession } from '@/lib/auth.client';
+import { AuthShell } from './components/AuthShell';
 
 /**
  * Landing page for the email-confirmation step.
@@ -51,20 +51,13 @@ export default function VerifyEmailPage() {
         }
     }
 
-    const shell = (children: React.ReactNode) => (
-        <div
-            className="min-h-screen flex items-center justify-center p-4"
-            style={{ background: 'linear-gradient(135deg, #FFF5F5 0%, #FFFFFF 40%, #F0F4FF 100%)' }}
-        >
-            <Card className="w-full max-w-md">{children}</Card>
-        </div>
-    );
-
     if (isPending) {
-        return shell(
-            <CardContent className="flex items-center justify-center py-16">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </CardContent>
+        return (
+            <AuthShell heading="Check your inbox" sub=" ">
+                <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+            </AuthShell>
         );
     }
 
@@ -73,77 +66,64 @@ export default function VerifyEmailPage() {
         // Mirrors PublicRoute's landing logic; there is no bare /dashboard route.
         const role = (session.user as { globalRole?: string })?.globalRole;
         const home = role === 'super_admin' || role === 'admin' ? '/app/dashboard' : '/student/feed';
-        return shell(
-            <>
-                <CardHeader className="text-center">
-                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
-                        <CheckCircle2 className="h-7 w-7 text-green-600" />
-                    </div>
-                    <CardTitle>Email confirmed</CardTitle>
-                    <CardDescription>
-                        You're signed in as <span className="font-medium">{session.user.email}</span>.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button asChild className="w-full">
-                        <Link to={home}>Continue to Vidyaverse Pro</Link>
-                    </Button>
-                </CardContent>
-            </>
+        return (
+            <AuthShell
+                statusIcon={<CheckCircle2 className="w-[30px] h-[30px]" />}
+                statusTone="#15803d"
+                statusBg="rgb(21 128 61 / .12)"
+                heading="Email confirmed"
+                sub={<>You're signed in as <span className="font-semibold text-foreground">{session.user.email}</span>.</>}
+            >
+                <Button asChild className="w-full h-12 rounded-[13px] font-bold">
+                    <Link to={home}>Continue to Vidyaverse</Link>
+                </Button>
+            </AuthShell>
         );
     }
 
     if (error) {
-        return shell(
-            <>
-                <CardHeader className="text-center">
-                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
-                        <AlertCircle className="h-7 w-7 text-amber-600" />
-                    </div>
-                    <CardTitle>That link didn't work</CardTitle>
-                    <CardDescription>
-                        Confirmation links expire after an hour and can only be used once.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
+        return (
+            <AuthShell
+                statusIcon={<AlertCircle className="w-[30px] h-[30px]" />}
+                statusTone="#B8860B"
+                statusBg="rgb(184 134 11 / .16)"
+                heading="That link didn't work"
+                sub="Confirmation links expire after an hour and can be used only once."
+            >
+                <div className="flex flex-col gap-[11px]">
                     {sentTo ? (
-                        <Button className="w-full" onClick={resend} disabled={resending}>
+                        <Button className="w-full h-12 rounded-[13px] font-bold" onClick={resend} disabled={resending}>
                             {resending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                             Send me a new link
                         </Button>
                     ) : (
-                        <Button asChild className="w-full">
+                        <Button asChild className="w-full h-12 rounded-[13px] font-bold">
                             <Link to="/login">Back to sign in</Link>
                         </Button>
                     )}
-                </CardContent>
-            </>
+                </div>
+            </AuthShell>
         );
     }
 
     // Waiting on the inbox.
-    return shell(
-        <>
-            <CardHeader className="text-center">
-                <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100">
-                    <MailCheck className="h-7 w-7 text-indigo-600" />
-                </div>
-                <CardTitle>Check your inbox</CardTitle>
-                <CardDescription>
-                    {sentTo ? (
-                        <>
-                            We sent a confirmation link to{' '}
-                            <span className="font-medium">{sentTo}</span>. Click it to activate your
-                            account.
-                        </>
-                    ) : (
-                        <>Click the confirmation link we emailed you to activate your account.</>
-                    )}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
+    return (
+        <AuthShell
+            statusIcon={<MailCheck className="w-[30px] h-[30px]" />}
+            statusTone="#1A237E"
+            statusBg="rgb(26 35 126 / .12)"
+            heading="Check your inbox"
+            sub={
+                sentTo ? (
+                    <>We sent a confirmation link to <span className="font-semibold text-foreground">{sentTo}</span>. Click it to activate your account.</>
+                ) : (
+                    <>Click the confirmation link we emailed you to activate your account.</>
+                )
+            }
+        >
+            <div className="flex flex-col gap-[11px]">
                 {sentTo && (
-                    <Button variant="outline" className="w-full" onClick={resend} disabled={resending}>
+                    <Button variant="outline" className="w-full h-11 rounded-[13px] font-semibold" onClick={resend} disabled={resending}>
                         {resending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                         Resend the link
                     </Button>
@@ -151,10 +131,10 @@ export default function VerifyEmailPage() {
                 <p className="text-xs text-center text-muted-foreground">
                     Not seeing it? Check your spam folder.
                 </p>
-                <Button asChild variant="ghost" className="w-full">
+                <Button asChild variant="ghost" className="w-full h-11 rounded-[13px] font-semibold">
                     <Link to="/login">Back to sign in</Link>
                 </Button>
-            </CardContent>
-        </>
+            </div>
+        </AuthShell>
     );
 }

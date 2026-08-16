@@ -13,6 +13,10 @@ import './design/indic/indic-tokens.css';
 import './design/indic/indic-app.css';
 import './design/indic/indic-design-system.css';
 import './styles/indic-bridge.css';
+// App-local (not synced) — alternate accent, applied via `.acc-peacock` on
+// <html>. Must stay last: needs to win a same-specificity tie against every
+// :root block above that also sets --accent-primary*/--accent-strong* etc.
+import './styles/accent-peacock.css';
 // Self-hosted fonts, imported from JS rather than a CSS @import so Vite and
 // Next resolve the bare package specifiers identically across the trio.
 // Must precede indic-fonts.css, which only declares the stacks.

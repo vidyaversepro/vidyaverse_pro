@@ -14,7 +14,7 @@ import { useStaff } from '@/lib/queries/hr/hr-queries';
 import { type AudienceType } from '@vidyaverse/shared-validation';
 
 const selectCls =
-    'w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm disabled:opacity-50 focus:ring-2 focus:ring-[#b7102a]/20 focus:border-[#b7102a] outline-none transition-all';
+    'w-full bg-muted/40 border border-border rounded-lg p-2.5 text-sm disabled:opacity-50 focus:ring-2 focus:ring-ring focus:border-primary outline-none transition-all';
 
 export interface GenerateResult {
     successful: number;
@@ -174,9 +174,13 @@ export function GenerateDocsModal({
         onClose();
     };
 
-    const scopeReady = activeAudience === 'staff' 
+    const scopeReady = activeAudience === 'staff'
         ? true // Staff can be all or by department
         : !!selectedClassId && (!requireSection || !!selectedSectionId);
+
+    // Step cue for the header stepper — derived from real state, never gates.
+    const currentStep = !scopeReady ? 0 : !canSubmit ? 1 : 2;
+    const stepLabels = ['Scope', 'Details', 'Generate'];
 
     const handleGenerate = async () => {
         if (!institutionId) {
@@ -245,7 +249,7 @@ export function GenerateDocsModal({
                             <AlertCircle className="w-16 h-16 text-amber-500" />
                         )}
                         <div>
-                            <h3 className="text-lg font-semibold">
+                            <h3 className="text-lg">
                                 {result.failed === 0 ? 'Generation Complete' : 'Completed with errors'}
                             </h3>
                             <p className="text-sm text-slate-500 mt-1">
@@ -260,6 +264,33 @@ export function GenerateDocsModal({
                     </div>
                 ) : (
                     <div className="space-y-4 py-4">
+                        {/* Stepper — reflects real progress (Scope → Details → Generate). */}
+                        <ol className="flex items-center gap-1.5">
+                            {stepLabels.map((label, i) => (
+                                <li key={label} className="flex flex-1 items-center gap-1.5">
+                                    <span
+                                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold transition-colors ${
+                                            i < currentStep
+                                                ? 'bg-primary text-primary-foreground'
+                                                : i === currentStep
+                                                    ? 'border-2 border-primary text-primary'
+                                                    : 'border border-border text-muted-foreground'
+                                        }`}
+                                    >
+                                        {i < currentStep ? '✓' : i + 1}
+                                    </span>
+                                    <span
+                                        className={`text-xs ${i <= currentStep ? 'text-foreground' : 'text-muted-foreground'}`}
+                                    >
+                                        {label}
+                                    </span>
+                                    {i < stepLabels.length - 1 && (
+                                        <span className={`mx-1 h-px flex-1 ${i < currentStep ? 'bg-primary' : 'bg-border'}`} />
+                                    )}
+                                </li>
+                            ))}
+                        </ol>
+
                         {/* Audience Toggle */}
                         {audienceType === 'both' && (
                             <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 p-1 mb-4 bg-slate-50 dark:bg-slate-800">
@@ -284,7 +315,7 @@ export function GenerateDocsModal({
                             <>
                                 {/* Class */}
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <label className="text-sm font-medium text-foreground">
                                         Class <span className="text-red-500">*</span>
                                     </label>
                                     <select className={selectCls} value={selectedClassId} onChange={(e) => setSelectedClassId(e.target.value)}>
@@ -300,7 +331,7 @@ export function GenerateDocsModal({
                         {/* Stream (conditional) */}
                         {selectedClassId && streamsEnabled && (
                             <div className="space-y-1.5">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Stream</label>
+                                <label className="text-sm font-medium text-foreground">Stream</label>
                                 <select className={selectCls} value={selectedStreamId} onChange={(e) => setSelectedStreamId(e.target.value)}>
                                     <option value="">All Streams</option>
                                     {streams.map((s: any) => (
@@ -313,7 +344,7 @@ export function GenerateDocsModal({
                         {/* Section */}
                         {selectedClassId && (
                             <div className="space-y-1.5">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <label className="text-sm font-medium text-foreground">
                                     Section {requireSection && <span className="text-red-500">*</span>}
                                 </label>
                                 <select
@@ -332,7 +363,7 @@ export function GenerateDocsModal({
                             </>
                         ) : (
                             <div className="space-y-1.5">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Department</label>
+                                <label className="text-sm font-medium text-foreground">Department</label>
                                 <select className={selectCls} value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)}>
                                     <option value="">All Departments</option>
                                     {departments.map((d: any) => (
@@ -348,11 +379,11 @@ export function GenerateDocsModal({
                                 <div className="bg-slate-50 dark:bg-slate-800 p-2.5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                                     <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Select Recipients</span>
                                     <div className="flex gap-2">
-                                        <button 
-                                            className="text-xs text-[#b7102a] hover:text-[#8f0c21] font-medium transition-colors"
+                                        <button
+                                            className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
                                             onClick={() => setSelectedIds(activeAudience === 'staff' ? filteredStaff.map((s: any) => s.id) : students.map(s => s.id))}
                                         >Select All</button>
-                                        <span className="text-slate-300">|</span>
+                                        <span className="text-border">|</span>
                                         <button 
                                             className="text-xs text-slate-500 hover:text-slate-700 font-medium transition-colors"
                                             onClick={() => setSelectedIds([])}
@@ -362,9 +393,9 @@ export function GenerateDocsModal({
                                 <div className="max-h-48 overflow-y-auto p-2 space-y-1">
                                     {(activeAudience === 'staff' ? filteredStaff : students).map((person: any) => (
                                         <label key={person.id} className="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-md cursor-pointer transition-colors">
-                                            <input 
-                                                type="checkbox" 
-                                                className="rounded border-slate-300 text-[#b7102a] focus:ring-[#b7102a]"
+                                            <input
+                                                type="checkbox"
+                                                className="rounded border-input text-primary focus:ring-ring"
                                                 checked={selectedIds.includes(person.id)}
                                                 onChange={(e) => {
                                                     if (e.target.checked) setSelectedIds(prev => [...prev, person.id]);
@@ -395,7 +426,7 @@ export function GenerateDocsModal({
 
                         {/* Template */}
                         <div className="space-y-1.5">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Template</label>
+                            <label className="text-sm font-medium text-foreground">Template</label>
                             <select className={selectCls} value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)}>
                                 <option value="">Default (auto)</option>
                                 {templates.map((t: any) => (
@@ -431,7 +462,7 @@ export function GenerateDocsModal({
                         )}
 
                         <Button
-                            className="w-full mt-2 bg-[#b7102a] hover:bg-[#8f0c21] text-white h-11 text-sm font-medium rounded-lg disabled:bg-slate-300 disabled:text-slate-500"
+                            className="w-full mt-2 h-11 text-sm font-medium rounded-lg"
                             onClick={handleGenerate}
                             disabled={
                                 isSubmitting || 

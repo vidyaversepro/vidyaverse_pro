@@ -34,7 +34,7 @@ export function PageHeader({ breadcrumb, title, description, action, className }
                         </div>
                     ))}
                 </nav>
-                <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+                <h1 className="arch-section-header text-2xl tracking-tight inline-block">{title}</h1>
                 {description && (
                     <p className="text-muted-foreground">{description}</p>
                 )}

@@ -1,6 +1,6 @@
 /* GENERATED — canonical: PDLMS_Pro/shared/design/indic/mandala-mark.tsx
    DO NOT EDIT HERE. Edit the canonical file and re-run sync-indic.mjs.
-   sha256:afcc0d951771f353 */
+   sha256:024ea9f8f347d8cc */
 /**
  * MandalaMark — the trio's shared brand mark.
  *
@@ -29,6 +29,16 @@ function ring(count: number, offset = 0): number[] {
   return Array.from({ length: count }, (_, i) => (i * 360) / count + offset);
 }
 
+/* SVG `url(#id)` resolution is document-global, not scoped per <svg> root. A
+   hardcoded id collides the moment two marks are mounted at once (e.g. an
+   aside brand mark next to a mobile header mark, one of them inside a
+   responsively-hidden subtree) — the browser can resolve the reference to a
+   gradient living in `display:none` content and silently fail to paint the
+   disc, leaving only the direct-colour stroke/dot visible. No hooks allowed
+   here (see portability contract below), so a plain module counter gives
+   every render its own id instead. */
+let markInstances = 0;
+
 /** One rounded petal pointing up from centre. */
 function petal(base: number, tip: number, w: number): string {
   const L = base - tip;
@@ -48,6 +58,7 @@ const OUTER = petal(58, 10, 17);
 const INNER = petal(50, 28, 11);
 
 export function MandalaMark({ size = 64, className = '', spin = true }: MandalaMarkProps) {
+  const gradientId = `mm-core-${++markInstances}`;
   return (
     <span
       className={`mandala-mark ${spin ? 'mandala-mark--spin' : ''} ${className}`}
@@ -56,7 +67,7 @@ export function MandalaMark({ size = 64, className = '', spin = true }: MandalaM
     >
       <svg viewBox="0 0 120 120" width={size} height={size} xmlns="http://www.w3.org/2000/svg" role="presentation">
         <defs>
-          <radialGradient id="mm-core" cx="50%" cy="50%" r="50%">
+          <radialGradient id={gradientId} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="var(--gold)" />
             <stop offset="70%" stopColor="var(--accent-primary)" />
             <stop offset="100%" stopColor="var(--accent-strong)" />
@@ -64,7 +75,7 @@ export function MandalaMark({ size = 64, className = '', spin = true }: MandalaM
         </defs>
 
         {/* Disc */}
-        <circle cx="60" cy="60" r="58" fill="url(#mm-core)" />
+        <circle cx="60" cy="60" r="58" fill={`url(#${gradientId})`} />
         <circle cx="60" cy="60" r="58" fill="none" stroke="var(--gold)" strokeOpacity="0.55" strokeWidth="1.5" />
 
         {/* Petals, carved out of the disc in light so the mark stays legible at 24px */}

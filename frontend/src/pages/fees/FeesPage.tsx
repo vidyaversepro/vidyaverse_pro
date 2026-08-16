@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { usePageInstitution } from "@/hooks/usePageInstitution";
 import {
   useFeeStructures,
@@ -11,8 +11,8 @@ import {
   type FeeStructure,
   type FeeInvoice,
 } from "@/lib/queries/payments-queries";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -29,7 +29,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -85,20 +84,67 @@ const FREQUENCY_LABELS: Record<string, string> = {
   annual: "Annual",
 };
 
-const STATUS_BADGE: Record<
-  InvoiceStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
-> = {
-  unpaid:    { label: "Unpaid",    variant: "destructive" },
-  partial:   { label: "Partial",   variant: "secondary"   },
-  paid:      { label: "Paid",      variant: "default"     },
-  waived:    { label: "Waived",    variant: "outline"     },
-  cancelled: { label: "Cancelled", variant: "outline"     },
+const TONE = {
+  green: '#15803d',
+  temple: '#B8860B',
+  red: '#C0392B',
+  peacock: '#006A6E',
+  indigo: '#1A237E',
+  lotus: '#AD1457',
+};
+
+const STATUS_TONE: Record<InvoiceStatus, string> = {
+  unpaid: TONE.red,
+  partial: TONE.temple,
+  paid: TONE.green,
+  waived: TONE.indigo,
+  cancelled: TONE.lotus,
+};
+
+const STATUS_LABEL: Record<InvoiceStatus, string> = {
+  unpaid: "Unpaid",
+  partial: "Partial",
+  paid: "Paid",
+  waived: "Waived",
+  cancelled: "Cancelled",
 };
 
 const STATUS_FILTERS = [
   "all", "unpaid", "partial", "paid", "waived", "cancelled",
 ] as const;
+
+function Pill({ label, tone }: { label: string; tone: string }) {
+  return (
+    <span
+      className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
+      style={{ color: tone, background: `${tone}1f` }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function NeutralPill({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full bg-muted text-muted-foreground border whitespace-nowrap">
+      {label}
+    </span>
+  );
+}
+
+function StatTile({ label, value, icon: Icon, tone, valueColor }: { label: string; value: string; icon: ComponentType<{ className?: string }>; tone: string; valueColor?: string }) {
+  return (
+    <div className="bg-card border rounded-2xl p-[15px] flex items-center gap-[13px]">
+      <span className="w-[42px] h-[42px] rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${tone}1f`, color: tone }}>
+        <Icon className="h-5 w-5" />
+      </span>
+      <div className="min-w-0">
+        <div className="text-[21px] leading-none" style={{ fontFamily: 'var(--font-display)', color: valueColor }}>{value}</div>
+        <div className="text-xs text-muted-foreground font-semibold mt-1">{label}</div>
+      </div>
+    </div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Add Fee Structure Dialog
@@ -486,70 +532,22 @@ export default function FeesPage() {
   const invoices   = invoicesQuery.data ?? [];
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Fee Management</h1>
+    <div className="space-y-4 p-4 sm:p-6">
+      <PageHeader
+        breadcrumb={[
+          { label: 'Dashboard', href: '/app/dashboard' },
+          { label: 'Fees' },
+        ]}
+        title="Fee Management"
+        description="Structures, invoices and collections"
+      />
 
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <IndianRupee className="h-4 w-4" />
-              Total Billed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {summary ? inr(summary.totalBilled) : "—"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              Collected
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-green-600">
-              {summary ? inr(summary.totalCollected) : "—"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <AlertCircle className="h-4 w-4 text-red-500" />
-              Outstanding
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-red-600">
-              {summary ? inr(summary.outstanding) : "—"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <TrendingUp className="h-4 w-4 text-blue-500" />
-              Collection Rate
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-blue-600">
-              {summary ? `${summary.collectionRate.toFixed(1)}%` : "—"}
-            </p>
-          </CardContent>
-        </Card>
+      {/* Summary tiles */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatTile label="Total billed" value={summary ? inr(summary.totalBilled) : "—"} icon={IndianRupee} tone={TONE.peacock} />
+        <StatTile label="Collected" value={summary ? inr(summary.totalCollected) : "—"} icon={CheckCircle2} tone={TONE.green} valueColor={TONE.green} />
+        <StatTile label="Outstanding" value={summary ? inr(summary.outstanding) : "—"} icon={AlertCircle} tone={TONE.red} valueColor={TONE.red} />
+        <StatTile label="Collection rate" value={summary ? `${summary.collectionRate.toFixed(1)}%` : "—"} icon={TrendingUp} tone={TONE.indigo} />
       </div>
 
       {/* Tabs */}
@@ -560,7 +558,7 @@ export default function FeesPage() {
         </TabsList>
 
         {/* ── Fee Structures ── */}
-        <TabsContent value="structures" className="space-y-4">
+        <TabsContent value="structures" className="space-y-4 mt-4">
           <div className="flex justify-end">
             <Button onClick={() => setAddStructureOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -568,13 +566,14 @@ export default function FeesPage() {
             </Button>
           </div>
 
-          <div className="rounded-lg border">
+          {/* Desktop table */}
+          <div className="hidden lg:block rounded-2xl border bg-card overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-muted/40 hover:bg-muted/40">
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Amount</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
                   <TableHead>Frequency</TableHead>
                   <TableHead>Due Day</TableHead>
                   <TableHead>Late Fee</TableHead>
@@ -598,21 +597,19 @@ export default function FeesPage() {
                 ) : (
                   structures.map((s: FeeStructure) => (
                     <TableRow key={s.id}>
-                      <TableCell className="font-medium">{s.name}</TableCell>
-                      <TableCell>{CATEGORY_LABELS[s.category] ?? s.category}</TableCell>
-                      <TableCell>{inr(s.amount)}</TableCell>
-                      <TableCell>{FREQUENCY_LABELS[s.frequency] ?? s.frequency}</TableCell>
-                      <TableCell>{s.dueDayOfMonth ?? "—"}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-bold">{s.name}</TableCell>
+                      <TableCell className="text-muted-foreground">{CATEGORY_LABELS[s.category] ?? s.category}</TableCell>
+                      <TableCell className="text-right font-semibold">{inr(s.amount)}</TableCell>
+                      <TableCell className="text-muted-foreground">{FREQUENCY_LABELS[s.frequency] ?? s.frequency}</TableCell>
+                      <TableCell className="text-muted-foreground">{s.dueDayOfMonth ?? "—"}</TableCell>
+                      <TableCell className="text-muted-foreground">
                         {s.lateFeeAmount
                           ? `${inr(s.lateFeeAmount)} after ${s.lateFeeAfterDays ?? 0}d`
                           : "—"}
                       </TableCell>
-                      <TableCell>{s.academicYear}</TableCell>
+                      <TableCell className="text-muted-foreground">{s.academicYear}</TableCell>
                       <TableCell>
-                        <Badge variant={s.isActive ? "default" : "outline"}>
-                          {s.isActive ? "Active" : "Inactive"}
-                        </Badge>
+                        {s.isActive ? <Pill label="Active" tone={TONE.green} /> : <NeutralPill label="Inactive" />}
                       </TableCell>
                     </TableRow>
                   ))
@@ -620,22 +617,45 @@ export default function FeesPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Mobile / tablet cards */}
+          <div className="lg:hidden flex flex-col gap-2.5">
+            {structuresQuery.isLoading ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">Loading…</div>
+            ) : structures.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">No fee structures yet.</div>
+            ) : (
+              structures.map((s: FeeStructure) => (
+                <div key={s.id} className="bg-card border rounded-2xl p-3.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[14.5px]">{s.name}</span>
+                    {s.isActive ? <Pill label="Active" tone={TONE.green} /> : <NeutralPill label="Inactive" />}
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 text-[12.5px] text-muted-foreground font-semibold">
+                    {CATEGORY_LABELS[s.category] ?? s.category} · {FREQUENCY_LABELS[s.frequency] ?? s.frequency}
+                    <span className="ml-auto text-base text-foreground" style={{ fontFamily: 'var(--font-display)' }}>{inr(s.amount)}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </TabsContent>
 
         {/* ── Invoices ── */}
-        <TabsContent value="invoices" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-wrap gap-2">
+        <TabsContent value="invoices" className="space-y-4 mt-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex flex-wrap gap-1.5">
               {STATUS_FILTERS.map((s) => (
-                <Button
+                <button
                   key={s}
-                  size="sm"
-                  variant={statusFilter === s ? "default" : "outline"}
                   onClick={() => setStatusFilter(s)}
-                  className="capitalize"
+                  className="whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-[9px] border transition-colors"
+                  style={statusFilter === s
+                    ? { background: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', borderColor: 'transparent' }
+                    : { background: 'hsl(var(--card))', color: 'hsl(var(--muted-foreground))', borderColor: 'hsl(var(--border))' }}
                 >
-                  {s === "all" ? "All" : STATUS_BADGE[s as InvoiceStatus]?.label ?? s}
-                </Button>
+                  {s === "all" ? "All" : STATUS_LABEL[s as InvoiceStatus]}
+                </button>
               ))}
             </div>
             <Button onClick={() => setCreateInvoiceOpen(true)}>
@@ -644,102 +664,62 @@ export default function FeesPage() {
             </Button>
           </div>
 
-          <div className="rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Invoice #</TableHead>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Net Amount</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Paid</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoicesQuery.isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                      Loading…
-                    </TableCell>
-                  </TableRow>
-                ) : invoices.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                      No invoices found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  invoices.map((inv: FeeInvoice) => {
-                    const meta = STATUS_BADGE[inv.status as keyof typeof STATUS_BADGE];
-                    const actionable =
-                      inv.status === "unpaid" || inv.status === "partial";
-                    return (
-                      <TableRow key={inv.id}>
-                        <TableCell className="font-mono text-xs">
-                          {inv.invoiceNumber}
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-medium">
-                            {inv.student?.name ?? inv.studentId.slice(0, 8) + "…"}
-                          </span>
-                          {inv.student?.admissionNumber && (
-                            <span className="ml-1 text-xs text-muted-foreground">
-                              ({inv.student.admissionNumber})
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {inr(inv.netAmount)}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(inv.dueDate).toLocaleDateString("en-IN")}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={meta?.variant ?? "outline"}>
-                            {meta?.label ?? inv.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{inr(inv.paidAmount)}</TableCell>
-                        <TableCell>
-                          {actionable && (
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handlePaymentLink(inv)}
-                                disabled={createPaymentLink.isPending}
-                                title={
-                                  inv.paymentLinkUrl
-                                    ? "Copy payment link"
-                                    : "Generate payment link"
-                                }
-                              >
-                                {inv.paymentLinkUrl ? (
-                                  <Copy className="h-3.5 w-3.5" />
-                                ) : (
-                                  <Link2 className="h-3.5 w-3.5" />
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleRemind(inv.id)}
-                                disabled={sendReminder.isPending}
-                                title="Send WhatsApp reminder"
-                              >
-                                <Send className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+          <div className="flex flex-col gap-2.5">
+            {invoicesQuery.isLoading ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">Loading…</div>
+            ) : invoices.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">No invoices found.</div>
+            ) : (
+              invoices.map((inv: FeeInvoice) => {
+                const tone = STATUS_TONE[inv.status as InvoiceStatus];
+                const label = STATUS_LABEL[inv.status as InvoiceStatus] ?? inv.status;
+                const actionable = inv.status === "unpaid" || inv.status === "partial";
+                return (
+                  <div key={inv.id} className="bg-card border rounded-2xl p-3.5 flex items-center gap-3 flex-wrap">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm truncate">
+                          {inv.student?.name ?? inv.studentId.slice(0, 8) + "…"}
+                        </span>
+                        <Pill label={label} tone={tone} />
+                      </div>
+                      <div className="font-mono text-[11.5px] text-muted-foreground mt-0.5">
+                        {inv.invoiceNumber} · due {new Date(inv.dueDate).toLocaleDateString("en-IN", { day: '2-digit', month: 'short' })}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[17px]" style={{ fontFamily: 'var(--font-display)' }}>{inr(inv.netAmount)}</div>
+                      <div className="text-[11px] text-muted-foreground">paid {inr(inv.paidAmount)}</div>
+                    </div>
+                    {actionable && (
+                      <div className="flex gap-1.5">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-9 w-9 rounded-[10px]"
+                          onClick={() => handlePaymentLink(inv)}
+                          disabled={createPaymentLink.isPending}
+                          title={inv.paymentLinkUrl ? "Copy payment link" : "Generate payment link"}
+                        >
+                          {inv.paymentLinkUrl ? <Copy className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-9 w-9 rounded-[10px]"
+                          style={{ color: TONE.green }}
+                          onClick={() => handleRemind(inv.id)}
+                          disabled={sendReminder.isPending}
+                          title="Send WhatsApp reminder"
+                        >
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
         </TabsContent>
       </Tabs>

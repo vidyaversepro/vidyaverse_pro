@@ -69,8 +69,8 @@ function SortableLayerItem({ element }: { element: any }) {
             className={cn(
                 "group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors border",
                 isSelected 
-                    ? "bg-[#ffdad8]/50 border-[#b7102a] shadow-sm" 
-                    : "bg-white border-transparent hover:bg-slate-50",
+                    ? "bg-primary/10 border-primary shadow-sm"
+                    : "bg-card border-transparent hover:bg-muted",
                 isDragging ? "opacity-50" : "opacity-100",
                 element.visible === false ? "opacity-40" : ""
             )}
@@ -78,14 +78,14 @@ function SortableLayerItem({ element }: { element: any }) {
             <div 
                 {...attributes} 
                 {...listeners}
-                className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                className="cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground rounded opacity-0 group-hover:opacity-100 transition-opacity"
             >
                 <GripVertical className="w-4 h-4" />
             </div>
             
-            <Icon className="w-4 h-4 text-slate-500 shrink-0" />
-            
-            <span className="text-xs font-medium text-slate-700 truncate flex-1 select-none">
+            <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
+
+            <span className="text-xs font-medium text-foreground truncate flex-1 select-none">
                 {label}
             </span>
 
@@ -95,20 +95,20 @@ function SortableLayerItem({ element }: { element: any }) {
                         e.stopPropagation();
                         updateElement(element.id, { locked: !element.locked });
                     }}
-                    className="p-1 text-slate-400 hover:text-slate-600 rounded"
+                    className="p-1 text-muted-foreground hover:text-foreground rounded"
                     title={element.locked ? "Unlock" : "Lock"}
                 >
-                    {element.locked ? <Lock className="w-3 h-3 text-[#b7102a]" /> : <Unlock className="w-3 h-3" />}
+                    {element.locked ? <Lock className="w-3 h-3 text-primary" /> : <Unlock className="w-3 h-3" />}
                 </button>
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
                         updateElement(element.id, { visible: element.visible === false ? true : false });
                     }}
-                    className="p-1 text-slate-400 hover:text-slate-600 rounded"
+                    className="p-1 text-muted-foreground hover:text-foreground rounded"
                     title={element.visible === false ? "Show" : "Hide"}
                 >
-                    {element.visible === false ? <EyeOff className="w-3 h-3 text-slate-400" /> : <Eye className="w-3 h-3" />}
+                    {element.visible === false ? <EyeOff className="w-3 h-3 text-muted-foreground" /> : <Eye className="w-3 h-3" />}
                 </button>
             </div>
         </div>
@@ -157,9 +157,9 @@ export default function LayersPanel() {
     if (!currentPage) return null;
 
     return (
-        <div className="flex flex-col h-full bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <div className="flex flex-col h-full bg-card" style={{ fontFamily: 'Inter, sans-serif' }}>
             <div className="px-6 pt-6 pb-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Layers</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Layers</p>
             </div>
 
             <ScrollArea className="flex-1 px-4 pb-8">

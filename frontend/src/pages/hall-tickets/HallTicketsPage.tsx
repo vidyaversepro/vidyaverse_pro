@@ -16,18 +16,19 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { 
-    useHallTickets, 
-    type HallTicket, 
-    useIssueHallTicket, 
+import {
+    useHallTickets,
+    type HallTicket,
+    useIssueHallTicket,
     useBulkGenerateHallTickets,
     useExamSchedules
 } from '@/lib/queries/hall-tickets/hall-ticket-queries';
 import { usePageInstitution } from '@/hooks/usePageInstitution';
 import { cn } from '@/lib/utils';
 import { GenerateDocsModal } from '@/components/printables/GenerateDocsModal';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { EmptyState } from '@/components/shared/EmptyState';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -99,75 +100,69 @@ export default function HallTicketsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Hall Tickets</h1>
-                    <p className="text-gray-500 dark:text-gray-400">
-                        View and manage generated exam hall tickets
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    {selectedCards.length > 0 && (
-                        <Button variant="outline" onClick={handlePrintSelected}>
-                            <Printer className="w-4 h-4 mr-2" />
-                            Print ({selectedCards.length})
+        <div className="p-4 sm:p-6">
+            <PageHeader
+                breadcrumb={[
+                    { label: 'Dashboard', href: '/app/dashboard' },
+                    { label: 'Hall Tickets' },
+                ]}
+                title="Hall Tickets"
+                description="View and manage generated exam hall tickets"
+                action={
+                    <>
+                        {selectedCards.length > 0 && (
+                            <Button variant="outline" onClick={handlePrintSelected}>
+                                <Printer className="w-4 h-4 mr-2" />
+                                Print ({selectedCards.length})
+                            </Button>
+                        )}
+                        <Button onClick={() => setIsGenerateModalOpen(true)}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            <span className="hidden sm:inline">Generate New</span>
+                            <span className="sm:hidden">Generate</span>
                         </Button>
-                    )}
-                    <Button 
-                        className="bg-brand-500 hover:bg-brand-600 font-semibold text-white"
-                        onClick={() => setIsGenerateModalOpen(true)}
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Generate New
-                    </Button>
-                </div>
-            </div>
+                    </>
+                }
+            />
 
             {/* Filters */}
-            <Card className="border-0 shadow-lg">
-                <CardContent className="p-4">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input
-                                placeholder="Search by student name or admission no..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10"
-                            />
-                        </div>
-                        <Button variant="outline">
-                            <Filter className="w-4 h-4 mr-2" />
-                            Filters
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="flex flex-col sm:flex-row gap-2.5 mb-4">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search by student name or admission no…"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-11 rounded-xl pl-10"
+                    />
+                </div>
+                <Button variant="outline" className="h-11">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filters
+                </Button>
+            </div>
 
             {/* Hall Tickets Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {isLoading ? (
-                    Array.from({ length: 8 }).map((_, i) => (
-                        <div key={i} className="animate-pulse">
-                            <div className="aspect-[1.586] bg-gray-100 dark:bg-gray-800 rounded-lg" />
-                        </div>
-                    ))
-                ) : !institutionId ? (
-                    <div className="col-span-full py-12 text-center text-amber-600">
-                        Please select an institution from the top-bar switcher.
-                    </div>
-                ) : data?.data?.length === 0 ? (
-                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                        <div className="w-16 h-16 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center mb-4">
-                            <FileText className="w-8 h-8 text-brand-500" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">No Hall Tickets Yet</h3>
-                        <p className="text-gray-500 mt-1">Generate hall tickets using the button above.</p>
-                    </div>
-                ) : (
-                    data?.data?.map((tc: HallTicket) => (
+            {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <div key={i} className="aspect-[1.586] rounded-lg bg-muted animate-pulse" />
+                    ))}
+                </div>
+            ) : !institutionId ? (
+                <div className="py-12 text-center text-sm text-muted-foreground">
+                    Please select an institution from the top-bar switcher.
+                </div>
+            ) : data?.data?.length === 0 ? (
+                <EmptyState
+                    icon={FileText}
+                    title="No hall tickets yet"
+                    description="Generate hall tickets using the button above."
+                    action={{ label: 'Generate New', onClick: () => setIsGenerateModalOpen(true) }}
+                />
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {data?.data?.map((tc: HallTicket) => (
                         <motion.div
                             key={tc.id}
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -175,33 +170,33 @@ export default function HallTicketsPage() {
                             className={cn(
                                 'group relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all',
                                 selectedCards.includes(tc.id)
-                                    ? 'border-brand-500 ring-2 ring-brand-500/20'
-                                    : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                                    ? 'border-primary ring-2 ring-primary/20'
+                                    : 'border-transparent hover:border-border'
                             )}
                             onClick={() => toggleSelectCard(tc.id)}
                         >
                             {/* Thumbnail */}
-                            <div className="aspect-[1.586] bg-gray-100 relative group-hover:scale-105 transition-transform duration-300">
+                            <div className="aspect-[1.586] bg-muted relative group-hover:scale-105 transition-transform duration-300">
                                 {tc.pdfUrl && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-400">
+                                    <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground">
                                         <FileText className="w-12 h-12 mb-2 opacity-20" />
                                         <span className="absolute text-sm font-medium">Hall Ticket</span>
                                     </div>
                                 )}
                                 {/* Fallback layout when no rendered doc image is available */}
-                                <div className={cn('absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-white dark:bg-slate-900', tc.pdfUrl && 'hidden')}>
-                                    <div className="w-16 h-16 rounded-full bg-gray-200 mb-2 overflow-hidden border-2 border-brand-500">
+                                <div className={cn('absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-card', tc.pdfUrl && 'hidden')}>
+                                    <div className="w-16 h-16 rounded-full bg-muted mb-2 overflow-hidden border-2 border-primary">
                                         {tc.student?.photoUrl ? (
                                             <img src={tc.student.photoUrl} alt={tc.student.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <Users className="w-8 h-8 text-gray-400 m-auto mt-4" />
+                                            <Users className="w-8 h-8 text-muted-foreground m-auto mt-4" />
                                         )}
                                     </div>
-                                    <h3 className="font-bold text-sm truncate w-full">{tc.student?.name}</h3>
-                                    <p className="text-xs text-gray-500 font-mono mt-1">{tc.hallTicketNumber}</p>
-                                    <p className="text-xs text-gray-500 font-mono mt-1">{tc.examSchedule?.examName}</p>
+                                    <h3 className="text-sm truncate w-full">{tc.student?.name}</h3>
+                                    <p className="text-xs text-muted-foreground font-mono mt-1">{tc.hallTicketNumber}</p>
+                                    <p className="text-xs text-muted-foreground font-mono mt-1">{tc.examSchedule?.examName}</p>
                                     {tc.student?.section && (
-                                        <p className="text-xs text-gray-400 mt-1">
+                                        <p className="text-xs text-muted-foreground mt-1">
                                             {tc.student.section.class.name} - {tc.student.section.name}
                                         </p>
                                     )}
@@ -213,8 +208,8 @@ export default function HallTicketsPage() {
                                 className={cn(
                                     'absolute top-2 left-2 w-5 h-5 rounded border-2 transition-colors flex items-center justify-center',
                                     selectedCards.includes(tc.id)
-                                        ? 'bg-brand-500 border-brand-500'
-                                        : 'bg-white border-gray-300'
+                                        ? 'bg-primary border-primary'
+                                        : 'bg-background border-input'
                                 )}
                             >
                                 {selectedCards.includes(tc.id) && (
@@ -243,12 +238,12 @@ export default function HallTicketsPage() {
                             </div>
 
                             {/* Info */}
-                            <div className="p-3 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
-                                <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                            <div className="p-3 bg-card border-t border-border">
+                                <p className="font-medium text-sm text-foreground truncate">
                                     {tc.student?.name}
                                 </p>
                                 <div className="flex items-center justify-between mt-1">
-                                    <span className="text-xs text-gray-500">{tc.student?.admissionNumber}</span>
+                                    <span className="text-xs text-muted-foreground">{tc.student?.admissionNumber}</span>
                                     <span
                                         className={cn(
                                             'text-xs px-1.5 py-0.5 rounded capitalize font-medium',
@@ -262,14 +257,14 @@ export default function HallTicketsPage() {
                                 </div>
                             </div>
                         </motion.div>
-                    ))
-                )}
-            </div>
+                    ))}
+                </div>
+            )}
 
             {/* Pagination */}
             {data?.meta && (
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">
+                <div className="flex items-center justify-between mt-4">
+                    <p className="text-sm text-muted-foreground">
                         Page {page} of {data.meta.totalPages || 1}
                     </p>
                     <div className="flex gap-2">
@@ -312,11 +307,11 @@ export default function HallTicketsPage() {
                 }}
             >
                 <div className="space-y-1.5 mb-6">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Exam Schedule <span className="text-red-500">*</span>
+                    <label className="text-sm font-medium text-foreground">
+                        Exam Schedule <span className="text-destructive">*</span>
                     </label>
                     <select
-                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-brand-500/20"
+                        className="w-full bg-muted/40 border border-border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                         value={genExamId}
                         onChange={(e) => setGenExamId(e.target.value)}
                     >

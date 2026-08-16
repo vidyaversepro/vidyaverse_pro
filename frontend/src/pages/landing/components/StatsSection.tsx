@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
-import { Quote, Star, Users, School, FileCheck, Award } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
-/* DigiClassroom-style animated counter with easeOut */
+/* Reference-matching animated counter with easeOut. */
 function useCounter(target: number, suffix = '', duration = 2000) {
     const [value, setValue] = useState(0);
     const ref = useRef<HTMLDivElement>(null);
@@ -33,160 +32,45 @@ function useCounter(target: number, suffix = '', duration = 2000) {
         return () => observer.disconnect();
     }, [target, duration]);
 
-    return { ref, display: value.toLocaleString() + suffix };
+    return { ref, display: value.toLocaleString('en-IN') + suffix };
 }
 
 const stats = [
-    { icon: Users, label: 'Integrated Modules', target: 47, suffix: '' },
-    { icon: School, label: 'Module Categories', target: 6, suffix: '' },
-    { icon: FileCheck, label: 'Document Types', target: 8, suffix: '' },
-    { icon: Award, label: 'Multi-Tenant Ready', target: 100, suffix: '%' },
+    { target: 47, suffix: '', label: 'Integrated modules', color: 'var(--brand)' },
+    { target: 6, suffix: '', label: 'Connected categories', color: 'var(--peacock-teal)' },
+    { target: 8, suffix: '', label: 'Printable documents', color: 'var(--lotus-pink)' },
+    { target: 10, suffix: 'm', label: 'Minutes to set up', color: 'var(--deep-saffron)' },
 ];
 
-// Pre-launch: design-partner personas, not fabricated named customers (honest
-// founding-cohort framing — value props voiced through roles, no invented people).
-const testimonials = [
-    {
-        name: 'School Principal',
-        role: 'Founding-cohort persona',
-        quote: 'What we need is one system instead of five vendors — fees, attendance, transport, and parent messaging that all share the same student record. That is exactly what Vidyaverse is built to be.',
-        stars: 5,
-    },
-    {
-        name: 'Admin Officer',
-        role: 'Founding-cohort persona',
-        quote: 'The promise that matters most: reach every parent on WhatsApp automatically — attendance, results, fee links — without anyone copy-pasting numbers.',
-        stars: 5,
-    },
-    {
-        name: 'Vice Principal',
-        role: 'Founding-cohort persona',
-        quote: 'One login across the campus stack, with documents and marksheets generated from the same data — that removes the busywork our staff drown in.',
-        stars: 5,
-    },
-];
-
-function StatCard({ stat }: { stat: typeof stats[0] }) {
+function Stat({ stat }: { stat: typeof stats[0] }) {
     const counter = useCounter(stat.target, stat.suffix);
     return (
-        <div ref={counter.ref} className="indic-tile text-center p-5" style={{ background: 'rgb(255 255 255 / 0.06)', borderColor: 'rgb(var(--gold-rgb) / 0.25)' }}>
-            <span className="indic-icon-plinth w-14 h-14 mx-auto mb-3">
-                <stat.icon size={26} className="relative z-10" />
-            </span>
-            <div className="text-3xl sm:text-4xl text-white mb-1" style={{ fontFamily: 'var(--font-display)' }}>
+        <div ref={counter.ref} className="text-center">
+            <div className="leading-none text-[clamp(40px,7vw,66px)]" style={{ fontFamily: 'var(--font-display)', color: stat.color }}>
                 {counter.display}
             </div>
-            <div className="text-sm text-white/80 font-medium">{stat.label}</div>
+            <div className="text-sm font-semibold mt-1.5" style={{ color: 'var(--text2)' }}>
+                {stat.label}
+            </div>
         </div>
     );
 }
 
 export default function StatsSection() {
-    const [current, setCurrent] = useState(0);
-
-    useEffect(() => {
-        const timer = setInterval(() => setCurrent((c) => (c + 1) % testimonials.length), 5000);
-        return () => clearInterval(timer);
-    }, []);
-
     return (
-        <>
-            {/* Stats — deep Indic band with icon-plinth counter tiles */}
-            <section id="testimonials" className="indic-section--deep py-20">
-                <div className="max-w-7xl mx-auto px-6">
-                    <motion.div
-                        initial={{ opacity: 0, y: 28 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="text-center mb-12"
-                    >
-                        <h2 className="text-3xl sm:text-5xl text-white mb-4">
-                            Built to Run Everything
-                        </h2>
-                        <p className="text-lg text-white/80 max-w-3xl mx-auto">
-                            One connected platform — not a pile of disconnected tools
-                        </p>
-                    </motion.div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        {stats.map((stat, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, scale: 0.85 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: i * 0.1 }}
-                            >
-                                <StatCard stat={stat} />
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Testimonials */}
-            <section className="indic-section py-20">
-                <div className="max-w-5xl mx-auto px-6">
-                    <motion.div
-                        initial={{ opacity: 0, y: 28 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="text-center mb-12"
-                    >
-                        <span className="indic-eyebrow mb-4">Built With Educators</span>
-                        <h2 className="text-3xl sm:text-5xl mt-4">
-                            Designed with our founding cohort
-                        </h2>
-                        <p className="text-sm mt-3 indic-muted">
-                            Illustrative voices from design-partner interviews · launching 2026
-                        </p>
-                    </motion.div>
-
-                    <div className="relative">
-                        <div className="indic-tile p-8 md:p-12 text-center">
-                            <div className="flex justify-center mb-6">
-                                {[...Array(testimonials[current].stars)].map((_, i) => (
-                                    <Star key={i} size={22} style={{ color: 'var(--gold)', fill: 'var(--gold)' }} />
-                                ))}
-                            </div>
-
-                            <Quote size={36} className="mx-auto mb-4 opacity-15" style={{ color: 'var(--accent-strong)' }} />
-
-                            <blockquote className="text-lg sm:text-xl italic leading-relaxed mb-8 max-w-3xl mx-auto indic-muted">
-                                "{testimonials[current].quote}"
-                            </blockquote>
-
-                            <div className="flex items-center justify-center gap-4">
-                                <span className="indic-icon-plinth w-14 h-14 text-xl">
-                                    {testimonials[current].name[0]}
-                                </span>
-                                <div className="text-left">
-                                    <div className="font-bold">{testimonials[current].name}</div>
-                                    <div className="text-sm indic-muted">{testimonials[current].role}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Dots */}
-                        <div className="flex justify-center gap-2 mt-8">
-                            {testimonials.map((_, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setCurrent(i)}
-                                    className="w-3 h-3 rounded-full transition-all duration-300"
-                                    style={{
-                                        background: i === current ? 'var(--accent-strong)' : 'rgb(var(--temple-stone-rgb) / 0.3)',
-                                        transform: i === current ? 'scale(1.3)' : 'scale(1)',
-                                    }}
-                                    aria-label={`Testimonial ${i + 1}`}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </>
+        <section className="px-[clamp(16px,4vw,28px)] py-[clamp(56px,8vw,96px)]">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.6 }}
+                className="max-w-[1000px] mx-auto grid gap-5 text-center"
+                style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}
+            >
+                {stats.map((stat) => (
+                    <Stat key={stat.label} stat={stat} />
+                ))}
+            </motion.div>
+        </section>
     );
 }

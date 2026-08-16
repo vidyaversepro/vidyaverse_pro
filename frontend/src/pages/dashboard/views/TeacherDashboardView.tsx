@@ -1,8 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { StatCard } from '@/components/shared/StatCard';
+import { CheckCircle2, Clock, Loader2, ArrowRight, CalendarClock, UserCheck, UserX } from 'lucide-react';
 import { useAttendanceSessions, useDailyAttendanceStats } from '@/lib/queries/attendance-queries';
-import { CheckCircle2, Clock, Loader2, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Props {
@@ -27,52 +29,23 @@ export default function TeacherDashboardView({ institutionId }: Props) {
   );
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">My Classroom</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {new Date().toLocaleDateString('en-IN', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })}
-        </p>
-      </div>
+    <div className="space-y-6 max-w-[1600px] mx-auto pb-8">
+      <PageHeader
+        breadcrumb={[{ label: 'Dashboard' }]}
+        title="My Classroom"
+        description={new Date().toLocaleDateString('en-IN', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })}
+      />
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Sessions Today</CardDescription>
-            <CardTitle className="text-2xl">
-              {sessionsLoading
-                ? <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mt-1" />
-                : todaySessions.length
-              }
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Students Present</CardDescription>
-            {statsLoading
-              ? <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mt-1" />
-              : <CardTitle className="text-2xl">{stats?.totals?.present ?? '—'}</CardTitle>
-            }
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Students Absent</CardDescription>
-            {statsLoading
-              ? <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mt-1" />
-              : <CardTitle className="text-2xl text-red-600">{stats?.totals?.absent ?? '—'}</CardTitle>
-            }
-          </CardHeader>
-        </Card>
+        <StatCard title="Sessions Today" value={sessionsLoading ? '—' : todaySessions.length} icon={CalendarClock} tone="indigo" />
+        <StatCard title="Students Present" value={statsLoading ? '—' : (stats?.totals?.present ?? '—')} icon={UserCheck} tone="teal" />
+        <StatCard title="Students Absent" value={statsLoading ? '—' : (stats?.totals?.absent ?? '—')} icon={UserX} tone="lotus" />
       </div>
 
       {/* Session list */}

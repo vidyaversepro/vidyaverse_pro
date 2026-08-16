@@ -1,4 +1,4 @@
-import { useThemeStore } from '@/stores/theme.store';
+import { useThemeStore, type Accent } from '@/stores/theme.store';
 
 type Theme = 'light' | 'dark';
 
@@ -16,14 +16,24 @@ type Theme = 'light' | 'dark';
  * App.tsx. This module keeps the old `useTheme()` shape so the landing Navbar
  * needs no change, but it is a thin adapter — it owns no state and writes no
  * class of its own. `.landing-root.dark` selectors in landing.css moved to
- * `.dark .landing-root` to match.
+ * `.dark .landing-root` to match. The brand accent lives in the same store
+ * and is applied by LandingPage as an `acc-*` class on `.landing-root`.
  */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
 }
 
-export const useTheme = (): { theme: Theme; toggleTheme: () => void } => {
+interface UseTheme {
+    theme: Theme;
+    toggleTheme: () => void;
+    accent: Accent;
+    setAccent: (accent: Accent) => void;
+}
+
+export const useTheme = (): UseTheme => {
     const isDarkMode = useThemeStore((s) => s.isDarkMode);
     const toggleDarkMode = useThemeStore((s) => s.toggleDarkMode);
-    return { theme: isDarkMode ? 'dark' : 'light', toggleTheme: toggleDarkMode };
+    const accent = useThemeStore((s) => s.accent);
+    const setAccent = useThemeStore((s) => s.setAccent);
+    return { theme: isDarkMode ? 'dark' : 'light', toggleTheme: toggleDarkMode, accent, setAccent };
 };

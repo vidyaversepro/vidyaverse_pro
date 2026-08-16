@@ -172,13 +172,13 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
 
             {/* HEADER */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-sm overflow-hidden p-6 flex justify-between items-center">
+            <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden p-6 flex justify-between items-center">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <h2 className="text-lg text-foreground flex items-center gap-2">
                         <Users className="w-5 h-5 text-primary" />
                         Advanced Student Onboarding
                     </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-xl">
+                    <p className="text-sm text-muted-foreground mt-1 max-w-xl">
                         Select a section, generate placeholder forms based on its capacity, and then fill them individually or via CSV upload.
                     </p>
                 </div>
@@ -187,53 +187,53 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
             {/* SECTION PICKER */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[320px]">
                 {/* CLASSES */}
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-800 p-4 shadow-sm flex flex-col">
-                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-gray-800">
-                        <BookOpen className="w-4 h-4 text-gray-400" />
-                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Classes</h3>
+                <div className="bg-card rounded-xl border border-border p-4 shadow-sm flex flex-col">
+                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                        <BookOpen className="w-4 h-4 text-muted-foreground" />
+                        <h3 className="text-sm text-foreground">Classes</h3>
                     </div>
                     <div className="flex-1 overflow-y-auto space-y-1.5">
-                        {isLoading ? <div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin text-gray-400" /></div>
+                        {isLoading ? <div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
                             : normalizedData.map(cls => (
                                 <button
                                     key={cls.id}
                                     onClick={() => setSelectedClassId(cls.id)}
                                     className={cn("w-full text-left px-3 py-2.5 rounded-lg border text-sm font-medium transition-all flex justify-between items-center",
-                                        selectedClassId === cls.id ? "border-primary bg-primary/10 text-primary" : "border-transparent hover:border-gray-200 dark:hover:bg-gray-50"
+                                        selectedClassId === cls.id ? "border-primary bg-primary/10 text-primary" : "border-transparent hover:border-border hover:bg-muted"
                                     )}
                                 >
                                     <span>{cls.name}</span>
-                                    <ChevronRight className={cn("w-3.5 h-3.5 transition-transform text-gray-400", selectedClassId === cls.id && "text-primary translate-x-0.5")} />
+                                    <ChevronRight className={cn("w-3.5 h-3.5 transition-transform text-muted-foreground", selectedClassId === cls.id && "text-primary translate-x-0.5")} />
                                 </button>
                             ))}
                     </div>
                 </div>
 
                 {/* STREAMS OR SECTIONS */}
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-800 p-4 shadow-sm flex flex-col">
-                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-gray-800">
-                        <GitBranch className="w-4 h-4 text-gray-400" />
-                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{streamsEnabled ? 'Streams' : 'Sections'}</h3>
+                <div className="bg-card rounded-xl border border-border p-4 shadow-sm flex flex-col">
+                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                        <GitBranch className="w-4 h-4 text-muted-foreground" />
+                        <h3 className="text-sm text-foreground">{streamsEnabled ? 'Streams' : 'Sections'}</h3>
                     </div>
                     <div className="flex-1 overflow-y-auto space-y-1.5">
-                        {!selectedClassId ? <p className="text-center text-sm text-gray-400 py-6">Select a class</p>
+                        {!selectedClassId ? <p className="text-center text-sm text-muted-foreground py-6">Select a class</p>
                             : streamsEnabled ? activeStreams.map(stream => (
                                 <button
                                     key={stream.id}
                                     onClick={() => setSelectedStreamId(stream.id)}
                                     className={cn("w-full text-left px-3 py-2.5 rounded-lg border text-sm font-medium transition-all flex justify-between items-center",
-                                        selectedStreamId === stream.id ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-transparent hover:border-gray-200 hover:bg-gray-50"
+                                        selectedStreamId === stream.id ? "border-primary bg-primary/10 text-primary" : "border-transparent hover:border-border hover:bg-muted"
                                     )}
                                 >
                                     <span>{stream.name}</span>
-                                    <ChevronRight className={cn("w-3.5 h-3.5 transition-transform text-gray-400", selectedStreamId === stream.id && "text-emerald-500 translate-x-0.5")} />
+                                    <ChevronRight className={cn("w-3.5 h-3.5 transition-transform text-muted-foreground", selectedStreamId === stream.id && "text-primary translate-x-0.5")} />
                                 </button>
                             )) : activeSections.map(section => (
                                 <button
                                     key={section.id}
                                     onClick={() => setSelectedSectionId(section.id)}
                                     className={cn("w-full text-left px-3 py-2.5 rounded-lg border text-sm transition-all",
-                                        selectedSectionId === section.id ? "border-blue-500 bg-blue-50 text-blue-700" : "border-transparent hover:border-gray-200 hover:bg-gray-50"
+                                        selectedSectionId === section.id ? "border-primary bg-primary/10 text-primary" : "border-transparent hover:border-border hover:bg-muted"
                                     )}
                                 >
                                     Section {section.name}
@@ -243,10 +243,10 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
                 </div>
 
                 {/* SECTIONS OR PREVIEW INFO */}
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-800 p-4 shadow-sm flex flex-col">
-                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 dark:border-gray-800">
-                        <Layers className="w-4 h-4 text-gray-400" />
-                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{streamsEnabled ? 'Sections' : 'Summary'}</h3>
+                <div className="bg-card rounded-xl border border-border p-4 shadow-sm flex flex-col">
+                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                        <Layers className="w-4 h-4 text-muted-foreground" />
+                        <h3 className="text-sm text-foreground">{streamsEnabled ? 'Sections' : 'Summary'}</h3>
                     </div>
                     <div className="flex-1 overflow-y-auto space-y-1.5">
                         {streamsEnabled && activeSections.map(section => (
@@ -254,7 +254,7 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
                                 key={section.id}
                                 onClick={() => setSelectedSectionId(section.id)}
                                 className={cn("w-full text-left px-3 py-2.5 rounded-lg border text-sm transition-all",
-                                    selectedSectionId === section.id ? "border-blue-500 bg-blue-50 text-blue-700" : "border-transparent hover:border-gray-200 hover:bg-gray-50"
+                                    selectedSectionId === section.id ? "border-primary bg-primary/10 text-primary" : "border-transparent hover:border-border hover:bg-muted"
                                 )}
                             >
                                 Section {section.name}
@@ -263,15 +263,15 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
 
                         {(!streamsEnabled || selectedSectionId) && selectedSection && (
                             <div className="pt-4 space-y-4 text-center">
-                                <div className="inline-flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-full mb-2">
+                                <div className="inline-flex items-center justify-center p-4 bg-muted/50 rounded-full mb-2">
                                     <Users className="w-8 h-8 text-primary" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-gray-500">Total Capacity</p>
+                                    <p className="text-xs text-muted-foreground">Total Capacity</p>
                                     <p className="text-2xl font-bold font-mono">{capacity}</p>
                                 </div>
                                 <div className="border-t pt-4">
-                                    <p className="text-xs text-gray-500">Forms Generated</p>
+                                    <p className="text-xs text-muted-foreground">Forms Generated</p>
                                     <p className="text-lg font-medium font-mono">{enrolled}</p>
                                 </div>
                             </div>
@@ -283,14 +283,14 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
             {/* STUDENT GRID AREA */}
             {selectedSection && (
                 <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-900 p-4 rounded-xl border shadow-sm">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card p-4 rounded-xl border shadow-sm">
                         <div className="flex items-center gap-4 flex-wrap justify-center sm:justify-start">
                             {!capacity ? (
                                 <div className="flex items-center gap-2 text-red-500 text-sm">
                                     <AlertCircle className="w-4 h-4" /> Ensure section capacity is set &gt; 0
                                 </div>
                             ) : enrolled < capacity ? (
-                                <Button onClick={handleGenerateForms} disabled={isGenerating} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
+                                <Button onClick={handleGenerateForms} disabled={isGenerating} className="gap-2">
                                     {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                                     {enrolled === 0
                                         ? `Generate ${capacity} Student Forms`
@@ -305,18 +305,18 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
                         <div className="flex items-center gap-3">
                             <Button
                                 variant="outline"
-                                className="bg-white border-gray-200"
+                                className="bg-card border-border"
                                 onClick={() => setExportDialogOpen(true)}
                             >
-                                <Download className="w-4 h-4 mr-2 text-gray-500" />
+                                <Download className="w-4 h-4 mr-2 text-muted-foreground" />
                                 Export CSV
                             </Button>
                         </div>
                     </div>
 
                     {loadingStudents ? (
-                        <div className="h-40 flex items-center justify-center bg-white dark:bg-gray-900 rounded-xl border">
-                            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                        <div className="h-40 flex items-center justify-center bg-card rounded-xl border">
+                            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -338,13 +338,13 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
                                         onClick={() => openManualEdit(s.student?.id)}
                                         className={cn(
                                             "relative flex flex-col items-center justify-center p-4 h-32 rounded-xl border-2 transition-all hover:shadow-md text-left",
-                                            isEmpty && !isTokenExpired && "border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900",
+                                            isEmpty && !isTokenExpired && "border-dashed border-border bg-muted/50",
                                             isEmpty && isTokenExpired && "border-dashed border-red-300 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20",
                                             isPartial && "border-amber-400 bg-amber-50 dark:bg-amber-900/20",
                                             isComplete && "border-green-500 bg-green-50 dark:bg-green-900/10"
                                         )}
                                     >
-                                        <Badge variant="outline" className="absolute top-2 left-2 text-[10px] font-mono bg-white dark:bg-black">#{s.rollNo}</Badge>
+                                        <Badge variant="outline" className="absolute top-2 left-2 text-[10px] font-mono bg-card">#{s.rollNo}</Badge>
 
                                         {/* Token expiry indicator */}
                                         {isTokenExpired && (
@@ -359,20 +359,20 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
                                         )}
 
                                         <UserCircle2 className={cn("w-8 h-8 mb-2",
-                                            isEmpty && !isTokenExpired ? "text-gray-300 dark:text-gray-700" :
+                                            isEmpty && !isTokenExpired ? "text-muted-foreground" :
                                                 isEmpty && isTokenExpired ? "text-red-300 dark:text-red-700" :
                                                     isPartial ? "text-amber-500" : "text-green-600"
                                         )} />
 
                                         <div className="w-full text-center overflow-hidden">
                                             {isEmpty ? (
-                                                <span className={cn("text-xs font-medium", isTokenExpired ? "text-red-500" : "text-gray-500")}>
+                                                <span className={cn("text-xs font-medium", isTokenExpired ? "text-red-500" : "text-muted-foreground")}>
                                                     {isTokenExpired ? 'Link Expired' : 'Empty Slot'}
                                                 </span>
                                             ) : (
                                                 <>
-                                                    <p className="text-sm font-bold truncate text-gray-800 dark:text-gray-200">{s.student?.name || 'Reserved'}</p>
-                                                    <p className="text-[10px] text-gray-500 font-mono truncate">{s.student?.admissionNumber || 'Invited'}</p>
+                                                    <p className="text-sm font-bold truncate text-foreground">{s.student?.name || 'Reserved'}</p>
+                                                    <p className="text-[10px] text-muted-foreground font-mono truncate">{s.student?.admissionNumber || 'Invited'}</p>
                                                 </>
                                             )}
                                         </div>
@@ -386,8 +386,8 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
 
             {/* MANUAL EDIT DIALOG */}
             <Dialog open={activeDialog === 'manual'} onOpenChange={(o) => !o && setActiveDialog(null)}>
-                <DialogContent aria-describedby={undefined} className="max-w-5xl max-h-[90vh] p-0 overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-950">
-                    <div className="flex items-center p-4 border-b bg-white dark:bg-gray-900 shrink-0">
+                <DialogContent aria-describedby={undefined} className="max-w-5xl max-h-[90vh] p-0 overflow-hidden flex flex-col bg-muted/30">
+                    <div className="flex items-center p-4 border-b bg-card shrink-0">
                         <DialogTitle>Fill Student Data</DialogTitle>
                     </div>
                     <div className="flex-1 overflow-hidden p-6">
@@ -424,10 +424,10 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
                 <DialogContent aria-describedby={undefined} className="max-w-md">
                     <DialogTitle>Export Students</DialogTitle>
                     <div className="py-4">
-                        <p className="text-sm text-gray-500 mb-4">Select the columns to include in the CSV export.</p>
+                        <p className="text-sm text-muted-foreground mb-4">Select the columns to include in the CSV export.</p>
                         <div className="grid grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto p-1">
                             {AVAILABLE_COLUMNS.map(col => (
-                                <label key={col.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-1.5 rounded-md">
+                                <label key={col.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted p-1.5 rounded-md">
                                     <input
                                         type="checkbox"
                                         checked={selectedColumns.includes(col.id)}
@@ -438,7 +438,7 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
                                                 setSelectedColumns(prev => prev.filter(c => c !== col.id));
                                             }
                                         }}
-                                        className="rounded border-gray-300 text-primary focus:ring-primary"
+                                        className="rounded border-border text-primary focus:ring-primary"
                                     />
                                     {col.label}
                                 </label>
@@ -450,7 +450,7 @@ export default function SectionStudentOnboarding({ institutionId }: { institutio
                         <Button
                             onClick={handleExport}
                             disabled={isExporting || selectedColumns.length === 0}
-                            className="bg-primary text-white"
+                            className="bg-primary text-primary-foreground"
                         >
                             {isExporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
                             Export

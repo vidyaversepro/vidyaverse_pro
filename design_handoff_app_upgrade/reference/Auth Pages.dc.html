@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Yatra+One&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+.vv{
+ --saffron:#FF6B35;--deep-saffron:#FF9933;--turmeric:#F5A623;--kumkum:#C0392B;
+ --gold:#FFD700;--temple-stone:#B8860B;--peacock:#006A6E;--teal-light:#00897B;
+ --indigo:#1A237E;--lotus-pink:#E91E8C;--lotus-deep:#AD1457;
+ --gold-rgb:255 215 0;
+ --bg:#FFFCF7;--surface:#FFF8F0;--sand:#FFF3E6;--elevated:#ffffff;
+ --text:#241B0F;--text2:#5A4E3C;--text3:#9a8a72;
+ --brand:var(--kumkum);--brand-2:var(--lotus-deep);
+ --border:rgb(184 134 11 / .24);--border-soft:rgb(184 134 11 / .12);
+ --glass:rgb(255 252 247 / .72);--studio:#efe6d8;
+ --font-display:'Yatra One','Noto Sans Devanagari',serif;
+ --font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+ --font-deva:'Noto Sans Devanagari',serif;
+ -webkit-font-smoothing:antialiased;
+}
+.vv.acc-peacock{--brand:var(--peacock);--brand-2:var(--teal-light)}
+.vv.dark{
+ --bg:#0A0F1E;--surface:#0B1233;--sand:#0B1233;--elevated:#16213E;
+ --text:#FFF8F0;--text2:rgb(255 248 240 / .74);--text3:rgb(255 248 240 / .5);
+ --brand:#E2685A;--brand-2:#FFB27A;
+ --border:rgb(255 215 0 / .16);--border-soft:rgb(255 215 0 / .09);
+ --glass:rgb(10 15 30 / .6);--studio:#05070f;
+}
+.vv.dark.acc-peacock{--brand:#3fb0a5;--brand-2:#6fd3c4}
+@keyframes vvspin{to{transform:rotate(360deg)}}
+@keyframes vvrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.vv input::placeholder{color:var(--text3)}
+.vv-scroll::-webkit-scrollbar{width:8px}.vv-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+@media (prefers-reduced-motion:reduce){.vv *{animation:none!important}}
+</style>
+</helmet>
+
+<div class="vv {{ themeClass }} {{ accentClass }}" style="font-family:var(--font-body);min-height:100vh;background:var(--studio);display:flex;flex-direction:column">
+
+  <!-- Harness -->
+  <div style="position:sticky;top:0;z-index:80;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:var(--glass);border-bottom:1px solid var(--border);padding:10px clamp(12px,3vw,24px);display:flex;flex-direction:column;gap:9px">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="font-family:var(--font-display);font-size:16px;color:var(--text);margin-right:auto">Vidyaverse — Auth</div>
+      <div style="display:inline-flex;background:var(--elevated);border:1px solid var(--border);border-radius:11px;padding:3px;gap:2px">
+        <sc-for list="{{ deviceOpts }}" as="d" hint-placeholder-count="3"><button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.label }}</button></sc-for>
+      </div>
+      <button onClick="{{ toggleAccent }}" aria-label="Accent" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:linear-gradient(135deg,var(--brand),var(--brand-2));cursor:pointer"></button>
+      <button onClick="{{ toggleTheme }}" aria-label="Theme" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--elevated);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ themeIcon }}"></path></svg></button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <sc-for list="{{ screenOpts }}" as="o" hint-placeholder-count="6"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for>
+    </div>
+    <sc-if value="{{ hasVariants }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">State</span>
+        <sc-for list="{{ variantOpts }}" as="v" hint-placeholder-count="2"><button onClick="{{ v.onClick }}" style="{{ v.style }}">{{ v.label }}</button></sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- Stage -->
+  <div class="vv-scroll" style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:clamp(16px,4vw,44px)">
+    <div style="{{ frameStyle }}">
+      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+        <div style="height:38px;background:var(--surface);border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:7px;padding:0 14px">
+          <span style="width:11px;height:11px;border-radius:50%;background:#ff5f57"></span><span style="width:11px;height:11px;border-radius:50%;background:#febc2e"></span><span style="width:11px;height:11px;border-radius:50%;background:#28c840"></span>
+          <span style="margin-left:14px;font-size:12px;color:var(--text3);background:var(--bg);border:1px solid var(--border-soft);border-radius:7px;padding:3px 12px">app.vidyaverse.in{{ urlPath }}</span>
+        </div>
+      </sc-if>
+
+      <div style="{{ screenStyle }}">
+        <div style="display:flex;height:100%;min-height:0">
+
+          <!-- Brand panel (desktop) -->
+          <div style="display:{{ brandDisplay }};flex-direction:column;justify-content:space-between;width:44%;flex-shrink:0;position:relative;overflow:hidden;padding:40px;color:#fff;background:linear-gradient(158deg,#0f1440 0%,var(--brand) 135%)">
+            <div style="position:absolute;top:-12%;right:-18%;width:min(90%,460px);aspect-ratio:1;opacity:.16;animation:vvspin 120s linear infinite">
+              <svg viewBox="0 0 120 120" width="100%" height="100%"><circle cx="60" cy="60" r="58" fill="none" stroke="#fff" stroke-width="1"/><g><sc-for list="{{ petals }}" as="deg" hint-placeholder-count="8"><path d="M60,54 C46,40 46,20 57,13 Q60,11 63,13 C74,20 74,40 60,54 Z" fill="#fff" fill-opacity=".5" transform="rotate({{ deg }} 60 60)"></path></sc-for></g><circle cx="60" cy="60" r="15" fill="#fff" fill-opacity=".9"/></svg>
+            </div>
+            <div style="position:relative;display:flex;align-items:center;gap:11px">
+              <span style="display:inline-flex;width:34px;height:34px;animation:vvspin 30s linear infinite"><svg viewBox="0 0 120 120" width="34" height="34"><defs><radialGradient id="mmA" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="var(--gold)"/><stop offset="70%" stop-color="var(--brand)"/><stop offset="100%" stop-color="var(--brand-2)"/></radialGradient></defs><circle cx="60" cy="60" r="58" fill="url(#mmA)"/><g><sc-for list="{{ petals }}" as="deg" hint-placeholder-count="8"><path d="M60,50 C50,40 50.1,30 57,26 Q60,25 63,26 C69.9,30 70,40 60,50 Z" fill="#fff" fill-opacity=".55" transform="rotate({{ deg }} 60 60)"></path></sc-for></g><circle cx="60" cy="60" r="14" fill="#fff" fill-opacity=".95"/><circle cx="60" cy="60" r="6" fill="var(--brand)"/></svg></span>
+              <span style="font-family:var(--font-display);font-size:22px">Vidyaverse</span>
+            </div>
+            <div style="position:relative">
+              <div style="font-family:var(--font-display);font-size:30px;line-height:1.25;letter-spacing:.3px">The operating system for modern institutions</div>
+              <div style="font-family:var(--font-deva);font-size:16px;opacity:.82;margin-top:12px">विद्या · एक मंच, समग्र संस्थान</div>
+              <div style="display:flex;flex-direction:column;gap:12px;margin-top:26px">
+                <sc-for list="{{ brandPoints }}" as="p" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:11px;font-size:14px;font-weight:500;opacity:.95">
+                    <span style="width:24px;height:24px;border-radius:8px;background:rgb(255 255 255 / .16);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-11"></path></svg></span>
+                    {{ p }}
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="position:relative;font-size:12.5px;opacity:.7;font-weight:600">Trusted by 240+ institutions across India</div>
+          </div>
+
+          <!-- Form column -->
+          <div class="vv-scroll" style="flex:1;display:flex;flex-direction:column;overflow:auto;background:var(--bg);min-width:0">
+            <!-- compact top (mobile) -->
+            <div style="display:{{ compactTopDisplay }};flex-direction:column;align-items:center;gap:8px;padding:34px 20px 6px">
+              <span style="display:inline-flex;width:52px;height:52px;animation:vvspin 30s linear infinite"><svg viewBox="0 0 120 120" width="52" height="52"><defs><radialGradient id="mmB" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="var(--gold)"/><stop offset="70%" stop-color="var(--brand)"/><stop offset="100%" stop-color="var(--brand-2)"/></radialGradient></defs><circle cx="60" cy="60" r="58" fill="url(#mmB)"/><g><sc-for list="{{ petals }}" as="deg" hint-placeholder-count="8"><path d="M60,50 C50,40 50.1,30 57,26 Q60,25 63,26 C69.9,30 70,40 60,50 Z" fill="#fff" fill-opacity=".55" transform="rotate({{ deg }} 60 60)"></path></sc-for></g><circle cx="60" cy="60" r="14" fill="#fff" fill-opacity=".95"/><circle cx="60" cy="60" r="6" fill="var(--brand)"/></svg></span>
+              <span style="font-family:var(--font-display);font-size:20px;color:var(--text)">Vidyaverse</span>
+            </div>
+
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(22px,4vw,42px)">
+              <div style="width:100%;max-width:392px;margin:0 auto;animation:vvrise .45s ease both" key="{{ animKey }}">
+
+                <!-- top status icon (status screens) -->
+                <sc-if value="{{ showStatusIcon }}" hint-placeholder-val="{{ false }}">
+                  <div style="width:60px;height:60px;border-radius:18px;background:{{ statusBg }};color:{{ statusTone }};display:flex;align-items:center;justify-content:center;margin-bottom:18px"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ statusIcon }}"></path></svg></div>
+                </sc-if>
+
+                <h1 style="font-family:var(--font-display);font-size:27px;color:var(--text);line-height:1.2;margin:0">{{ heading }}</h1>
+                <p style="font-size:14px;color:var(--text2);font-weight:500;margin:7px 0 0;line-height:1.5">{{ sub }}</p>
+
+                <!-- institution card (admin) -->
+                <sc-if value="{{ showInstitutionCard }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;padding:14px 16px;margin-top:20px;display:flex;flex-direction:column;gap:12px">
+                    <div><div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Institution</div><div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--text);margin-top:3px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18 M6 21V4h12v17 M9 8h1 M14 8h1 M9 12h1 M14 12h1"></path></svg>Delhi Public School</div></div>
+                    <div><div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Admin email</div><div style="font-size:14px;font-weight:600;color:var(--text);margin-top:3px">ananya@dps.edu.in</div></div>
+                  </div>
+                </sc-if>
+
+                <!-- form -->
+                <sc-if value="{{ showForm }}" hint-placeholder-val="{{ true }}">
+                  <form onSubmit="{{ onSubmit }}" style="margin-top:22px">
+                    <sc-for list="{{ fields }}" as="f" hint-placeholder-count="2">
+                      <div style="margin-bottom:15px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                          <label style="font-size:13px;font-weight:600;color:var(--text)">{{ f.label }}<sc-if value="{{ f.optional }}" hint-placeholder-val="{{ false }}"><span style="color:var(--text3);font-weight:500"> · optional</span></sc-if></label>
+                          <sc-if value="{{ f.rightLabel }}" hint-placeholder-val="{{ false }}"><a href="#" onClick="{{ f.rightClick }}" style="font-size:12px;font-weight:700;color:var(--brand)">{{ f.rightLabel }}</a></sc-if>
+                        </div>
+                        <div style="position:relative">
+                          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);display:flex"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ f.icon }}"></path></svg></span>
+                          <input type="{{ f.inputType }}" placeholder="{{ f.placeholder }}" value="{{ f.value }}" onInput="{{ f.onInput }}" style="width:100%;height:48px;border-radius:13px;border:1px solid var(--border);background:var(--elevated);color:var(--text);padding:0 16px 0 44px;font-size:14.5px;font-family:inherit;outline:none;transition:border-color .15s" style-focus="border-color:var(--brand)"/>
+                          <sc-if value="{{ f.isPw }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ togglePw }}" aria-label="Show password" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--text3);cursor:pointer;display:flex;padding:4px"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ eyeIcon }}"></path></svg></button></sc-if>
+                        </div>
+                        <sc-if value="{{ f.rules }}" hint-placeholder-val="{{ false }}">
+                          <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px">
+                            <sc-for list="{{ pwRules }}" as="r" hint-placeholder-count="3"><span style="{{ r.style }}">{{ r.mark }}{{ r.label }}</span></sc-for>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                    <button type="button" onClick="{{ onSubmit }}" style="width:100%;height:50px;margin-top:6px;border:none;border-radius:14px;font-family:inherit;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand-2));cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 12px 26px -12px var(--brand)" style-hover="filter:brightness(1.05);transform:translateY(-1px)">
+                      {{ primaryLabel }}
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14 M13 6l6 6-6 6"></path></svg>
+                    </button>
+                  </form>
+                  <sc-if value="{{ footer }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:20px;text-align:center;font-size:13.5px;color:var(--text2)">{{ footerText }} <a href="#" onClick="{{ footerClick }}" style="color:var(--brand);font-weight:700">{{ footerLink }}</a></div>
+                  </sc-if>
+                </sc-if>
+
+                <!-- status actions -->
+                <sc-if value="{{ showActions }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:11px;margin-top:24px">
+                    <sc-for list="{{ actions }}" as="a" hint-placeholder-count="1"><button onClick="{{ a.onClick }}" style="{{ a.style }}">{{ a.label }}</button></sc-for>
+                  </div>
+                </sc-if>
+
+              </div>
+            </div>
+            <div style="height:20px;flex-shrink:0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:820},&quot;device&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;phone&quot;,&quot;tablet&quot;,&quot;desktop&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;login&quot;,&quot;register&quot;,&quot;admin&quot;,&quot;forgot&quot;,&quot;reset&quot;,&quot;verify&quot;],&quot;default&quot;:&quot;login&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;kumkum&quot;,&quot;peacock&quot;],&quot;default&quot;:&quot;kumkum&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const IC = {
+  mail:"M4 6h16v12H4z M4 7l8 6 8-6",
+  lock:"M5 11h14v10H5z M8 11V7a4 4 0 0 1 8 0v4",
+  user:"M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  phone:"M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2 4.2 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.1a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z",
+  check:"M9 12l2 2 4-4 M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
+  mailcheck:"M4 6h16v9H4z M4 7l8 6 8-6 M15 19l2 2 4-4",
+  warn:"M12 3 2 20h20z M12 9v5 M12 17h.01",
+};
+const eyeOpen="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z";
+const eyeOff="M17.9 17.9A10.7 10.7 0 0 1 12 19C5 19 1 12 1 12a19 19 0 0 1 5.1-5.9 M9.9 4.2A10.9 10.9 0 0 1 12 4c7 0 11 8 11 8a19 19 0 0 1-2.2 3.2 M9.9 9.9a3 3 0 0 0 4.2 4.2 M1 1l22 22";
+const GREEN={t:"#15803d",bg:"rgb(21 128 61 / .12)"};
+const AMBER={t:"#B8860B",bg:"rgb(184 134 11 / .16)"};
+const INDIGO={t:"#1A237E",bg:"rgb(26 35 126 / .12)"};
+
+class Component extends DCLogic {
+  state = { device:this.props.device||'desktop', theme:this.props.theme||'light', accent:this.props.accent||'kumkum',
+            screen:this.props.screen||'login', variant:'', showPw:false, vals:{} };
+  set(p){ this.setState(p); }
+  go(screen,variant){ this.setState({screen,variant:variant||'',vals:{},showPw:false}); }
+  setVal(id,v){ this.setState(s=>({vals:{...s.vals,[id]:v}})); }
+
+  renderVals(){
+    const s=this.state, isDesktop=s.device==='desktop', isCompact=!isDesktop;
+    const frames={
+      phone:{frame:"width:392px;padding:13px;background:#0c0c12;border-radius:46px;box-shadow:0 40px 90px -34px rgb(0 0 0 / .55);flex-shrink:0",screen:"height:812px;border-radius:33px"},
+      tablet:{frame:"width:760px;padding:18px;background:#0c0c12;border-radius:30px;box-shadow:0 40px 90px -34px rgb(0 0 0 / .55);flex-shrink:0",screen:"height:940px;border-radius:16px"},
+      desktop:{frame:"width:min(1040px,100%);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 40px 90px -40px rgb(0 0 0 / .45);background:var(--elevated)",screen:"height:660px"},
+    };
+    const f=frames[s.device];
+
+    const field=(id,label,type,placeholder,icon,extra)=>({id,label,inputType: type==='password'?(s.showPw?'text':'password'):type, isPw:type==='password',
+      placeholder,icon:IC[icon],value:s.vals[id]||'',onInput:(e)=>this.setVal(id,e.target.value),...(extra||{})});
+    const fwd=to=>(e)=>{ if(e&&e.preventDefault)e.preventDefault(); this.go(to); };
+
+    // screen registry
+    const V=s.variant;
+    let cfg;
+    const SC={
+      login:{ heading:'Welcome back', sub:'Sign in to your Vidyaverse account.', url:'/login',
+        fields:[ field('email','Email','email','you@example.com','mail'),
+                 field('password','Password','password','••••••••','lock',{rightLabel:'Forgot?',rightClick:fwd('forgot')}) ],
+        primary:'Sign in', footer:{text:'New to Vidyaverse?',link:'Create an account',to:'register'} },
+      register:{ heading:'Create your account', sub:'One secure login for your whole institution.', url:'/register',
+        fields:[ field('name','Full name','text','Ananya Sharma','user'),
+                 field('email','Email','email','you@example.com','mail'),
+                 field('password','Password','password','••••••••','lock',{rules:true}),
+                 field('confirm','Confirm password','password','••••••••','lock') ],
+        primary:'Create account', footer:{text:'Already have an account?',link:'Sign in',to:'login'} },
+      admin:{ heading:'Set up your account', sub:'Complete your admin profile to get started.', url:'/admin/setup',
+        institution:true,
+        fields:[ field('name','Full name','text','Ananya Sharma','user'),
+                 field('phone','Phone number','tel','+91 98765 43210','phone',{optional:true}),
+                 field('password','Create password','password','••••••••','lock',{rules:true}),
+                 field('confirm','Confirm password','password','••••••••','lock') ],
+        primary:'Complete setup', footer:{text:'',link:'Back to login',to:'login'} },
+      forgot: V==='sent'
+        ? { heading:'Check your email', sub:"If an account exists for that address, a reset link is on its way.", url:'/forgot-password',
+            status:{...GREEN,icon:IC.mailcheck}, actions:[{label:'Back to login',kind:'outline',to:'login'}] }
+        : { heading:'Forgot password?', sub:"Enter your email and we'll send you a reset link.", url:'/forgot-password',
+            fields:[ field('email','Email','email','you@example.com','mail') ],
+            primary:'Send reset link', footer:{text:'',link:'Back to login',to:'login'} },
+      reset: V==='success'
+        ? { heading:'Password updated', sub:'You can now sign in with your new password.', url:'/reset-password',
+            status:{...GREEN,icon:IC.check}, actions:[{label:'Sign in now',kind:'primary',to:'login'}] }
+        : V==='invalid'
+        ? { heading:'Link expired', sub:'This reset link is invalid or has expired.', url:'/reset-password',
+            status:{...AMBER,icon:IC.warn}, actions:[{label:'Request a new link',kind:'outline',to:'forgot'}] }
+        : { heading:'Set a new password', sub:'Choose a strong password for your account.', url:'/reset-password',
+            fields:[ field('password','New password','password','••••••••','lock',{rules:true}),
+                     field('confirm','Confirm password','password','••••••••','lock') ],
+            primary:'Reset password', footer:{text:'',link:'Back to login',to:'login'} },
+      verify: V==='confirmed'
+        ? { heading:'Email confirmed', sub:"You're signed in as ananya@dps.edu.in.", url:'/verify-email',
+            status:{...GREEN,icon:IC.check}, actions:[{label:'Continue to Vidyaverse',kind:'primary',to:'login'}] }
+        : V==='error'
+        ? { heading:"That link didn't work", sub:'Confirmation links expire after an hour and can be used only once.', url:'/verify-email',
+            status:{...AMBER,icon:IC.warn}, actions:[{label:'Send me a new link',kind:'primary',to:'verify'},{label:'Back to sign in',kind:'ghost',to:'login'}] }
+        : { heading:'Check your inbox', sub:'We sent a confirmation link to ananya@dps.edu.in. Click it to activate your account.', url:'/verify-email',
+            status:{...INDIGO,icon:IC.mailcheck}, actions:[{label:'Resend the link',kind:'outline',to:'verify'},{label:'Back to sign in',kind:'ghost',to:'login'}] },
+    };
+    cfg=SC[s.screen];
+
+    // password rules (live)
+    const pw=s.vals['password']||'';
+    const rulesDef=[['8+ characters',pw.length>=8],['Uppercase letter',/[A-Z]/.test(pw)],['A number',/[0-9]/.test(pw)]];
+    const pwRules=rulesDef.map(([label,met])=>({label,mark:met?'✓ ':'', style:"display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;"+(met?"background:rgb(21 128 61 / .12);color:#15803d":"background:var(--surface);color:var(--text3);border:1px solid var(--border-soft)")}));
+
+    const isStatus=!!cfg.status;
+    const actions=(cfg.actions||[]).map(a=>({label:a.label,onClick:()=>this.go(a.to),
+      style: a.kind==='primary'
+        ? "width:100%;height:48px;border:none;border-radius:13px;font-family:inherit;font-size:14.5px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand-2));cursor:pointer"
+        : a.kind==='outline'
+        ? "width:100%;height:48px;border:1px solid var(--border);border-radius:13px;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--text);background:var(--elevated);cursor:pointer"
+        : "width:100%;height:44px;border:none;border-radius:13px;font-family:inherit;font-size:14px;font-weight:600;color:var(--text2);background:transparent;cursor:pointer" }));
+
+    // harness options
+    const devDefs=[['phone','Phone'],['tablet','Tablet'],['desktop','Desktop']];
+    const deviceOpts=devDefs.map(([k,l])=>({label:l,onClick:()=>this.set({device:k}),
+      style:"border:none;cursor:pointer;font-size:12px;font-weight:700;padding:6px 13px;border-radius:8px;color:"+(s.device===k?"#fff":"var(--text2)")+";background:"+(s.device===k?"linear-gradient(135deg,var(--brand),var(--brand-2))":"transparent")}));
+    const scrDefs=[['login','Login'],['register','Register'],['admin','Admin setup'],['forgot','Forgot'],['reset','Reset'],['verify','Verify email']];
+    const screenOpts=scrDefs.map(([k,l])=>({label:l,onClick:()=>this.go(k),
+      style:"border:1px solid "+(s.screen===k?"transparent":"var(--border)")+";cursor:pointer;font-size:12px;font-weight:700;padding:6px 12px;border-radius:9px;color:"+(s.screen===k?"#fff":"var(--text2)")+";background:"+(s.screen===k?"var(--brand)":"var(--elevated)")}));
+    const variantMap={ forgot:[['','Form'],['sent','Sent']], reset:[['','Form'],['success','Success'],['invalid','Invalid']], verify:[['','Waiting'],['confirmed','Confirmed'],['error','Error']] };
+    const vDefs=variantMap[s.screen]||null;
+    const variantOpts=vDefs? vDefs.map(([k,l])=>({label:l,onClick:()=>this.go(s.screen,k),
+      style:"border:1px solid "+((s.variant||'')===k?"transparent":"var(--border)")+";cursor:pointer;font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:8px;color:"+((s.variant||'')===k?"#fff":"var(--text2)")+";background:"+((s.variant||'')===k?"var(--brand-2)":"var(--elevated)")})):[];
+
+    return {
+      themeClass:s.theme==='dark'?'dark':'', accentClass:s.accent==='peacock'?'acc-peacock':'',
+      themeIcon:s.theme==='dark'?"M12 3v2 M12 19v2 M4.2 4.2l1.4 1.4 M18.4 18.4l1.4 1.4 M3 12h2 M19 12h2 M4.2 19.8l1.4-1.4 M18.4 5.6l1.4-1.4 M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z":"M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z",
+      petals:[0,45,90,135,180,225,270,315],
+      isDesktop, frameStyle:f.frame,
+      screenStyle:"display:flex;flex-direction:column;background:var(--bg);overflow:hidden;"+(isDesktop?"":"border-radius:33px;")+f.screen,
+      urlPath:cfg.url, animKey:s.screen+'|'+(s.variant||''),
+      brandDisplay:isDesktop?'flex':'none', compactTopDisplay:isCompact?'flex':'none',
+      brandPoints:['47 modules, one login','WhatsApp-first parent communication','ID cards & marksheets in seconds'],
+      heading:cfg.heading, sub:cfg.sub,
+      showForm:!isStatus, showActions:isStatus, showStatusIcon:isStatus,
+      showInstitutionCard:!!cfg.institution,
+      statusIcon:isStatus?cfg.status.icon:'', statusTone:isStatus?cfg.status.t:'', statusBg:isStatus?cfg.status.bg:'',
+      fields:cfg.fields||[], primaryLabel:cfg.primary||'', pwRules,
+      eyeIcon:s.showPw?eyeOff:eyeOpen, togglePw:()=>this.set({showPw:!s.showPw}),
+      onSubmit:(e)=>{ if(e&&e.preventDefault)e.preventDefault(); },
+      footer:!!cfg.footer, footerText:cfg.footer?cfg.footer.text:'', footerLink:cfg.footer?cfg.footer.link:'',
+      footerClick:cfg.footer?fwd(cfg.footer.to):null,
+      actions,
+      hasVariants:!!vDefs, variantOpts,
+      screenOpts, deviceOpts,
+      toggleTheme:()=>this.set({theme:s.theme==='dark'?'light':'dark'}),
+      toggleAccent:()=>this.set({accent:s.accent==='peacock'?'kumkum':'peacock'}),
+    };
+  }
+}
+</script>
+</body>
+</html>

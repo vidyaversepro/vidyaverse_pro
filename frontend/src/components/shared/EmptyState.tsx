@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { LucideIcon } from 'lucide-react';
+import { MandalaMark } from '@/design/indic/motifs/mandala-mark';
 
 interface EmptyStateProps {
     icon: LucideIcon;
@@ -15,10 +16,14 @@ interface EmptyStateProps {
 export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
     return (
         <div className={`flex flex-col items-center justify-center py-12 text-center rounded-lg border border-dashed p-8 ${className}`}>
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted/50 mb-6">
-                <Icon className="h-10 w-10 text-muted-foreground" />
+            {/* Mandala crest behind the icon — the empty-state identity (Phase 5). */}
+            <div className="relative mb-6 flex h-20 w-20 items-center justify-center">
+                <MandalaMark size={80} spin className="absolute inset-0 opacity-[0.14]" />
+                <div className="indic-icon-plinth relative flex h-14 w-14 items-center justify-center">
+                    <Icon className="h-7 w-7 text-white" />
+                </div>
             </div>
-            <h3 className="text-xl font-semibold tracking-tight mb-2">{title}</h3>
+            <h3 className="text-xl tracking-tight mb-2">{title}</h3>
             <p className="text-sm text-muted-foreground max-w-sm mb-6 text-balance">
                 {description}
             </p>

@@ -1,6 +1,4 @@
-import { useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useEffect, type ComponentType } from 'react';
 import {
   useMyStudentProfile,
   useMyAttendanceSummary,
@@ -14,7 +12,6 @@ import { useStudentInvoices } from '@/lib/queries/payments-queries';
 import { useActiveInstitution } from '@/stores/activeInstitution';
 import {
   Loader2,
-  UserCircle,
   GraduationCap,
   IndianRupee,
   BookOpen,
@@ -31,6 +28,36 @@ import {
   Download,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+const TONE = {
+  green: '#15803d',
+  temple: '#B8860B',
+  red: '#C0392B',
+  peacock: '#006A6E',
+  indigo: '#1A237E',
+  lotus: '#AD1457',
+};
+
+function initials(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join('');
+}
+
+function WidgetCard({ title, icon: Icon, children }: { title: string; icon: ComponentType<{ className?: string }>; children: React.ReactNode }) {
+  return (
+    <div className="bg-card border rounded-2xl p-[18px]">
+      <div className="flex items-center gap-2 mb-3.5 text-[15px]" style={{ fontFamily: 'var(--font-display)' }}>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+        {title}
+      </div>
+      {children}
+    </div>
+  );
+}
 
 export default function StudentDashboardPage() {
   const navigate = useNavigate();
@@ -71,21 +98,19 @@ export default function StudentDashboardPage() {
   if (profileError || !profile) {
     return (
       <div className="p-6 space-y-4 max-w-lg">
-        <h1 className="text-2xl font-bold tracking-tight">My Dashboard</h1>
-        <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-          <CardContent className="flex items-start gap-3 pt-6">
-            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium text-amber-900 dark:text-amber-200 text-sm">
-                Profile not linked yet
-              </p>
-              <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                Your login account hasn't been connected to a student record.
-                Please contact your school administrator to complete the setup.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <h1 className="text-2xl">My Dashboard</h1>
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-5 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-amber-900 dark:text-amber-200 text-sm">
+              Profile not linked yet
+            </p>
+            <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
+              Your login account hasn't been connected to a student record.
+              Please contact your school administrator to complete the setup.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -101,428 +126,357 @@ export default function StudentDashboardPage() {
       sum + parseFloat(inv.netAmount ?? '0') - parseFloat(inv.paidAmount ?? '0'),
     0
   );
+  const payNowUrl = unpaidInvoices.find((inv) => inv.paymentLinkUrl)?.paymentLinkUrl as string | undefined;
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="p-4 sm:p-6 space-y-4">
       {/* Profile header */}
-      <div className="flex items-center gap-4">
-        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-          <UserCircle className="h-7 w-7 text-primary" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {profile.name}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {profile.institution.name}
-          </p>
+      <div className="flex items-center gap-3.5">
+        <span
+          className="w-[54px] h-[54px] rounded-full text-white flex items-center justify-center flex-shrink-0 text-xl"
+          style={{ fontFamily: 'var(--font-display)', background: 'linear-gradient(135deg, hsl(var(--primary)), var(--accent-strong))' }}
+        >
+          {initials(profile.name)}
+        </span>
+        <div className="min-w-0">
+          <h1 className="text-2xl leading-tight truncate">{profile.name}</h1>
+          <p className="text-sm text-muted-foreground">{profile.institution.name}</p>
         </div>
       </div>
 
       {/* Academic identity cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Class & Section</CardDescription>
-            <CardTitle className="text-lg flex items-center gap-1.5">
-              <GraduationCap className="h-4 w-4 text-blue-500" />
-              {profile.section.class.name} — {profile.section.name}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Admission No.</CardDescription>
-            <CardTitle className="text-lg flex items-center gap-1.5">
-              <Hash className="h-4 w-4 text-purple-500" />
-              {profile.admissionNumber ?? '—'}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Roll No.</CardDescription>
-            <CardTitle className="text-lg">
-              {profile.rollNumber ?? '—'}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="bg-card border rounded-2xl p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Class &amp; Section</div>
+          <div className="flex items-center gap-1.5 mt-1.5 font-bold text-[15px]">
+            <GraduationCap className="h-4 w-4" style={{ color: TONE.peacock }} />
+            {profile.section.class.name} — {profile.section.name}
+          </div>
+        </div>
+        <div className="bg-card border rounded-2xl p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Admission No.</div>
+          <div className="flex items-center gap-1.5 mt-1.5 font-bold text-[15px]">
+            <Hash className="h-4 w-4" style={{ color: TONE.lotus }} />
+            {profile.admissionNumber ?? '—'}
+          </div>
+        </div>
+        <div className="bg-card border rounded-2xl p-3.5">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Roll No.</div>
+          <div className="flex items-center gap-1.5 mt-1.5 font-bold text-[15px]">
+            <Hash className="h-4 w-4" style={{ color: TONE.indigo }} />
+            {profile.rollNumber ?? '—'}
+          </div>
+        </div>
       </div>
 
-      {/* Row 1: Attendance | Timetable */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Attendance Widget */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <CalendarDays className="h-4 w-4" />
-              Attendance Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {attendanceLoading ? (
-              <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-            ) : attendanceData ? (
-              <div className="flex items-center gap-4">
-                <div className="relative h-20 w-20 shrink-0">
-                  <svg className="h-full w-full" viewBox="0 0 36 36">
-                    <path
-                      className="text-muted/20"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none" stroke="currentColor" strokeWidth="3"
-                    />
-                    <path
-                      className="text-primary"
-                      strokeDasharray={`${attendanceData.stats.attendanceRate}, 100`}
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none" stroke="currentColor" strokeWidth="3"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center flex-col">
-                    <span className="text-sm font-bold">{Math.round(attendanceData.stats.attendanceRate)}%</span>
-                  </div>
-                </div>
-                <div className="flex-1 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Present</span>
-                    <span className="font-medium text-green-600">{attendanceData.stats.present}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Absent</span>
-                    <span className="font-medium text-red-600">{attendanceData.stats.absent}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Late</span>
-                    <span className="font-medium text-amber-600">{attendanceData.stats.late}</span>
-                  </div>
+      {/* Widgets */}
+      <div className="grid gap-3.5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+        {/* Attendance */}
+        <WidgetCard title="Attendance summary" icon={CalendarDays}>
+          {attendanceLoading ? (
+            <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          ) : attendanceData ? (
+            <div className="flex items-center gap-[18px]">
+              <div className="relative w-[88px] h-[88px] shrink-0">
+                <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none" stroke="hsl(var(--border))" strokeWidth="3.4"
+                  />
+                  <path
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    strokeDasharray={`${attendanceData.stats.attendanceRate}, 100`}
+                    fill="none" stroke="hsl(var(--primary))" strokeWidth="3.4" strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-[19px]" style={{ fontFamily: 'var(--font-display)' }}>
+                    {Math.round(attendanceData.stats.attendanceRate)}%
+                  </span>
                 </div>
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No data yet</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Timetable Widget */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Today's Classes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {timetableLoading ? (
-              <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-            ) : timetableData && timetableData.length > 0 ? (
-              <div className="space-y-3">
-                {timetableData.map((slot: any) => {
-                  const now = new Date();
-                  const [startH, startM] = slot.period.startTime.split(':').map(Number);
-                  const [endH, endM] = slot.period.endTime.split(':').map(Number);
-                  const periodStart = new Date(); periodStart.setHours(startH, startM, 0);
-                  const periodEnd = new Date(); periodEnd.setHours(endH, endM, 0);
-                  const isCurrent = now >= periodStart && now <= periodEnd;
-
-                  return (
-                    <div key={slot.id} className={`flex items-start justify-between border-l-2 pl-3 py-1 ${isCurrent ? 'border-primary bg-primary/5 rounded-r-md' : 'border-muted'}`}>
-                      <div>
-                        <p className="font-medium text-sm">{slot.subjectName}</p>
-                        <p className="text-xs text-muted-foreground">{slot.period.startTime} - {slot.period.endTime}</p>
-                      </div>
-                      {slot.room && <Badge variant="outline" className="text-xs">{slot.room}</Badge>}
-                    </div>
-                  );
-                })}
+              <div className="flex-1 space-y-2 text-[13.5px]">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Present</span>
+                  <span className="font-bold" style={{ color: TONE.green }}>{attendanceData.stats.present}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Absent</span>
+                  <span className="font-bold" style={{ color: TONE.red }}>{attendanceData.stats.absent}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Late</span>
+                  <span className="font-bold" style={{ color: TONE.temple }}>{attendanceData.stats.late}</span>
+                </div>
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No classes today</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Fee status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <IndianRupee className="h-4 w-4" />
-            Fee Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {unpaidInvoices.length === 0 ? (
-            <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400">
-              <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                All clear
-              </Badge>
-              <span>No outstanding dues</span>
             </div>
           ) : (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground">No data yet</p>
+          )}
+        </WidgetCard>
+
+        {/* Timetable */}
+        <WidgetCard title="Today's classes" icon={Clock}>
+          {timetableLoading ? (
+            <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          ) : timetableData && timetableData.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {timetableData.map((slot: any) => {
+                const now = new Date();
+                const [startH, startM] = slot.period.startTime.split(':').map(Number);
+                const [endH, endM] = slot.period.endTime.split(':').map(Number);
+                const periodStart = new Date(); periodStart.setHours(startH, startM, 0);
+                const periodEnd = new Date(); periodEnd.setHours(endH, endM, 0);
+                const isCurrent = now >= periodStart && now <= periodEnd;
+
+                return (
+                  <div
+                    key={slot.id}
+                    className="flex items-start justify-between gap-2 py-2.5 px-2.5 rounded-[10px] border-l-[3px]"
+                    style={{ borderLeftColor: isCurrent ? 'hsl(var(--primary))' : 'hsl(var(--border))', background: isCurrent ? 'hsl(var(--primary) / 0.06)' : 'hsl(var(--muted) / 0.5)' }}
+                  >
+                    <div>
+                      <p className="font-bold text-[13.5px]">{slot.subjectName}</p>
+                      <p className="text-xs text-muted-foreground">{slot.period.startTime} – {slot.period.endTime}</p>
+                    </div>
+                    {slot.room && (
+                      <span className="text-[11px] font-bold text-muted-foreground bg-muted border rounded-[7px] px-2 py-0.5 whitespace-nowrap">
+                        {slot.room}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No classes today</p>
+          )}
+        </WidgetCard>
+
+        {/* Fee status */}
+        <WidgetCard title="Fee status" icon={IndianRupee}>
+          {unpaidInvoices.length === 0 ? (
+            <div className="flex items-center gap-2 text-sm" style={{ color: TONE.green }}>
+              <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgb(21 128 61 / .12)', color: TONE.green }}>
+                All clear
+              </span>
+              <span className="text-muted-foreground">No outstanding dues</span>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-baseline justify-between mb-3">
+                <span className="text-[13px] text-muted-foreground">
                   {unpaidInvoices.length} unpaid invoice{unpaidInvoices.length !== 1 ? 's' : ''}
                 </span>
-                <span className="font-semibold text-red-600">
+                <span className="text-[22px]" style={{ fontFamily: 'var(--font-display)', color: TONE.red }}>
                   ₹{totalOutstanding.toLocaleString('en-IN')}
                 </span>
               </div>
               {unpaidInvoices.slice(0, 3).map((inv: any) => (
-                <div key={inv.id} className="flex items-center justify-between text-sm border-t pt-2">
-                  <span className="text-muted-foreground truncate max-w-[180px]">
-                    {inv.invoiceNumber}
-                  </span>
-                  <Badge
-                    variant={inv.status === 'partial' ? 'secondary' : 'destructive'}
-                    className="capitalize shrink-0 ml-2"
+                <div key={inv.id} className="flex items-center justify-between py-2.5 border-t text-[13px]">
+                  <span className="text-muted-foreground truncate max-w-[180px]">{inv.invoiceNumber}</span>
+                  <span
+                    className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full"
+                    style={inv.status === 'partial' ? { color: TONE.temple, background: 'rgb(184 134 11 / .16)' } : { color: TONE.red, background: 'rgb(192 57 43 / .12)' }}
                   >
                     {inv.status}
-                  </Badge>
+                  </span>
                 </div>
               ))}
-            </div>
+              {payNowUrl && (
+                <button
+                  onClick={() => window.open(payNowUrl, '_blank', 'noopener,noreferrer')}
+                  className="w-full mt-3 h-[42px] rounded-[11px] text-white font-bold text-[13.5px]"
+                  style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), var(--accent-strong))' }}
+                >
+                  Pay now
+                </button>
+              )}
+            </>
           )}
-        </CardContent>
-      </Card>
+        </WidgetCard>
 
-      {/* Official Notices */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Bell className="h-4 w-4" />
-            Official Notices
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        {/* Notices */}
+        <WidgetCard title="Official notices" icon={Bell}>
           {noticesLoading ? (
             <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
           ) : noticesData && noticesData.length > 0 ? (
-            <div className="space-y-4">
+            <div className="flex flex-col">
               {noticesData.map((notice: any) => (
-                <div key={notice.id} className="border-b last:border-0 pb-3 last:pb-0">
-                  <div className="flex items-start justify-between mb-1">
-                    <h4 className="font-semibold text-sm">{notice.title}</h4>
-                    <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                <div key={notice.id} className="py-2.5 border-t first:border-0 first:pt-0">
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    <h4 className="text-[13.5px] font-bold">{notice.title}</h4>
+                    <span className="text-[11px] text-muted-foreground whitespace-nowrap">
                       {new Date(notice.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="secondary" className="text-[10px] uppercase tracking-wider">{notice.category}</Badge>
-                    {notice.isPinned && <Badge variant="default" className="text-[10px] uppercase tracking-wider bg-amber-500 hover:bg-amber-600">Pinned</Badge>}
+                  <div className="flex gap-1.5 mb-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground bg-muted rounded-[6px] px-1.5 py-0.5">
+                      {notice.category}
+                    </span>
+                    {notice.isPinned && (
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-white rounded-[6px] px-1.5 py-0.5" style={{ background: TONE.temple }}>
+                        Pinned
+                      </span>
+                    )}
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{notice.body}</p>
+                  <p className="text-[12.5px] text-muted-foreground leading-snug line-clamp-2">{notice.body}</p>
                 </div>
               ))}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">No notices posted yet</p>
           )}
-        </CardContent>
-      </Card>
+        </WidgetCard>
 
-      {/* Row 2: Transport | Hostel */}
-      {(!transportError || !hostelError) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {!transportError && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Bus className="h-4 w-4" />
-                  Transport Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {transportLoading ? (
-                  <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-                ) : transportData ? (
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{transportData.routeName}</span>
-                      <Badge variant="outline">{transportData.routeCode}</Badge>
-                    </div>
-                    {transportData.vehicleNumber && (
-                      <div className="text-muted-foreground">Vehicle: {transportData.vehicleNumber}</div>
-                    )}
-                    {transportData.driverName && (
-                      <div className="text-muted-foreground">
-                        Driver: {transportData.driverName} 
-                        {transportData.driverPhone && <a href={`tel:${transportData.driverPhone}`} className="text-primary ml-2">{transportData.driverPhone}</a>}
-                      </div>
-                    )}
-                    {transportData.stop && (
-                      <div className="mt-3 pt-3 border-t">
-                        <div className="flex items-center gap-2 font-medium mb-1">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {transportData.stop.name}
-                        </div>
-                        <div className="flex gap-4 text-xs text-muted-foreground">
-                          {transportData.stop.pickupTime && <span>Pickup: {transportData.stop.pickupTime}</span>}
-                          {transportData.stop.dropTime && <span>Drop: {transportData.stop.dropTime}</span>}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : null}
-              </CardContent>
-            </Card>
-          )}
-
-          {!hostelError && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Building className="h-4 w-4" />
-                  Hostel Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {hostelLoading ? (
-                  <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-                ) : hostelData ? (
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{hostelData.hostelBlockName}</span>
-                      <Badge variant="outline">{hostelData.blockCode}</Badge>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      <div>
-                        <span className="text-xs text-muted-foreground block">Room</span>
-                        <span className="font-medium">{hostelData.roomNumber}</span>
-                      </div>
-                      {hostelData.bedNumber && (
-                        <div>
-                          <span className="text-xs text-muted-foreground block">Bed</span>
-                          <span className="font-medium">{hostelData.bedNumber}</span>
-                        </div>
+        {/* Transport */}
+        {!transportError && (
+          <WidgetCard title="Transport" icon={Bus}>
+            {transportLoading ? (
+              <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            ) : transportData ? (
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-bold text-[13.5px]">{transportData.routeName}</span>
+                  <span className="text-[11px] font-bold text-muted-foreground bg-muted border rounded-[7px] px-2 py-0.5">
+                    {transportData.routeCode}
+                  </span>
+                </div>
+                <div className="text-[12.5px] text-muted-foreground leading-relaxed">
+                  {transportData.vehicleNumber && <>Vehicle · {transportData.vehicleNumber}<br /></>}
+                  {transportData.driverName && (
+                    <>Driver · {transportData.driverName}{' '}
+                      {transportData.driverPhone && (
+                        <a href={`tel:${transportData.driverPhone}`} className="text-primary font-semibold">{transportData.driverPhone}</a>
                       )}
+                    </>
+                  )}
+                </div>
+                {transportData.stop && (
+                  <div className="mt-2.5 pt-2.5 border-t">
+                    <div className="flex items-center gap-1.5 font-bold text-foreground text-[13px] mb-1">
+                      <MapPin className="h-3.5 w-3.5 text-primary" />
+                      {transportData.stop.name}
                     </div>
-                    {hostelData.wardenName && (
-                      <div className="mt-3 pt-3 border-t text-muted-foreground">
-                        Warden: {hostelData.wardenName}
-                        {hostelData.wardenPhone && <a href={`tel:${hostelData.wardenPhone}`} className="text-primary ml-2">{hostelData.wardenPhone}</a>}
-                      </div>
+                    <div className="flex gap-4 text-xs text-muted-foreground">
+                      {transportData.stop.pickupTime && <span>Pickup {transportData.stop.pickupTime}</span>}
+                      {transportData.stop.dropTime && <span>Drop {transportData.stop.dropTime}</span>}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : null}
+          </WidgetCard>
+        )}
+
+        {/* Hostel */}
+        {!hostelError && (
+          <WidgetCard title="Hostel information" icon={Building}>
+            {hostelLoading ? (
+              <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            ) : hostelData ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[13.5px]">{hostelData.hostelBlockName}</span>
+                  <span className="text-[11px] font-bold text-muted-foreground bg-muted border rounded-[7px] px-2 py-0.5">
+                    {hostelData.blockCode}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mt-2.5 text-[13px]">
+                  <div>
+                    <span className="text-xs text-muted-foreground block">Room</span>
+                    <span className="font-bold">{hostelData.roomNumber}</span>
+                  </div>
+                  {hostelData.bedNumber && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block">Bed</span>
+                      <span className="font-bold">{hostelData.bedNumber}</span>
+                    </div>
+                  )}
+                </div>
+                {hostelData.wardenName && (
+                  <div className="mt-2.5 pt-2.5 border-t text-[12.5px] text-muted-foreground">
+                    Warden · {hostelData.wardenName}{' '}
+                    {hostelData.wardenPhone && (
+                      <a href={`tel:${hostelData.wardenPhone}`} className="text-primary font-semibold">{hostelData.wardenPhone}</a>
                     )}
                   </div>
-                ) : null}
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
+                )}
+              </>
+            ) : null}
+          </WidgetCard>
+        )}
 
-      {/* My Documents */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            My Documents
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        {/* Documents */}
+        <WidgetCard title="My documents" icon={FileText}>
           {documentsLoading ? (
-             <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="flex justify-center p-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
           ) : documentsData ? (
-             <div className="space-y-4">
-               <div>
-                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">ID Cards</h4>
-                 {documentsData.idCards.length > 0 ? (
-                   <div className="space-y-2">
-                     {documentsData.idCards.map((doc: any) => (
-                       <div key={doc.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50 text-sm">
-                         <span>{doc.cardNumber || 'ID Card'}</span>
-                         <button onClick={() => window.open(doc.pdfUrl, '_blank')} className="text-primary flex items-center gap-1 hover:underline">
-                           <Download className="h-3.5 w-3.5" /> Download
-                         </button>
-                       </div>
-                     ))}
-                   </div>
-                 ) : <p className="text-xs text-muted-foreground">No ID cards generated yet</p>}
-               </div>
-
-               <div>
-                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Hall Tickets</h4>
-                 {documentsData.hallTickets.length > 0 ? (
-                   <div className="space-y-2">
-                     {documentsData.hallTickets.map((doc: any) => (
-                       <div key={doc.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50 text-sm">
-                         <span>{doc.hallTicketNumber || 'Hall Ticket'}</span>
-                         <button onClick={() => window.open(doc.pdfUrl, '_blank')} className="text-primary flex items-center gap-1 hover:underline">
-                           <Download className="h-3.5 w-3.5" /> Download
-                         </button>
-                       </div>
-                     ))}
-                   </div>
-                 ) : <p className="text-xs text-muted-foreground">No hall tickets generated yet</p>}
-               </div>
-
-               <div>
-                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Certificates</h4>
-                 {documentsData.certificates.length > 0 ? (
-                   <div className="space-y-2">
-                     {documentsData.certificates.map((doc: any) => (
-                       <div key={doc.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50 text-sm">
-                         <span className="truncate pr-4">{doc.title} {doc.certificateNumber ? `(${doc.certificateNumber})` : ''}</span>
-                         <button onClick={() => window.open(doc.pdfUrl, '_blank')} className="text-primary flex items-center gap-1 hover:underline shrink-0">
-                           <Download className="h-3.5 w-3.5" /> Download
-                         </button>
-                       </div>
-                     ))}
-                   </div>
-                 ) : <p className="text-xs text-muted-foreground">No certificates generated yet</p>}
-               </div>
-
-               <div>
-                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Transfer Certificates</h4>
-                 {documentsData.transferCertificates?.length > 0 ? (
-                   <div className="space-y-2">
-                     {documentsData.transferCertificates.map((doc: any) => (
-                       <div key={doc.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50 text-sm">
-                         <span>TC {doc.tcSerialNumber ? `(${doc.tcSerialNumber})` : ''}</span>
-                         <button onClick={() => window.open(doc.pdfUrl, '_blank')} className="text-primary flex items-center gap-1 hover:underline shrink-0">
-                           <Download className="h-3.5 w-3.5" /> Download
-                         </button>
-                       </div>
-                     ))}
-                   </div>
-                 ) : <p className="text-xs text-muted-foreground">No transfer certificates generated yet</p>}
-               </div>
-             </div>
+            <div className="flex flex-col gap-3.5">
+              {[
+                { label: 'ID Cards', items: documentsData.idCards, tone: TONE.peacock, name: (d: any) => d.cardNumber || 'ID Card' },
+                { label: 'Hall Tickets', items: documentsData.hallTickets, tone: TONE.indigo, name: (d: any) => d.hallTicketNumber || 'Hall Ticket' },
+                { label: 'Certificates', items: documentsData.certificates, tone: TONE.temple, name: (d: any) => `${d.title}${d.certificateNumber ? ` (${d.certificateNumber})` : ''}` },
+                { label: 'Transfer Certificates', items: documentsData.transferCertificates ?? [], tone: TONE.lotus, name: (d: any) => `TC${d.tcSerialNumber ? ` (${d.tcSerialNumber})` : ''}` },
+              ].map((group) => (
+                <div key={group.label}>
+                  <h4 className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">{group.label}</h4>
+                  {group.items?.length > 0 ? (
+                    <div className="flex flex-col gap-2">
+                      {group.items.map((doc: any) => (
+                        <div key={doc.id} className="flex items-center gap-2.5 py-1">
+                          <span className="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center flex-shrink-0" style={{ background: `${group.tone}1f`, color: group.tone }}>
+                            <FileText className="h-4 w-4" />
+                          </span>
+                          <span className="flex-1 min-w-0 text-[13px] font-semibold truncate">{group.name(doc)}</span>
+                          <button
+                            onClick={() => window.open(doc.pdfUrl, '_blank')}
+                            className="inline-flex items-center gap-1 border rounded-[9px] bg-muted px-2.5 py-1.5 text-xs font-bold text-primary flex-shrink-0"
+                          >
+                            <Download className="h-3.5 w-3.5" /> PDF
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">None generated yet</p>
+                  )}
+                </div>
+              ))}
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground">No documents found</p>
           )}
-        </CardContent>
-      </Card>
+        </WidgetCard>
+      </div>
 
       {/* Quick links */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card
-          className="cursor-pointer hover:bg-muted/50 transition-colors"
+      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+        <button
           onClick={() => navigate('/student/visionarium')}
+          className="text-left bg-card border rounded-2xl p-4 flex items-center gap-3.5 hover:border-primary hover:-translate-y-0.5 transition-all"
         >
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-indigo-500" />
-              Visionarium
-            </CardTitle>
-            <CardDescription>Test series and practice exams</CardDescription>
-          </CardHeader>
-        </Card>
+          <span className="w-10 h-10 rounded-[11px] flex items-center justify-center flex-shrink-0" style={{ background: `${TONE.indigo}1f`, color: TONE.indigo }}>
+            <BookOpen className="h-5 w-5" />
+          </span>
+          <div>
+            <div className="font-bold text-sm">Visionarium</div>
+            <div className="text-xs text-muted-foreground">Test series &amp; practice exams</div>
+          </div>
+        </button>
 
-        <Card
-          className="cursor-pointer hover:bg-muted/50 transition-colors"
+        <button
           onClick={() => navigate('/student/feed')}
+          className="text-left bg-card border rounded-2xl p-4 flex items-center gap-3.5 hover:border-primary hover:-translate-y-0.5 transition-all"
         >
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Heart className="h-4 w-4 text-rose-500" />
-              Saathi Feed
-            </CardTitle>
-            <CardDescription>School updates and social feed</CardDescription>
-          </CardHeader>
-        </Card>
+          <span className="w-10 h-10 rounded-[11px] flex items-center justify-center flex-shrink-0" style={{ background: `${TONE.lotus}1f`, color: TONE.lotus }}>
+            <Heart className="h-5 w-5" />
+          </span>
+          <div>
+            <div className="font-bold text-sm">Saathi Feed</div>
+            <div className="text-xs text-muted-foreground">School updates &amp; social feed</div>
+          </div>
+        </button>
       </div>
     </div>
   );

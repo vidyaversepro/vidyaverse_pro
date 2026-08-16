@@ -48,7 +48,7 @@ export default function ModulesSubscriptionPanel({ institutionId }: { institutio
   if (loadingCatalog || loadingEnt || !ent || !catalog) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -94,7 +94,7 @@ export default function ModulesSubscriptionPanel({ institutionId }: { institutio
         <CardContent className="p-5">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Subscription tier</p>
+              <p className="text-sm text-muted-foreground">Subscription tier</p>
               <div className="flex items-center gap-3 mt-1">
                 <Select value={ent.tier} onValueChange={handleTierChange} disabled={update.isPending}>
                   <SelectTrigger className="w-44 capitalize">
@@ -116,8 +116,8 @@ export default function ModulesSubscriptionPanel({ institutionId }: { institutio
                 const limitText = typeof limit === 'number' ? (limit < 0 ? '∞' : String(limit)) : '—';
                 return (
                   <div key={u.label} className="text-center">
-                    <p className="text-xs text-gray-400">{u.label}</p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{u.used} / {limitText}</p>
+                    <p className="text-xs text-muted-foreground">{u.label}</p>
+                    <p className="text-sm font-semibold text-foreground">{u.used} / {limitText}</p>
                   </div>
                 );
               })}
@@ -133,7 +133,7 @@ export default function ModulesSubscriptionPanel({ institutionId }: { institutio
         return (
           <Card key={key} className="border-0 shadow-sm">
             <CardContent className="p-5">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{label}</h3>
+              <h3 className="text-sm text-foreground mb-4">{label}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {mods.map((mod) => {
                   const applicable = mod.appliesTo.includes(ent.institutionType);
@@ -142,18 +142,18 @@ export default function ModulesSubscriptionPanel({ institutionId }: { institutio
                   return (
                     <div
                       key={mod.key}
-                      className={`flex items-start justify-between gap-3 rounded-lg border p-3 ${applicable ? 'border-gray-100 dark:border-gray-800' : 'border-dashed border-gray-200 dark:border-gray-800 opacity-50'}`}
+                      className={`flex items-start justify-between gap-3 rounded-lg border p-3 ${applicable ? 'border-border' : 'border-dashed border-border opacity-50'}`}
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">{mod.name}</span>
+                          <span className="text-sm font-medium text-foreground">{mod.name}</span>
                           {mod.core && <Badge variant="secondary" className="text-[10px]">core</Badge>}
                           {mod.addOn && <Badge variant="outline" className="text-[10px]">add-on</Badge>}
                           {!mod.core && !mod.addOn && <Badge variant="outline" className="text-[10px] capitalize">{mod.defaultTier}</Badge>}
                           {overridden && <Badge className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">override</Badge>}
                         </div>
-                        <p className="text-xs text-gray-400 mt-0.5 truncate">{mod.description}</p>
-                        {!applicable && <p className="text-[10px] text-gray-400 mt-0.5">Not applicable to this institution type</p>}
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{mod.description}</p>
+                        {!applicable && <p className="text-[10px] text-muted-foreground mt-0.5">Not applicable to this institution type</p>}
                       </div>
                       <Switch
                         checked={on}

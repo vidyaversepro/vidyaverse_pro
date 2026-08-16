@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Yatra+One&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+.vv{
+ --saffron:#FF6B35;--kumkum:#C0392B;--gold:#FFD700;--temple-stone:#B8860B;
+ --peacock:#006A6E;--teal-light:#00897B;--indigo:#1A237E;--lotus-deep:#AD1457;
+ --bg:#FFFCF7;--surface:#FFF8F0;--sand:#FFF3E6;--elevated:#ffffff;
+ --text:#241B0F;--text2:#5A4E3C;--text3:#9a8a72;
+ --brand:var(--kumkum);--brand-2:var(--lotus-deep);
+ --border:rgb(184 134 11 / .22);--border-soft:rgb(184 134 11 / .12);
+ --glass:rgb(255 252 247 / .72);--studio:#efe6d8;
+ --font-display:'Yatra One','Noto Sans Devanagari',serif;
+ --font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+ --font-deva:'Noto Sans Devanagari',serif;
+ -webkit-font-smoothing:antialiased;
+}
+.vv.acc-peacock{--brand:var(--peacock);--brand-2:var(--teal-light)}
+.vv.dark{
+ --bg:#0A0F1E;--surface:#0B1233;--sand:#0B1233;--elevated:#16213E;
+ --text:#FFF8F0;--text2:rgb(255 248 240 / .74);--text3:rgb(255 248 240 / .5);
+ --brand:#E2685A;--brand-2:#FFB27A;--border:rgb(255 215 0 / .16);--border-soft:rgb(255 215 0 / .09);
+ --glass:rgb(10 15 30 / .6);--studio:#05070f;
+}
+.vv.dark.acc-peacock{--brand:#3fb0a5;--brand-2:#6fd3c4}
+@keyframes vvspin{to{transform:rotate(360deg)}}
+@keyframes vvrise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.vv input::placeholder{color:var(--text3)}
+.vv-scroll::-webkit-scrollbar{width:8px;height:8px}.vv-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+@media (prefers-reduced-motion:reduce){.vv *{animation:none!important}}
+</style>
+</helmet>
+
+<div class="vv {{ themeClass }} {{ accentClass }}" style="font-family:var(--font-body);min-height:100vh;background:var(--studio);display:flex;flex-direction:column">
+
+  <!-- Harness -->
+  <div style="position:sticky;top:0;z-index:80;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:var(--glass);border-bottom:1px solid var(--border);padding:10px clamp(12px,3vw,24px);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="font-family:var(--font-display);font-size:16px;color:var(--text);margin-right:auto">Vidyaverse — Dashboards</div>
+    <div style="display:inline-flex;background:var(--elevated);border:1px solid var(--border);border-radius:11px;padding:3px;gap:2px">
+      <sc-for list="{{ pageOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button></sc-for>
+    </div>
+    <div style="display:inline-flex;background:var(--elevated);border:1px solid var(--border);border-radius:11px;padding:3px;gap:2px">
+      <sc-for list="{{ deviceOpts }}" as="d" hint-placeholder-count="3"><button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.label }}</button></sc-for>
+    </div>
+    <button onClick="{{ toggleAccent }}" aria-label="Accent" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:linear-gradient(135deg,var(--brand),var(--brand-2));cursor:pointer"></button>
+    <button onClick="{{ toggleTheme }}" aria-label="Theme" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--elevated);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ themeIcon }}"></path></svg></button>
+  </div>
+
+  <!-- Stage -->
+  <div class="vv-scroll" style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:clamp(16px,4vw,44px)">
+    <div style="{{ frameStyle }}">
+      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+        <div style="height:38px;background:var(--surface);border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:7px;padding:0 14px">
+          <span style="width:11px;height:11px;border-radius:50%;background:#ff5f57"></span><span style="width:11px;height:11px;border-radius:50%;background:#febc2e"></span><span style="width:11px;height:11px;border-radius:50%;background:#28c840"></span>
+          <span style="margin-left:14px;font-size:12px;color:var(--text3);background:var(--bg);border:1px solid var(--border-soft);border-radius:7px;padding:3px 12px">app.vidyaverse.in{{ urlPath }}</span>
+        </div>
+      </sc-if>
+
+      <div style="{{ screenStyle }}">
+        <sc-if value="{{ isCompact }}" hint-placeholder-val="{{ false }}">
+          <div style="height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:13px;font-weight:700;color:var(--text);flex-shrink:0"><span>9:41</span><span style="display:flex;gap:6px"><svg viewBox="0 0 24 16" width="18" height="12" fill="currentColor"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="5" y="6" width="3" height="8" rx="1"/><rect x="10" y="3" width="3" height="11" rx="1"/><rect x="15" y="0" width="3" height="14" rx="1"/></svg><svg viewBox="0 0 26 14" width="22" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="20" height="12" rx="3"/><rect x="3" y="3" width="14" height="8" rx="1.5" fill="currentColor" stroke="none"/></svg></span></div>
+        </sc-if>
+
+        <main class="vv-scroll" style="flex:1;overflow:auto;background:var(--bg);padding:{{ contentPad }}">
+          <div style="max-width:1080px;margin:0 auto;animation:vvrise .45s ease both" key="{{ page }}">
+
+          <!-- ════════ INSTITUTIONS ════════ -->
+          <sc-if value="{{ isInstitutions }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:18px">
+              <div style="min-width:0">
+                <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}"><div style="font-size:12px;color:var(--text3);font-weight:600;margin-bottom:5px">Dashboard <span style="opacity:.5">/</span> Institutions</div></sc-if>
+                <div style="font-family:var(--font-display);font-size:{{ titleSize }};color:var(--text);line-height:1.1">Institutions</div>
+                <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}"><div style="font-size:13.5px;color:var(--text2);font-weight:500;margin-top:4px">Manage all connected educational institutions</div></sc-if>
+              </div>
+              <button style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border:none;border-radius:12px;padding:11px 16px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit;box-shadow:0 10px 22px -12px var(--brand);white-space:nowrap;flex-shrink:0">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14 M5 12h14"></path></svg>
+                <span>{{ addLabel }}</span>
+              </button>
+            </div>
+
+            <!-- stats -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px">
+              <sc-for list="{{ instStats }}" as="s" hint-placeholder-count="4">
+                <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:15px;padding:15px;display:flex;align-items:center;gap:13px">
+                  <span style="width:42px;height:42px;border-radius:12px;background:{{ s.bg }};color:{{ s.tone }};display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ s.icon }}"></path></svg></span>
+                  <div style="min-width:0"><div style="font-family:var(--font-display);font-size:23px;color:var(--text);line-height:1">{{ s.value }}</div><div style="font-size:12px;color:var(--text2);font-weight:600">{{ s.label }}</div></div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- filter bar -->
+            <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:14px">
+              <div style="position:relative">
+                <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text3);display:flex"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.3-4.3"></path></svg></span>
+                <input type="text" placeholder="Search institutions…" value="{{ search }}" onInput="{{ onSearch }}" style="width:100%;height:44px;border-radius:12px;border:1px solid var(--border);background:var(--elevated);color:var(--text);padding:0 14px 0 42px;font-size:14px;font-family:inherit;outline:none" style-focus="border-color:var(--brand)"/>
+              </div>
+              <div style="display:flex;gap:7px;flex-wrap:wrap">
+                <sc-for list="{{ statusChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button></sc-for>
+                <span style="width:1px;background:var(--border-soft);margin:2px 4px"></span>
+                <sc-for list="{{ tierChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button></sc-for>
+              </div>
+            </div>
+
+            <!-- DESKTOP table -->
+            <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+              <div style="border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:var(--elevated)">
+                <table style="width:100%;border-collapse:collapse;font-size:13.5px">
+                  <thead><tr style="background:var(--surface)">
+                    <th style="text-align:left;padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)">Name</th>
+                    <th style="text-align:left;padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)">Contact</th>
+                    <th style="text-align:left;padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)">Subscription</th>
+                    <th style="text-align:left;padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)">Status</th>
+                    <th style="text-align:right;padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)">Students</th>
+                    <th style="text-align:left;padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)">Created</th>
+                    <th style="width:44px"></th>
+                  </tr></thead>
+                  <tbody>
+                    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+                      <tr style="border-top:1px solid var(--border-soft)">
+                        <td style="padding:13px 16px"><div style="font-weight:700;color:var(--text)">{{ r.name }}</div><div style="font-size:12px;color:var(--text3)">{{ r.code }}</div></td>
+                        <td style="padding:13px 16px;color:var(--text2)">{{ r.email }}</td>
+                        <td style="padding:13px 16px"><span style="{{ r.tierStyle }}">{{ r.tier }}</span></td>
+                        <td style="padding:13px 16px"><span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span></td>
+                        <td style="padding:13px 16px;text-align:right;font-weight:600;color:var(--text)">{{ r.students }}</td>
+                        <td style="padding:13px 16px;color:var(--text3)">{{ r.created }}</td>
+                        <td style="padding:13px 8px;text-align:right"><button aria-label="Actions" style="width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--text3);cursor:pointer" style-hover="background:var(--surface)"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button></td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+                <sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}"><div style="padding:36px;text-align:center;color:var(--text3);font-size:14px">No institutions match your filters.</div></sc-if>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:14px">
+                <button style="height:34px;padding:0 12px;border:1px solid var(--border);border-radius:9px;background:var(--elevated);color:var(--text3);font-weight:600;font-size:13px;cursor:pointer">Prev</button>
+                <button style="height:34px;width:34px;border:none;border-radius:9px;background:var(--brand);color:#fff;font-weight:700;cursor:pointer">1</button>
+                <button style="height:34px;width:34px;border:1px solid var(--border);border-radius:9px;background:var(--elevated);color:var(--text2);font-weight:600;cursor:pointer">2</button>
+                <button style="height:34px;width:34px;border:1px solid var(--border);border-radius:9px;background:var(--elevated);color:var(--text2);font-weight:600;cursor:pointer">3</button>
+                <button style="height:34px;padding:0 12px;border:1px solid var(--border);border-radius:9px;background:var(--elevated);color:var(--text2);font-weight:600;font-size:13px;cursor:pointer">Next</button>
+              </div>
+            </sc-if>
+
+            <!-- MOBILE card list -->
+            <sc-if value="{{ isCompact }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+                  <button style="text-align:left;width:100%;background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:15px;cursor:pointer;display:flex;flex-direction:column;gap:11px;font-family:inherit" style-active="transform:scale(.99)">
+                    <div style="display:flex;align-items:flex-start;gap:11px">
+                      <span style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-family:var(--font-display);font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0">{{ r.initial }}</span>
+                      <div style="flex:1;min-width:0"><div style="font-weight:700;color:var(--text);font-size:15px">{{ r.name }}</div><div style="font-size:12px;color:var(--text3)">{{ r.code }} · {{ r.email }}</div></div>
+                      <span style="{{ r.statusStyle }}">{{ r.statusLabel }}</span>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--text2);font-weight:600">
+                      <span style="{{ r.tierStyle }}">{{ r.tier }}</span>
+                      <span style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0"></path></svg>{{ r.students }} students</span>
+                      <span style="margin-left:auto;color:var(--text3)">{{ r.created }}</span>
+                    </div>
+                  </button>
+                </sc-for>
+                <sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}"><div style="padding:30px;text-align:center;color:var(--text3);font-size:14px">No institutions match your filters.</div></sc-if>
+              </div>
+            </sc-if>
+          </sc-if>
+
+          <!-- ════════ STUDENT DASHBOARD ════════ -->
+          <sc-if value="{{ isStudent }}" hint-placeholder-val="{{ false }}">
+            <!-- profile header -->
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+              <span style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-family:var(--font-display);font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0">AM</span>
+              <div style="min-width:0"><div style="font-family:var(--font-display);font-size:{{ titleSize }};color:var(--text);line-height:1.1">Aarav Mehta</div><div style="font-size:13px;color:var(--text2);font-weight:500">Delhi Public School</div></div>
+            </div>
+
+            <!-- identity -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;margin-bottom:16px">
+              <sc-for list="{{ identity }}" as="i" hint-placeholder-count="3">
+                <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:14px;padding:14px"><div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.05em">{{ i.k }}</div><div style="display:flex;align-items:center;gap:7px;margin-top:6px;font-weight:700;color:var(--text);font-size:15px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ i.tone }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ i.icon }}"></path></svg>{{ i.v }}</div></div>
+              </sc-for>
+            </div>
+
+            <!-- widgets -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start">
+
+              <!-- attendance -->
+              <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:18px">
+                <div style="font-family:var(--font-display);font-size:15px;color:var(--text);margin-bottom:14px">Attendance summary</div>
+                <div style="display:flex;align-items:center;gap:18px">
+                  <div style="position:relative;width:88px;height:88px;flex-shrink:0">
+                    <svg viewBox="0 0 36 36" width="88" height="88" style="transform:rotate(-90deg)"><path d="M18 2.08a15.9 15.9 0 0 1 0 31.83 15.9 15.9 0 0 1 0-31.83" fill="none" stroke="var(--border)" stroke-width="3.4"/><path d="M18 2.08a15.9 15.9 0 0 1 0 31.83 15.9 15.9 0 0 1 0-31.83" fill="none" stroke="var(--brand)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="94, 100"/></svg>
+                    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:var(--font-display);font-size:19px;color:var(--text)">94%</span></div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;gap:9px;font-size:13.5px">
+                    <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Present</span><span style="font-weight:700;color:#15803d">171</span></div>
+                    <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Absent</span><span style="font-weight:700;color:#C0392B">7</span></div>
+                    <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Late</span><span style="font-weight:700;color:#B8860B">4</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- today classes -->
+              <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:18px">
+                <div style="font-family:var(--font-display);font-size:15px;color:var(--text);margin-bottom:12px">Today's classes</div>
+                <div style="display:flex;flex-direction:column;gap:9px">
+                  <sc-for list="{{ classes }}" as="c" hint-placeholder-count="4">
+                    <div style="{{ c.style }}"><div><div style="font-weight:700;color:var(--text);font-size:13.5px">{{ c.subj }}</div><div style="font-size:12px;color:var(--text3)">{{ c.time }}</div></div><span style="font-size:11px;font-weight:700;color:var(--text2);background:var(--surface);border:1px solid var(--border-soft);border-radius:7px;padding:3px 8px">{{ c.room }}</span></div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <!-- fees -->
+              <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:18px">
+                <div style="font-family:var(--font-display);font-size:15px;color:var(--text);margin-bottom:12px">Fee status</div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+                  <span style="font-size:13px;color:var(--text2)">2 unpaid invoices</span>
+                  <span style="font-family:var(--font-display);font-size:22px;color:#C0392B">₹12,400</span>
+                </div>
+                <sc-for list="{{ invoices }}" as="v" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text2)">{{ v.no }}</span><span style="{{ v.style }}">{{ v.label }}</span></div>
+                </sc-for>
+                <button style="width:100%;margin-top:13px;height:42px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit">Pay now</button>
+              </div>
+
+              <!-- notices -->
+              <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:18px">
+                <div style="font-family:var(--font-display);font-size:15px;color:var(--text);margin-bottom:12px">Official notices</div>
+                <sc-for list="{{ notices }}" as="n" hint-placeholder-count="3">
+                  <div style="padding:11px 0;border-top:1px solid var(--border-soft)">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px"><h4 style="margin:0;font-size:13.5px;font-weight:700;color:var(--text)">{{ n.title }}</h4><span style="font-size:11px;color:var(--text3);white-space:nowrap">{{ n.date }}</span></div>
+                    <div style="display:flex;gap:6px;margin:6px 0"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);background:var(--surface);border-radius:6px;padding:2px 7px">{{ n.cat }}</span><sc-if value="{{ n.pinned }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#fff;background:var(--temple-stone);border-radius:6px;padding:2px 7px">Pinned</span></sc-if></div>
+                    <p style="margin:0;font-size:12.5px;color:var(--text3);line-height:1.45">{{ n.body }}</p>
+                  </div>
+                </sc-for>
+              </div>
+
+              <!-- transport -->
+              <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:18px">
+                <div style="font-family:var(--font-display);font-size:15px;color:var(--text);margin-bottom:12px">Transport</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-weight:700;color:var(--text);font-size:13.5px">Route 7 — Vasant Kunj</span><span style="font-size:11px;font-weight:700;color:var(--text2);background:var(--surface);border:1px solid var(--border-soft);border-radius:7px;padding:3px 8px">R7</span></div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.7">Vehicle · DL 1P 4821<br>Driver · Ramesh K. <span style="color:var(--brand);font-weight:600">+91 98xxx</span></div>
+                <div style="margin-top:11px;padding-top:11px;border-top:1px solid var(--border-soft)"><div style="display:flex;align-items:center;gap:6px;font-weight:700;color:var(--text);font-size:13px;margin-bottom:4px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z M12 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path></svg>Sector C Market</div><div style="display:flex;gap:16px;font-size:12px;color:var(--text3)"><span>Pickup 07:10</span><span>Drop 15:20</span></div></div>
+              </div>
+
+              <!-- documents -->
+              <div style="background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:18px">
+                <div style="font-family:var(--font-display);font-size:15px;color:var(--text);margin-bottom:12px">My documents</div>
+                <sc-for list="{{ docs }}" as="d" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--border-soft)">
+                    <span style="width:34px;height:34px;border-radius:9px;background:{{ d.bg }};color:{{ d.tone }};display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ d.icon }}"></path></svg></span>
+                    <div style="flex:1;min-width:0"><div style="font-weight:700;color:var(--text);font-size:13px">{{ d.title }}</div><div style="font-size:11.5px;color:var(--text3)">{{ d.no }}</div></div>
+                    <button style="display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);background:var(--surface);border-radius:9px;padding:6px 11px;font-size:12px;font-weight:700;color:var(--brand);cursor:pointer;font-family:inherit"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12 M7 11l5 5 5-5 M4 21h16"></path></svg>PDF</button>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- quick links -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px">
+              <sc-for list="{{ links }}" as="l" hint-placeholder-count="2">
+                <button style="text-align:left;background:var(--elevated);border:1px solid var(--border-soft);border-radius:16px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:13px;font-family:inherit" style-hover="border-color:var(--brand);transform:translateY(-2px)">
+                  <span style="width:40px;height:40px;border-radius:11px;background:{{ l.bg }};color:{{ l.tone }};display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ l.icon }}"></path></svg></span>
+                  <div><div style="font-weight:700;color:var(--text);font-size:14px">{{ l.title }}</div><div style="font-size:12px;color:var(--text3)">{{ l.sub }}</div></div>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <div style="height:12px"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1300,&quot;height&quot;:900},&quot;page&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;institutions&quot;,&quot;student&quot;],&quot;default&quot;:&quot;institutions&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;device&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;phone&quot;,&quot;tablet&quot;,&quot;desktop&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;kumkum&quot;,&quot;peacock&quot;],&quot;default&quot;:&quot;kumkum&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const IC={
+  building:"M3 21h18 M6 21V4h12v17 M9 8h1 M14 8h1 M9 12h1 M14 12h1 M9 16h1 M14 16h1",
+  check:"M9 12l2 2 4-4 M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
+  clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 7v5l3 2",
+  x:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M15 9l-6 6 M9 9l6 6",
+  cap:"M22 10 12 5 2 10l10 5 10-5z M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5",
+  hash:"M4 9h16 M4 15h16 M10 3 8 21 M16 3l-2 18",
+  roll:"M9 3h6v4H9z M8 3H6a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2 M9 12h6 M9 16h4",
+  card:"M2 5.5h20v13H2z M2 10h20 M6 15h5",
+  clip:"M9 3h6v3H9z M8 3H6a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2",
+  award:"M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12z M8.5 13.5 7 22l5-3 5 3-1.5-8.5",
+  book:"M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z M19 3v18",
+  heart:"M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1z",
+};
+const T={peacock:{t:"#006A6E",bg:"rgb(0 106 110 / .13)"},green:{t:"#15803d",bg:"rgb(21 128 61 / .12)"},temple:{t:"#B8860B",bg:"rgb(184 134 11 / .15)"},red:{t:"#C0392B",bg:"rgb(192 57 43 / .12)"},indigo:{t:"#1A237E",bg:"rgb(26 35 126 / .12)"},lotus:{t:"#AD1457",bg:"rgb(173 20 87 / .12)"}};
+const INST=[
+ {name:'Delhi Public School',code:'DPS-DEL',email:'admin@dps.edu.in',tier:'Enterprise',status:'active',students:'2,412',created:'12 Jan 2024'},
+ {name:"St. Xavier's High",code:'SXH-MUM',email:'office@xavier.edu.in',tier:'Professional',status:'active',students:'1,840',created:'03 Mar 2024'},
+ {name:'Green Valley Academy',code:'GVA-BLR',email:'contact@greenvalley.in',tier:'Professional',status:'trial',students:'640',created:'21 Jun 2024'},
+ {name:'Sunrise Public School',code:'SPS-JAI',email:'info@sunrise.edu.in',tier:'Starter',status:'trial',students:'312',created:'09 Jul 2024'},
+ {name:'Heritage International',code:'HIS-HYD',email:'admin@heritage.in',tier:'Enterprise',status:'suspended',students:'0',created:'15 Feb 2024'},
+];
+class Component extends DCLogic {
+  state={device:this.props.device||'desktop',theme:this.props.theme||'light',accent:this.props.accent||'kumkum',page:this.props.page||'institutions',search:'',status:'All',tier:'All'};
+  set(p){this.setState(p);}
+  renderVals(){
+    const s=this.state,isDesktop=s.device==='desktop',isCompact=!isDesktop;
+    const frames={phone:{frame:"width:392px;padding:13px;background:#0c0c12;border-radius:46px;box-shadow:0 40px 90px -34px rgb(0 0 0 / .55);flex-shrink:0",screen:"height:812px;border-radius:33px"},tablet:{frame:"width:760px;padding:18px;background:#0c0c12;border-radius:30px;box-shadow:0 40px 90px -34px rgb(0 0 0 / .55);flex-shrink:0",screen:"height:940px;border-radius:16px"},desktop:{frame:"width:min(1120px,100%);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 40px 90px -40px rgb(0 0 0 / .45);background:var(--elevated)",screen:"height:770px"}};
+    const f=frames[s.device];
+    const tierStyle=(tier)=>{const k=tier==='Enterprise'?'temple':tier==='Professional'?'peacock':null;const c=k?T[k]:{t:'var(--text2)',bg:'var(--surface)'};return "display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:"+c.bg+";color:"+c.t;};
+    const statusStyle=(st)=>{const k=st==='active'?'green':st==='trial'?'temple':'red';return "display:inline-flex;align-items:center;font-size:11px;font-weight:700;text-transform:capitalize;padding:3px 10px;border-radius:999px;background:"+T[k].bg+";color:"+T[k].t;};
+    const rows=INST.filter(i=>{
+      const q=s.search.trim().toLowerCase();
+      if(q && !(i.name.toLowerCase().includes(q)||i.code.toLowerCase().includes(q))) return false;
+      if(s.status!=='All' && i.status!==s.status) return false;
+      if(s.tier!=='All' && i.tier!==s.tier) return false;
+      return true;
+    }).map(i=>({...i,initial:i.name[0],tierStyle:tierStyle(i.tier),statusStyle:statusStyle(i.status),statusLabel:i.status}));
+
+    const chip=(active,cb,label)=>({label,onClick:cb,style:"white-space:nowrap;border:1px solid "+(active?"transparent":"var(--border)")+";cursor:pointer;font-size:12px;font-weight:700;padding:6px 12px;border-radius:9px;color:"+(active?"#fff":"var(--text2)")+";background:"+(active?"var(--brand)":"var(--elevated)")});
+    const statusChips=[['All','All status'],['active','Active'],['trial','Trial'],['suspended','Suspended']].map(([k,l])=>chip(s.status===k,()=>this.set({status:k}),l));
+    const tierChips=[['All','All tiers'],['Starter','Starter'],['Professional','Pro'],['Enterprise','Enterprise']].map(([k,l])=>chip(s.tier===k,()=>this.set({tier:k}),l));
+
+    const cls=(subj,time,room,cur)=>({subj,time,room,style:"display:flex;align-items:flex-start;justify-content:between;justify-content:space-between;gap:8px;padding:9px 11px;border-radius:10px;border-left:3px solid "+(cur?"var(--brand)":"var(--border)")+";"+(cur?"background:rgb(192 57 43 / .06)":"background:var(--surface)")});
+    const classes=[cls('Mathematics','08:00 – 08:45','R-204',false),cls('Physics','08:50 – 09:35','Lab 2',true),cls('English','09:40 – 10:25','R-110',false),cls('History','10:40 – 11:25','R-108',false)];
+    const invStyle=(st)=>"display:inline-flex;font-size:11px;font-weight:700;text-transform:capitalize;padding:3px 10px;border-radius:999px;background:"+(st==='partial'?T.temple.bg:T.red.bg)+";color:"+(st==='partial'?T.temple.t:T.red.t);
+    const invoices=[{no:'INV-2024-0345',label:'Unpaid',style:invStyle('unpaid')},{no:'INV-2024-0361',label:'Partial',style:invStyle('partial')}];
+    const notices=[{title:'Annual Day rehearsal schedule',cat:'Events',date:'12 Aug',pinned:true,body:'All classes report to the auditorium by 2 PM for the final rehearsal.'},{title:'Half-yearly datesheet released',cat:'Academics',date:'09 Aug',pinned:false,body:'Exams begin 22 Aug. Check the portal for your seating plan.'},{title:'Term 2 fee reminder',cat:'Finance',date:'05 Aug',pinned:false,body:'Kindly clear pending dues before 20 Aug to avoid late charges.'}];
+    const docs=[{title:'ID Card',no:'DPS-2021-0345',icon:IC.card,...T.peacock},{title:'Hall Ticket',no:'HT-HALF-10A-14',icon:IC.clip,...T.indigo},{title:'Sports Certificate',no:'CERT-0912 · 100m Gold',icon:IC.award,...T.temple}];
+    const identity=[{k:'Class & Section',v:'10 — A',icon:IC.cap,tone:'#006A6E'},{k:'Admission No.',v:'2021/0345',icon:IC.hash,tone:'#AD1457'},{k:'Roll No.',v:'14',icon:IC.roll,tone:'#1A237E'}];
+    const links=[{title:'Visionarium',sub:'Test series & practice exams',icon:IC.book,...T.indigo},{title:'Saathi Feed',sub:'School updates & social feed',icon:IC.heart,...T.lotus}];
+    const instStats=[{label:'Total',value:'24',icon:IC.building,...T.peacock},{label:'Active',value:'18',icon:IC.check,...T.green},{label:'Trial',value:'4',icon:IC.clock,...T.temple},{label:'Suspended',value:'2',icon:IC.x,...T.red}];
+
+    const pageOpts=[['institutions','Institutions'],['student','Student']].map(([k,l])=>({label:l,onClick:()=>this.set({page:k}),style:"border:none;cursor:pointer;font-size:12px;font-weight:700;padding:6px 13px;border-radius:8px;color:"+(s.page===k?"#fff":"var(--text2)")+";background:"+(s.page===k?"linear-gradient(135deg,var(--brand),var(--brand-2))":"transparent")}));
+    const deviceOpts=[['phone','Phone'],['tablet','Tablet'],['desktop','Desktop']].map(([k,l])=>({label:l,onClick:()=>this.set({device:k}),style:"border:none;cursor:pointer;font-size:12px;font-weight:700;padding:6px 13px;border-radius:8px;color:"+(s.device===k?"#fff":"var(--text2)")+";background:"+(s.device===k?"linear-gradient(135deg,var(--brand),var(--brand-2))":"transparent")}));
+
+    return {
+      themeClass:s.theme==='dark'?'dark':'',accentClass:s.accent==='peacock'?'acc-peacock':'',
+      themeIcon:s.theme==='dark'?"M12 3v2 M12 19v2 M4.2 4.2l1.4 1.4 M18.4 18.4l1.4 1.4 M3 12h2 M19 12h2 M4.2 19.8l1.4-1.4 M18.4 5.6l1.4-1.4 M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z":"M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z",
+      isDesktop,isCompact,frameStyle:f.frame,screenStyle:"display:flex;flex-direction:column;background:var(--bg);overflow:hidden;"+(isDesktop?"":"border-radius:33px;")+f.screen,
+      contentPad:isCompact?'16px':'26px',titleSize:isCompact?'22px':'26px',urlPath:s.page==='student'?'/student/dashboard':'/app/institutions',
+      page:s.page,isInstitutions:s.page==='institutions',isStudent:s.page==='student',
+      addLabel:isCompact?'Add':'Add institution',
+      instStats,rows,noRows:rows.length===0,search:s.search,onSearch:(e)=>this.set({search:e.target.value}),
+      statusChips,tierChips,classes,invoices,notices,docs,identity,links,
+      pageOpts,deviceOpts,
+      toggleTheme:()=>this.set({theme:s.theme==='dark'?'light':'dark'}),toggleAccent:()=>this.set({accent:s.accent==='peacock'?'kumkum':'peacock'}),
+    };
+  }
+}
+</script>
+</body>
+</html>

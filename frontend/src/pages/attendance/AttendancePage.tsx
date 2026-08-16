@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePageInstitution } from "@/hooks/usePageInstitution";
 import {
@@ -9,8 +9,9 @@ import {
   type SectionReport,
 } from "@/lib/queries/attendance-queries";
 import { useClasses, useSections } from "@/lib/queries";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,9 +37,57 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Users, UserCheck, UserX, UserMinus, PlusCircle, Calendar } from "lucide-react";
+
+const TONE = {
+  green: '#15803d',
+  temple: '#B8860B',
+  red: '#C0392B',
+  peacock: '#006A6E',
+  indigo: '#1A237E',
+  lotus: '#AD1457',
+};
+
+const SESSION_TYPE_TONE: Record<string, string> = {
+  class: TONE.peacock,
+  exam: TONE.lotus,
+  activity: TONE.temple,
+  event: TONE.indigo,
+};
+
+function Pill({ label, tone }: { label: string; tone: string }) {
+  return (
+    <span
+      className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full whitespace-nowrap"
+      style={{ color: tone, background: `${tone}1f` }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function NeutralPill({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full bg-muted text-muted-foreground border whitespace-nowrap">
+      {label}
+    </span>
+  );
+}
+
+function StatTile({ label, value, icon: Icon, tone, valueColor }: { label: string; value: string | number; icon: ComponentType<{ className?: string }>; tone: string; valueColor?: string }) {
+  return (
+    <div className="bg-card border rounded-2xl p-[15px] flex items-center gap-[13px]">
+      <span className="w-[42px] h-[42px] rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${tone}1f`, color: tone }}>
+        <Icon className="h-5 w-5" />
+      </span>
+      <div className="min-w-0">
+        <div className="text-[21px] leading-none" style={{ fontFamily: 'var(--font-display)', color: valueColor }}>{value}</div>
+        <div className="text-xs text-muted-foreground font-semibold mt-1">{label}</div>
+      </div>
+    </div>
+  );
+}
 
 export default function AttendancePage() {
   const institutionId = usePageInstitution() ?? '';
@@ -56,25 +105,29 @@ export default function AttendancePage() {
   });
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Attendance</h1>
-          <p className="text-sm text-muted-foreground">Manage student attendance sessions</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-auto"
-          />
-          <Button onClick={() => setCreateSessionOpen(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Create Session
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-4 p-4 sm:p-6">
+      <PageHeader
+        breadcrumb={[
+          { label: 'Dashboard', href: '/app/dashboard' },
+          { label: 'Attendance' },
+        ]}
+        title="Attendance"
+        description="Manage student attendance sessions"
+        action={
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-auto"
+            />
+            <Button onClick={() => setCreateSessionOpen(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create Session
+            </Button>
+          </div>
+        }
+      />
 
       <Tabs defaultValue="overview">
         <TabsList>
@@ -83,79 +136,40 @@ export default function AttendancePage() {
           <TabsTrigger value="reports">Reports</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="space-y-4 mt-4">
           {statsQuery.isLoading ? (
             <div className="text-center py-8 text-muted-foreground">Loading stats...</div>
           ) : statsQuery.data ? (
             <>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      Total Marked
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">{statsQuery.data.totals.total}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <UserCheck className="h-4 w-4 text-green-500" />
-                      Present
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold text-green-600">{statsQuery.data.totals.present}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <UserMinus className="h-4 w-4 text-yellow-500" />
-                      Late
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold text-yellow-600">{statsQuery.data.totals.late}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                      <UserX className="h-4 w-4 text-red-500" />
-                      Absent
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold text-red-600">{statsQuery.data.totals.absent}</p>
-                  </CardContent>
-                </Card>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <StatTile label="Total marked" value={statsQuery.data.totals.total} icon={Users} tone={TONE.peacock} />
+                <StatTile label="Present" value={statsQuery.data.totals.present} icon={UserCheck} tone={TONE.green} valueColor={TONE.green} />
+                <StatTile label="Late" value={statsQuery.data.totals.late} icon={UserMinus} tone={TONE.temple} valueColor={TONE.temple} />
+                <StatTile label="Absent" value={statsQuery.data.totals.absent} icon={UserX} tone={TONE.red} valueColor={TONE.red} />
               </div>
 
-              <div className="rounded-lg border bg-card">
+              {/* Desktop table */}
+              <div className="hidden lg:block rounded-2xl border bg-card overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="bg-muted/40 hover:bg-muted/40">
                       <TableHead>Class & Section</TableHead>
                       <TableHead>Type</TableHead>
-                      <TableHead>Present</TableHead>
-                      <TableHead>Late</TableHead>
-                      <TableHead>Absent</TableHead>
-                      <TableHead>Total</TableHead>
+                      <TableHead className="text-right" style={{ color: TONE.green }}>Present</TableHead>
+                      <TableHead className="text-right" style={{ color: TONE.temple }}>Late</TableHead>
+                      <TableHead className="text-right" style={{ color: TONE.red }}>Absent</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {statsQuery.data.sessions.map((s) => (
-                      <TableRow key={s.sessionId} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/app/attendance/sessions/${s.sessionId}`)}>
-                        <TableCell className="font-medium">{s.class} - {s.section}</TableCell>
-                        <TableCell className="capitalize">{s.type}</TableCell>
-                        <TableCell className="text-green-600">{s.present}</TableCell>
-                        <TableCell className="text-yellow-600">{s.late}</TableCell>
-                        <TableCell className="text-red-600">{s.absent}</TableCell>
-                        <TableCell>{s.total}</TableCell>
+                      <TableRow key={s.sessionId} className="cursor-pointer" onClick={() => navigate(`/app/attendance/sessions/${s.sessionId}`)}>
+                        <TableCell className="font-bold">{s.class} – {s.section}</TableCell>
+                        <TableCell><Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} /></TableCell>
+                        <TableCell className="text-right font-semibold" style={{ color: TONE.green }}>{s.present}</TableCell>
+                        <TableCell className="text-right font-semibold" style={{ color: TONE.temple }}>{s.late}</TableCell>
+                        <TableCell className="text-right font-semibold" style={{ color: TONE.red }}>{s.absent}</TableCell>
+                        <TableCell className="text-right font-bold">{s.total}</TableCell>
                       </TableRow>
                     ))}
                     {statsQuery.data.sessions.length === 0 && (
@@ -168,23 +182,48 @@ export default function AttendancePage() {
                   </TableBody>
                 </Table>
               </div>
+
+              {/* Mobile / tablet cards */}
+              <div className="lg:hidden flex flex-col gap-2.5">
+                {statsQuery.data.sessions.map((s) => (
+                  <button
+                    key={s.sessionId}
+                    onClick={() => navigate(`/app/attendance/sessions/${s.sessionId}`)}
+                    className="text-left bg-card border rounded-2xl p-3.5"
+                  >
+                    <div className="flex items-center justify-between mb-2.5">
+                      <span className="font-bold text-[14.5px]">{s.class} – {s.section}</span>
+                      <Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} />
+                    </div>
+                    <div className="flex gap-3.5 text-[13px]">
+                      <span className="font-bold" style={{ color: TONE.green }}>{s.present} <span className="text-muted-foreground font-medium">present</span></span>
+                      <span className="font-bold" style={{ color: TONE.temple }}>{s.late} <span className="text-muted-foreground font-medium">late</span></span>
+                      <span className="font-bold" style={{ color: TONE.red }}>{s.absent} <span className="text-muted-foreground font-medium">absent</span></span>
+                    </div>
+                  </button>
+                ))}
+                {statsQuery.data.sessions.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground text-sm">No sessions found for this date.</div>
+                )}
+              </div>
             </>
           ) : (
             <div className="text-center py-8 text-muted-foreground">Failed to load stats.</div>
           )}
         </TabsContent>
 
-        <TabsContent value="sessions" className="space-y-4">
-          <div className="rounded-lg border bg-card">
+        <TabsContent value="sessions" className="space-y-4 mt-4">
+          {/* Desktop table */}
+          <div className="hidden lg:block rounded-2xl border bg-card overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-muted/40 hover:bg-muted/40">
                   <TableHead>Class</TableHead>
                   <TableHead>Section</TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Marked</TableHead>
+                  <TableHead className="text-right">Marked</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -198,24 +237,51 @@ export default function AttendancePage() {
                   </TableRow>
                 ) : (
                   sessionsQuery.data?.data?.map((s) => (
-                    <TableRow key={s.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/app/attendance/sessions/${s.id}`)}>
+                    <TableRow key={s.id} className="cursor-pointer" onClick={() => navigate(`/app/attendance/sessions/${s.id}`)}>
                       <TableCell>{s.section?.class?.name}</TableCell>
                       <TableCell>{s.section?.name}</TableCell>
-                      <TableCell>{s.startTime} - {s.endTime || 'Ongoing'}</TableCell>
-                      <TableCell className="capitalize">{s.type}</TableCell>
+                      <TableCell className="text-muted-foreground">{s.startTime} – {s.endTime || 'Ongoing'}</TableCell>
+                      <TableCell><Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} /></TableCell>
                       <TableCell>
-                        <Badge variant={s.status === 'open' ? 'default' : 'secondary'}>{s.status}</Badge>
+                        {s.status === 'open' ? <Pill label="Open" tone={TONE.green} /> : <NeutralPill label={s.status} />}
                       </TableCell>
-                      <TableCell>{s._count?.records || 0}</TableCell>
+                      <TableCell className="text-right font-semibold">{s._count?.records || 0}</TableCell>
                     </TableRow>
                   ))
                 )}
               </TableBody>
             </Table>
           </div>
+
+          {/* Mobile / tablet cards */}
+          <div className="lg:hidden flex flex-col gap-2.5">
+            {sessionsQuery.isLoading ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">Loading...</div>
+            ) : sessionsQuery.data?.data?.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">No sessions found.</div>
+            ) : (
+              sessionsQuery.data?.data?.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => navigate(`/app/attendance/sessions/${s.id}`)}
+                  className="text-left bg-card border rounded-2xl p-3.5"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-[14.5px]">{s.section?.class?.name} – {s.section?.name}</span>
+                    {s.status === 'open' ? <Pill label="Open" tone={TONE.green} /> : <NeutralPill label={s.status} />}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{s.startTime} – {s.endTime || 'Ongoing'}</span>
+                    <Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} />
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1.5">{s._count?.records || 0} marked</div>
+                </button>
+              ))
+            )}
+          </div>
         </TabsContent>
 
-        <TabsContent value="reports" className="space-y-4">
+        <TabsContent value="reports" className="space-y-4 mt-4">
           <ReportsTab institutionId={institutionId} />
         </TabsContent>
       </Tabs>
@@ -236,7 +302,7 @@ function CreateSessionDialog({ open, onClose, institutionId }: { open: boolean, 
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("15:00");
-  
+
   const { data: classesData } = useClasses(institutionId);
   const { data: sectionsData } = useSections(institutionId, classId || undefined);
   const mutation = useCreateAttendanceSession();
@@ -350,7 +416,7 @@ function ReportsTab({ institutionId }: { institutionId: string }) {
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="rounded-2xl">
         <CardContent className="pt-6">
           <div className="flex flex-wrap items-end gap-4">
             <div className="space-y-1 flex-1 min-w-[200px]">
@@ -387,30 +453,30 @@ function ReportsTab({ institutionId }: { institutionId: string }) {
       </Card>
 
       {reportData && (
-        <div className="rounded-lg border bg-card">
+        <div className="rounded-2xl border bg-card overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
                 <TableHead>Student</TableHead>
-                <TableHead>Present</TableHead>
-                <TableHead>Late</TableHead>
-                <TableHead>Absent</TableHead>
-                <TableHead>Excused</TableHead>
-                <TableHead>Rate</TableHead>
+                <TableHead className="text-right" style={{ color: TONE.green }}>Present</TableHead>
+                <TableHead className="text-right" style={{ color: TONE.temple }}>Late</TableHead>
+                <TableHead className="text-right" style={{ color: TONE.red }}>Absent</TableHead>
+                <TableHead className="text-right">Excused</TableHead>
+                <TableHead className="text-right">Rate</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {reportData.students.map(s => (
                 <TableRow key={s.student.id}>
                   <TableCell>
-                    <div className="font-medium">{s.student.name}</div>
+                    <div className="font-bold">{s.student.name}</div>
                     <div className="text-xs text-muted-foreground">{s.student.admissionNumber}</div>
                   </TableCell>
-                  <TableCell className="text-green-600">{s.present}</TableCell>
-                  <TableCell className="text-yellow-600">{s.late}</TableCell>
-                  <TableCell className="text-red-600">{s.absent}</TableCell>
-                  <TableCell>{s.excused}</TableCell>
-                  <TableCell className="font-bold">{s.attendanceRate}%</TableCell>
+                  <TableCell className="text-right font-semibold" style={{ color: TONE.green }}>{s.present}</TableCell>
+                  <TableCell className="text-right font-semibold" style={{ color: TONE.temple }}>{s.late}</TableCell>
+                  <TableCell className="text-right font-semibold" style={{ color: TONE.red }}>{s.absent}</TableCell>
+                  <TableCell className="text-right">{s.excused}</TableCell>
+                  <TableCell className="text-right font-bold">{s.attendanceRate}%</TableCell>
                 </TableRow>
               ))}
             </TableBody>

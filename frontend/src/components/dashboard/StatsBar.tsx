@@ -74,7 +74,7 @@ export function StatsBar() {
                     title="Total Institutions"
                     value={totalInstitutions.toLocaleString()}
                     icon={Building2}
-                    iconClassName="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+                    tone="teal"
                     description="Registered on platform"
                 />
             </div>
@@ -84,7 +84,7 @@ export function StatsBar() {
                     title="Total Students"
                     value={totalStudents.toLocaleString()}
                     icon={Users}
-                    iconClassName="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                    tone="saffron"
                     description="Enrolled across sections"
                 />
             </div>
@@ -94,7 +94,7 @@ export function StatsBar() {
                     title="Pending Approvals"
                     value={pendingApprovals.toLocaleString()}
                     icon={UserCheck}
-                    iconClassName={pendingApprovals > 0 ? "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"}
+                    tone={pendingApprovals > 0 ? "gold" : "teal"}
                     description={pendingApprovals > 0 ? "Action required" : "All caught up"}
                     trend={pendingApprovals > 0 ? { value: String(pendingApprovals), label: "waiting", direction: 'neutral' } : undefined}
                 />
@@ -105,7 +105,7 @@ export function StatsBar() {
                     title="Active Users"
                     value={activeUsers.toLocaleString()}
                     icon={Activity}
-                    iconClassName="bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400"
+                    tone="lotus"
                     description="Active sessions today"
                 />
             </div>

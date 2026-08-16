@@ -63,18 +63,18 @@ export function SaathiChatPanel({ joinConversation, sendMessage, setTypingStatus
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden" style={{ minHeight: '600px' }}>
+    <div className="grid grid-cols-1 md:grid-cols-3 bg-card rounded-xl border border-border overflow-hidden" style={{ minHeight: '600px' }}>
       
       {/* Sidebar: Conversations List */}
-      <div className="border-r border-gray-200 dark:border-gray-800 flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800 font-semibold text-gray-900 dark:text-white">
+      <div className="border-r border-border flex flex-col">
+        <div className="p-4 border-b border-border font-semibold text-foreground">
           Messages
         </div>
         <div className="flex-1 overflow-y-auto">
           {loadingConvos ? (
             <div className="p-4 flex justify-center"><Loader2 className="w-5 h-5 animate-spin" /></div>
           ) : conversations.length === 0 ? (
-            <div className="p-4 text-center text-sm text-gray-500">No conversations yet.</div>
+            <div className="p-4 text-center text-sm text-muted-foreground">No conversations yet.</div>
           ) : (
             conversations.map((conv: any) => {
               // Find other participant for name
@@ -84,16 +84,16 @@ export function SaathiChatPanel({ joinConversation, sendMessage, setTypingStatus
                 <div
                   key={conv.id}
                   onClick={() => handleSelectConversation(conv.id)}
-                  className={`p-4 border-b border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-3 ${
-                    activeConversationId === conv.id ? 'bg-rose-50 dark:bg-gray-800 border-l-4 border-l-rose-500' : ''
+                  className={`p-4 border-b border-border cursor-pointer hover:bg-muted transition-colors flex items-center gap-3 ${
+                    activeConversationId === conv.id ? 'bg-primary/10 border-l-4 border-l-primary' : ''
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 font-bold">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
                     {name[0]}
                   </div>
                   <div className="flex-1 overflow-hidden">
-                    <p className="font-medium text-sm text-gray-900 dark:text-white truncate">{name}</p>
-                    <p className="text-xs text-gray-500 truncate">{conv.messages?.[0]?.content || 'Started a conversation'}</p>
+                    <p className="font-medium text-sm text-foreground truncate">{name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{conv.messages?.[0]?.content || 'Started a conversation'}</p>
                   </div>
                 </div>
               );
@@ -103,26 +103,26 @@ export function SaathiChatPanel({ joinConversation, sendMessage, setTypingStatus
       </div>
 
       {/* Main Chat Area */}
-      <div className="md:col-span-2 flex flex-col bg-gray-50 dark:bg-gray-900/50">
+      <div className="md:col-span-2 flex flex-col bg-muted/30">
         {activeConversationId ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <div className="p-4 bg-card border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <UserCircle className="w-8 h-8 text-gray-400" />
+                <UserCircle className="w-8 h-8 text-muted-foreground" />
                 <div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Chat</h3>
+                  <h3 className="text-foreground">Chat</h3>
                   {typingUsers && typingUsers.size > 0 && (
-                    <p className="text-xs text-rose-500 animate-pulse">Someone is typing...</p>
+                    <p className="text-xs text-primary animate-pulse">Someone is typing...</p>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={() => initiateCall('audio')}>
-                  <Phone className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                  <Phone className="w-4 h-4 text-muted-foreground" />
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => initiateCall('video')}>
-                  <Video className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                  <Video className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </div>
             </div>
@@ -135,8 +135,8 @@ export function SaathiChatPanel({ joinConversation, sendMessage, setTypingStatus
                   <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[70%] rounded-2xl px-4 py-2 text-sm ${
                       isMe 
-                        ? 'bg-rose-500 text-white rounded-br-none' 
-                        : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white rounded-bl-none'
+                        ? 'bg-primary text-primary-foreground rounded-br-none'
+                        : 'bg-card border border-border text-foreground rounded-bl-none'
                     }`}>
                       {msg.type === 'call_started' ? (
                         <div className="flex items-center gap-2 italic opacity-80">
@@ -145,7 +145,7 @@ export function SaathiChatPanel({ joinConversation, sendMessage, setTypingStatus
                       ) : (
                         <p className="whitespace-pre-wrap">{msg.content}</p>
                       )}
-                      <span className={`text-[10px] mt-1 block ${isMe ? 'text-rose-200' : 'text-gray-400'}`}>
+                      <span className={`text-[10px] mt-1 block ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
@@ -155,7 +155,7 @@ export function SaathiChatPanel({ joinConversation, sendMessage, setTypingStatus
             </div>
 
             {/* Message Input */}
-            <div className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+            <div className="p-4 bg-card border-t border-border">
               <form 
                 onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                 className="flex items-center gap-2"
@@ -164,16 +164,16 @@ export function SaathiChatPanel({ joinConversation, sendMessage, setTypingStatus
                   value={draftMessage}
                   onChange={handleTyping}
                   placeholder="Type a message..."
-                  className="flex-1 bg-gray-50 dark:bg-gray-800 border-transparent focus-visible:ring-rose-500"
+                  className="flex-1 bg-muted border-transparent"
                 />
-                <Button type="submit" disabled={!draftMessage.trim()} className="bg-rose-500 hover:bg-rose-600 text-white shrink-0">
+                <Button type="submit" disabled={!draftMessage.trim()} className="shrink-0">
                   <Send className="w-4 h-4" />
                 </Button>
               </form>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
             <UserCircle className="w-16 h-16 opacity-20 mb-4" />
             <p>Select a conversation to start chatting</p>
           </div>
