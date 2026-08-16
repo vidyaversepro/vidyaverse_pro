@@ -11,10 +11,16 @@ interface RulerProps {
 }
 
 const RULER_THICKNESS = 22;
+const RULER_BG = 'hsl(var(--card) / 0.92)';
+const RULER_BORDER = 'hsl(var(--border))';
+const RULER_MINOR_TICK = 'hsl(var(--muted-foreground) / 0.5)';
+const RULER_LABEL = 'hsl(var(--muted-foreground))';
 
 /**
  * Renders a mm-based ruler with major (10 mm) and minor (5 mm) tick marks.
- * Designed to be absolutely-positioned around the canvas container.
+ * Designed to be absolutely-positioned around the canvas container. Plain
+ * inline SVG (not Konva canvas), so it can reference CSS custom properties
+ * directly — unlike the Konva-rendered grid guide, which cannot.
  */
 export function Ruler({ orientation, lengthPx, mmToPx, zoomScale }: RulerProps) {
     const scaledLength = lengthPx * zoomScale;
@@ -41,7 +47,7 @@ export function Ruler({ orientation, lengthPx, mmToPx, zoomScale }: RulerProps) 
                         <line
                             x1={pos} y1={RULER_THICKNESS}
                             x2={pos} y2={RULER_THICKNESS - tickHeight}
-                            stroke={isMajor ? 'hsl(var(--primary))' : '#94a3b8'}
+                            stroke={isMajor ? 'hsl(var(--primary))' : RULER_MINOR_TICK}
                             strokeWidth={isMajor ? 0.8 : 0.5}
                         />
                         {showLabel && (
@@ -49,9 +55,8 @@ export function Ruler({ orientation, lengthPx, mmToPx, zoomScale }: RulerProps) 
                                 x={pos + 2}
                                 y={RULER_THICKNESS - tickHeight - 1}
                                 fontSize={8}
-                                fontFamily="Inter, sans-serif"
                                 fontWeight={600}
-                                fill="#64748b"
+                                fill={RULER_LABEL}
                             >
                                 {mm}
                             </text>
@@ -64,7 +69,7 @@ export function Ruler({ orientation, lengthPx, mmToPx, zoomScale }: RulerProps) 
                         <line
                             x1={RULER_THICKNESS} y1={pos}
                             x2={RULER_THICKNESS - tickHeight} y2={pos}
-                            stroke={isMajor ? 'hsl(var(--primary))' : '#94a3b8'}
+                            stroke={isMajor ? 'hsl(var(--primary))' : RULER_MINOR_TICK}
                             strokeWidth={isMajor ? 0.8 : 0.5}
                         />
                         {showLabel && (
@@ -72,9 +77,8 @@ export function Ruler({ orientation, lengthPx, mmToPx, zoomScale }: RulerProps) 
                                 x={1}
                                 y={pos + 3}
                                 fontSize={8}
-                                fontFamily="Inter, sans-serif"
                                 fontWeight={600}
-                                fill="#64748b"
+                                fill={RULER_LABEL}
                                 writingMode="tb"
                             >
                                 {mm}
@@ -96,9 +100,9 @@ export function Ruler({ orientation, lengthPx, mmToPx, zoomScale }: RulerProps) 
                 style={{ marginLeft: RULER_THICKNESS }}
             >
                 {/* Ruler background */}
-                <rect width={scaledLength} height={RULER_THICKNESS} fill="rgba(248,249,250,0.92)" />
+                <rect width={scaledLength} height={RULER_THICKNESS} fill={RULER_BG} />
                 {/* Bottom border */}
-                <line x1={0} y1={RULER_THICKNESS - 0.5} x2={scaledLength} y2={RULER_THICKNESS - 0.5} stroke="#e2e8f0" strokeWidth={1} />
+                <line x1={0} y1={RULER_THICKNESS - 0.5} x2={scaledLength} y2={RULER_THICKNESS - 0.5} stroke={RULER_BORDER} strokeWidth={1} />
                 {ticks}
             </svg>
         );
@@ -112,9 +116,9 @@ export function Ruler({ orientation, lengthPx, mmToPx, zoomScale }: RulerProps) 
             style={{ marginTop: RULER_THICKNESS }}
         >
             {/* Ruler background */}
-            <rect width={RULER_THICKNESS} height={scaledLength} fill="rgba(248,249,250,0.92)" />
+            <rect width={RULER_THICKNESS} height={scaledLength} fill={RULER_BG} />
             {/* Right border */}
-            <line x1={RULER_THICKNESS - 0.5} y1={0} x2={RULER_THICKNESS - 0.5} y2={scaledLength} stroke="#e2e8f0" strokeWidth={1} />
+            <line x1={RULER_THICKNESS - 0.5} y1={0} x2={RULER_THICKNESS - 0.5} y2={scaledLength} stroke={RULER_BORDER} strokeWidth={1} />
             {ticks}
         </svg>
     );
@@ -128,9 +132,9 @@ export function RulerCorner() {
             style={{
                 width: RULER_THICKNESS,
                 height: RULER_THICKNESS,
-                background: 'rgba(248,249,250,0.92)',
-                borderRight: '1px solid #e2e8f0',
-                borderBottom: '1px solid #e2e8f0',
+                background: RULER_BG,
+                borderRight: `1px solid ${RULER_BORDER}`,
+                borderBottom: `1px solid ${RULER_BORDER}`,
                 zIndex: 2,
             }}
         />

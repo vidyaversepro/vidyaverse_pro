@@ -26,10 +26,9 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { PageHeader } from '@/components/shared/PageHeader';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useTemplates, useSetDefaultTemplate, type Template, useDeleteTemplate, useDuplicateTemplate } from '@/lib/queries/templates/template-queries';
-import { cn } from '@/lib/utils';
 
 const serviceTypeIcons: Record<string, React.ElementType> = {
     id_card: CreditCard,
@@ -42,10 +41,6 @@ const serviceTypeIcons: Record<string, React.ElementType> = {
     portfolio: FileText,
     visiting_card: Contact,
 };
-
-// One accent gradient for every service type — the per-type icons carry the
-// differentiation, so the header stays on-brand instead of a rainbow.
-const CARD_GRADIENT = 'from-primary to-primary/70';
 
 export default function TemplatesPage() {
     const navigate = useNavigate();
@@ -115,94 +110,89 @@ export default function TemplatesPage() {
         { value: 'ADMIN', label: 'Admin' },
     ];
 
+    const chipStyle = (active: boolean) => active
+        ? { background: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))', borderColor: 'transparent' }
+        : { background: 'hsl(var(--card))', color: 'hsl(var(--muted-foreground))', borderColor: 'hsl(var(--border))' };
+
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="arch-section-header text-2xl">Templates</h1>
-                    <p className="text-muted-foreground">
-                        Manage document templates for all services
-                    </p>
-                </div>
-                <Button
-                    onClick={() => navigate('/app/templates/new')}
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Template
-                </Button>
-            </div>
-
-            {/* Service Type Filters */}
-            <div className="flex flex-wrap gap-2">
-                <Button
-                    variant={!selectedType ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedType(null)}
-                >
-                    All Templates
-                </Button>
-                {serviceTypes.map((type) => {
-                    const Icon = serviceTypeIcons[type.value];
-                    return (
-                        <Button
-                            key={type.value}
-                            variant={selectedType === type.value ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setSelectedType(type.value)}
-                        >
-                            <Icon className="w-4 h-4 mr-2" />
-                            {type.label}
-                        </Button>
-                    );
-                })}
-            </div>
-
-            {/* Audience Filters */}
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
-                <Button
-                    variant={!selectedAudience ? 'secondary' : 'ghost'}
-                    size="sm"
-                    className={!selectedAudience ? 'bg-muted' : 'text-muted-foreground'}
-                    onClick={() => setSelectedAudience(null)}
-                >
-                    Any Audience
-                </Button>
-                {audienceTypes.map((audience) => (
-                    <Button
-                        key={audience.value}
-                        variant={selectedAudience === audience.value ? 'secondary' : 'ghost'}
-                        size="sm"
-                        className={selectedAudience === audience.value ? 'bg-muted' : 'text-muted-foreground'}
-                        onClick={() => setSelectedAudience(audience.value)}
-                    >
-                        {audience.label}
+        <div className="p-4 sm:p-6">
+            <PageHeader
+                breadcrumb={[
+                    { label: 'Dashboard', href: '/app/dashboard' },
+                    { label: 'Templates' },
+                ]}
+                title="Templates"
+                description="Manage document templates for all services"
+                action={
+                    <Button onClick={() => navigate('/app/templates/new')}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create Template
                     </Button>
-                ))}
-            </div>
+                }
+            />
 
-            {/* Search */}
-            <Card className="border-0 shadow-lg">
-                <CardContent className="p-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search templates..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10"
-                        />
-                    </div>
-                </CardContent>
-            </Card>
+            {/* Filters + Search */}
+            <div className="flex flex-col gap-2.5 mb-4">
+                <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search templates…"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-11 rounded-xl pl-10"
+                    />
+                </div>
+
+                <div className="flex gap-1.5 flex-wrap">
+                    <button
+                        onClick={() => setSelectedType(null)}
+                        className="whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-[9px] border transition-colors"
+                        style={chipStyle(!selectedType)}
+                    >
+                        All Templates
+                    </button>
+                    {serviceTypes.map((type) => {
+                        const Icon = serviceTypeIcons[type.value];
+                        return (
+                            <button
+                                key={type.value}
+                                onClick={() => setSelectedType(type.value)}
+                                className="whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-[9px] border transition-colors inline-flex items-center gap-1.5"
+                                style={chipStyle(selectedType === type.value)}
+                            >
+                                <Icon className="w-3.5 h-3.5" />
+                                {type.label}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <div className="flex gap-1.5 flex-wrap pt-2 border-t border-border">
+                    <button
+                        onClick={() => setSelectedAudience(null)}
+                        className="whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-[9px] border transition-colors"
+                        style={!selectedAudience ? { background: 'hsl(var(--muted))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' } : { background: 'transparent', color: 'hsl(var(--muted-foreground))', borderColor: 'transparent' }}
+                    >
+                        Any Audience
+                    </button>
+                    {audienceTypes.map((audience) => (
+                        <button
+                            key={audience.value}
+                            onClick={() => setSelectedAudience(audience.value)}
+                            className="whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-[9px] border transition-colors"
+                            style={selectedAudience === audience.value ? { background: 'hsl(var(--muted))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' } : { background: 'transparent', color: 'hsl(var(--muted-foreground))', borderColor: 'transparent' }}
+                        >
+                            {audience.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             {/* Templates Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {isLoading ? (
                     Array.from({ length: 8 }).map((_, i) => (
-                        <div key={i} className="animate-pulse">
-                            <div className="h-48 bg-muted rounded-lg" />
-                        </div>
+                        <div key={i} className="h-56 rounded-2xl bg-muted animate-pulse" />
                     ))
                 ) : data?.data?.length === 0 ? (
                     <div className="col-span-full">
@@ -222,75 +212,61 @@ export default function TemplatesPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 whileHover={{ y: -4 }}
-                                className="group"
+                                className="group indic-card overflow-hidden rounded-2xl"
                             >
-                                <Card className="border-0 shadow-lg overflow-hidden hover:shadow-xl transition-all h-full">
-                                    {/* Header with gradient */}
-                                    <div
-                                        className={cn('h-24 relative bg-gradient-to-br', CARD_GRADIENT)}
-                                    >
-                                        <div className="absolute inset-0 bg-black/10" />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <Icon className="w-10 h-10 text-white/80" />
-                                        </div>
-
-                                        {/* Default badge */}
-                                        {template.isDefault && (
-                                            <div className="absolute top-2 left-2 px-2 py-0.5 bg-white/20 backdrop-blur rounded text-xs text-white font-medium">
-                                                Default
-                                            </div>
-                                        )}
-
-                                        {/* Status indicator */}
-                                        <div
-                                            className={cn(
-                                                'absolute top-2 right-2 w-2 h-2 rounded-full',
-                                                template.isActive ? 'bg-green-400' : 'bg-red-400'
-                                            )}
-                                        />
+                                {/* Header — icon on the accent gradient */}
+                                <div className="h-24 relative bg-gradient-to-br from-primary to-primary/70">
+                                    <div className="absolute inset-0 bg-black/10" />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <Icon className="w-10 h-10 text-primary-foreground/80" />
                                     </div>
 
-                                    <CardContent className="p-4">
-                                        {/* Title */}
-                                        <h3 className="text-foreground line-clamp-1">
-                                            {template.name}
-                                        </h3>
-
-                                        {/* Description */}
-                                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2 min-h-[40px]">
-                                            {template.description || 'No description'}
-                                        </p>
-
-                                        {/* Meta */}
-                                        <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-muted-foreground">
-                                            <span className="capitalize">{template.targetAudience?.toLowerCase() || 'all'}</span>
-                                            <span>•</span>
-                                            <span>{template.widthMm}×{template.heightMm}mm</span>
-                                            <span>•</span>
-                                            <span className="capitalize">{template.orientation}</span>
+                                    {template.isDefault && (
+                                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-white/20 backdrop-blur rounded text-xs text-white font-medium">
+                                            Default
                                         </div>
+                                    )}
 
-                                        {/* Actions */}
-                                        <div className="flex items-center gap-1 flex-wrap mt-4 pt-3 border-t border-border">
-                                            <Button size="sm" variant="ghost" className="flex-1" onClick={() => navigate(`/app/templates/${template.id}/edit`)}>
-                                                <Eye className="w-4 h-4 mr-1" />
-                                                Preview
-                                            </Button>
-                                            <Button size="sm" variant="ghost" onClick={() => handleSetDefault(template.id)} disabled={setDefaultTemplateMutation.isPending || template.isDefault} title="Set Default">
-                                                <Star className={cn("w-4 h-4", template.isDefault ? "fill-yellow-400 text-yellow-400" : "")} />
-                                            </Button>
-                                            <Button size="sm" variant="ghost" title="Edit" onClick={() => navigate(`/app/templates/${template.id}/edit`)}>
-                                                <Edit className="w-4 h-4" />
-                                            </Button>
-                                            <Button size="sm" variant="ghost" title="Duplicate" onClick={() => handleDuplicate(template.id)} disabled={duplicateMutation.isPending}>
-                                                <Copy className="w-4 h-4" />
-                                            </Button>
-                                            <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive/80" onClick={() => handleDelete(template.id)} disabled={deleteMutation.isPending}>
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                    <div
+                                        className="absolute top-2 right-2 w-2 h-2 rounded-full"
+                                        style={{ background: template.isActive ? '#15803d' : '#C0392B' }}
+                                    />
+                                </div>
+
+                                <div className="p-4">
+                                    <h3 className="text-base line-clamp-1">{template.name}</h3>
+
+                                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2 min-h-[40px]">
+                                        {template.description || 'No description'}
+                                    </p>
+
+                                    <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-muted-foreground">
+                                        <span className="capitalize">{template.targetAudience?.toLowerCase() || 'all'}</span>
+                                        <span>•</span>
+                                        <span>{template.widthMm}×{template.heightMm}mm</span>
+                                        <span>•</span>
+                                        <span className="capitalize">{template.orientation}</span>
+                                    </div>
+
+                                    <div className="flex items-center gap-1 flex-wrap mt-4 pt-3 border-t border-border">
+                                        <Button size="sm" variant="ghost" className="flex-1" onClick={() => navigate(`/app/templates/${template.id}/edit`)}>
+                                            <Eye className="w-4 h-4 mr-1" />
+                                            Preview
+                                        </Button>
+                                        <Button size="sm" variant="ghost" onClick={() => handleSetDefault(template.id)} disabled={setDefaultTemplateMutation.isPending || template.isDefault} title="Set Default">
+                                            <Star className="w-4 h-4" style={template.isDefault ? { fill: 'var(--gold)', color: 'var(--gold)' } : undefined} />
+                                        </Button>
+                                        <Button size="sm" variant="ghost" title="Edit" onClick={() => navigate(`/app/templates/${template.id}/edit`)}>
+                                            <Edit className="w-4 h-4" />
+                                        </Button>
+                                        <Button size="sm" variant="ghost" title="Duplicate" onClick={() => handleDuplicate(template.id)} disabled={duplicateMutation.isPending}>
+                                            <Copy className="w-4 h-4" />
+                                        </Button>
+                                        <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive/80" onClick={() => handleDelete(template.id)} disabled={deleteMutation.isPending}>
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
                             </motion.div>
                         );
                     })
@@ -299,7 +275,7 @@ export default function TemplatesPage() {
 
             {/* Pagination */}
             {data?.pagination && data.pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mt-4">
                     <p className="text-sm text-muted-foreground">
                         Page {page} of {data.pagination.totalPages}
                     </p>

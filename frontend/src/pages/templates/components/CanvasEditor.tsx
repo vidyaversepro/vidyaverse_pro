@@ -27,7 +27,7 @@ const GridLayer = ({ width, height, gridSizePx }: { width: number; height: numbe
                 <Line
                     key={`gv-${x}`}
                     points={[x, 0, x, height]}
-                    stroke="#b7102a"
+                    stroke="#C0392B"
                     strokeWidth={0.5}
                     opacity={0.18}
                     dash={[4, 4]}
@@ -41,7 +41,7 @@ const GridLayer = ({ width, height, gridSizePx }: { width: number; height: numbe
                 <Line
                     key={`gh-${y}`}
                     points={[0, y, width, y]}
-                    stroke="#b7102a"
+                    stroke="#C0392B"
                     strokeWidth={0.5}
                     opacity={0.18}
                     dash={[4, 4]}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ChevronRight, ChevronLeft, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ArrowLeft, Loader2 } from 'lucide-react';
 
 import {
   Dialog,
@@ -155,7 +155,7 @@ export default function TemplateNewPage() {
       handleNext();
       return;
     }
-    
+
     // Prevent double-click bleed-through or key-repeat bugs
     if (Date.now() - lastStepChange < 400) {
         return;
@@ -244,43 +244,42 @@ export default function TemplateNewPage() {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#f8f9fa] z-50 flex items-center justify-center p-4">
-      {/* Background purely aesthetic for the page */}
+    <div className="fixed inset-0 bg-background z-50 flex items-center justify-center p-4">
       <div className="absolute top-4 left-4">
-        <Button variant="ghost" onClick={() => navigate('/app/templates')} className="text-slate-500 hover:text-slate-700">
+        <Button variant="ghost" onClick={() => navigate('/app/templates')} className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Templates
         </Button>
       </div>
 
       <Dialog open={true} onOpenChange={onOpenChange}>
         <DialogContent className="w-[calc(100vw-2rem)] max-w-[600px] p-0 overflow-y-auto max-h-[90vh] border-0 shadow-2xl rounded-2xl">
-          <div className="bg-[#b7102a] text-white p-6">
+          <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-6">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-extrabold tracking-tight text-white m-0">Create New Template</DialogTitle>
-              <DialogDescription className="text-white/80 mt-1 font-medium">
+              <DialogTitle className="text-2xl tracking-tight text-primary-foreground m-0">Create New Template</DialogTitle>
+              <DialogDescription className="text-primary-foreground/80 mt-1 font-medium">
                 Step {step} of 3 — {step === 1 ? 'Template Details' : step === 2 ? 'Canvas Size' : 'Pages & Print'}
               </DialogDescription>
             </DialogHeader>
             {/* Progress Bar */}
             <div className="flex gap-2 mt-6">
                 {[1, 2, 3].map(i => (
-                    <div key={i} className={cn("h-1.5 flex-1 rounded-full", step >= i ? "bg-white" : "bg-white/30")} />
+                    <div key={i} className={cn("h-1.5 flex-1 rounded-full", step >= i ? "bg-primary-foreground" : "bg-primary-foreground/30")} />
                 ))}
             </div>
           </div>
 
           <Form {...form}>
-            <form 
-              onSubmit={handleSubmit(onSubmit)} 
+            <form
+              onSubmit={handleSubmit(onSubmit)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
                   e.preventDefault();
                   if (step < 3) handleNext();
                 }
               }}
-              className="p-6 bg-white space-y-6"
+              className="p-6 bg-card space-y-6"
             >
-              
+
               {/* --- STEP 1: Details --- */}
               {step === 1 && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -289,9 +288,9 @@ export default function TemplateNewPage() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Template Name <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel>Template Name <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Student ID Card 2026" className="rounded-xl bg-slate-50 border-slate-200" {...field} />
+                          <Input placeholder="e.g. Student ID Card 2026" className="rounded-xl bg-muted/40 border-border" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -304,10 +303,10 @@ export default function TemplateNewPage() {
                       name="serviceType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Type <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel>Product Type <span className="text-destructive">*</span></FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger className="rounded-xl bg-slate-50 border-slate-200">
+                              <SelectTrigger className="rounded-xl bg-muted/40 border-border">
                                 <SelectValue placeholder="Select type" />
                               </SelectTrigger>
                             </FormControl>
@@ -332,10 +331,10 @@ export default function TemplateNewPage() {
                       name="targetAudience"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Target Audience <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel>Target Audience <span className="text-destructive">*</span></FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger className="rounded-xl bg-slate-50 border-slate-200">
+                              <SelectTrigger className="rounded-xl bg-muted/40 border-border">
                                 <SelectValue placeholder="Select audience" />
                               </SelectTrigger>
                             </FormControl>
@@ -359,7 +358,7 @@ export default function TemplateNewPage() {
                       <FormItem>
                         <FormLabel>Description (Optional)</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Brief details about this template's usage..." className="rounded-xl bg-slate-50 border-slate-200 resize-none h-20" {...field} />
+                          <Textarea placeholder="Brief details about this template's usage..." className="rounded-xl bg-muted/40 border-border resize-none h-20" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -382,8 +381,8 @@ export default function TemplateNewPage() {
                           className={cn(
                             "flex flex-col items-center justify-center p-2 rounded-xl border text-xs text-center transition-colors",
                             Math.abs(widthPx - toPx(p.widthMm, 'mm')) < 1 && Math.abs(heightPx - toPx(p.heightMm, 'mm')) < 1
-                              ? "bg-[#ffdad8] border-[#b7102a] text-[#410007] font-bold"
-                              : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                              ? "bg-primary/10 border-primary text-primary font-bold"
+                              : "bg-muted/40 border-border text-muted-foreground hover:bg-muted"
                           )}
                         >
                           <span className="truncate w-full">{key.split(' ')[0]}</span>
@@ -393,13 +392,13 @@ export default function TemplateNewPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100 shadow-inner">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-muted/40 rounded-xl border border-border">
                     <FormField
                       control={form.control}
                       name="widthPx"
                       render={() => (
                         <FormItem>
-                          <FormLabel className="text-slate-500">Width</FormLabel>
+                          <FormLabel className="text-muted-foreground">Width</FormLabel>
                           <FormControl>
                             <Input
                                 type="number"
@@ -417,7 +416,7 @@ export default function TemplateNewPage() {
                       name="heightPx"
                       render={() => (
                         <FormItem>
-                          <FormLabel className="text-slate-500">Height</FormLabel>
+                          <FormLabel className="text-muted-foreground">Height</FormLabel>
                           <FormControl>
                             <Input
                                 type="number"
@@ -435,10 +434,10 @@ export default function TemplateNewPage() {
                       name="unit"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-500">Unit</FormLabel>
+                          <FormLabel className="text-muted-foreground">Unit</FormLabel>
                           <Select onValueChange={handleUnitChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger className="font-bold bg-white">
+                              <SelectTrigger className="font-bold bg-card">
                                 <SelectValue />
                               </SelectTrigger>
                             </FormControl>
@@ -456,42 +455,42 @@ export default function TemplateNewPage() {
                   </div>
 
                   <div className="flex items-center justify-between px-2">
-                    <FormLabel className="text-slate-600">Orientation</FormLabel>
-                    <div className="flex bg-slate-100 p-1 rounded-xl">
+                    <FormLabel className="text-foreground">Orientation</FormLabel>
+                    <div className="flex bg-muted p-1 rounded-xl">
                         <button
                             type="button"
                             onClick={() => orientation !== 'portrait' && toggleOrientation()}
-                            className={cn("px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors", orientation === 'portrait' ? "bg-white shadow text-slate-900" : "text-slate-500")}
+                            className={cn("px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors", orientation === 'portrait' ? "bg-card shadow text-foreground" : "text-muted-foreground")}
                         >
                             Portrait
                         </button>
                         <button
                             type="button"
                             onClick={() => orientation !== 'landscape' && toggleOrientation()}
-                            className={cn("px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors", orientation === 'landscape' ? "bg-white shadow text-slate-900" : "text-slate-500")}
+                            className={cn("px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors", orientation === 'landscape' ? "bg-card shadow text-foreground" : "text-muted-foreground")}
                         >
                             Landscape
                         </button>
                     </div>
                   </div>
-                  
+
                   {/* Live Mini Preview Box */}
                   <div className="flex flex-col items-center justify-center pt-2">
-                      <div className="relative flex items-center justify-center w-full h-32 bg-slate-100 rounded-xl border border-slate-200 overflow-hidden">
+                      <div className="relative flex items-center justify-center w-full h-32 bg-muted/40 rounded-xl border border-border overflow-hidden">
                           {/* Standard A4 reference background (210x297) -> aspect ratio 1:1.414 */}
-                          <div className="absolute border border-slate-300 border-dashed" style={{ width: '60px', height: '85px' }} />
+                          <div className="absolute border border-border border-dashed" style={{ width: '60px', height: '85px' }} />
                           {/* The actual canvas preview (relative ratio) */}
-                          <div 
-                            className="bg-white border-2 border-[#b7102a] shadow-md z-10 transition-all duration-300 flex items-center justify-center" 
-                            style={{ 
+                          <div
+                            className="bg-card border-2 border-primary shadow-md z-10 transition-all duration-300 flex items-center justify-center"
+                            style={{
                                 // Scale relative to a reference 100px. A max bounding box logic for the preview tile
                                 width: Math.min((widthPx / Math.max(widthPx, heightPx)) * 100, 100),
                                 height: Math.min((heightPx / Math.max(widthPx, heightPx)) * 100, 100)
                             }}
                           >
-                            <span className="text-[10px] text-slate-300 font-mono rotate-45 pointer-events-none tracking-widest leading-none">CANVAS</span>
+                            <span className="text-[10px] text-muted-foreground/60 font-mono rotate-45 pointer-events-none tracking-widest leading-none">CANVAS</span>
                           </div>
-                          <span className="absolute bottom-2 right-3 text-[10px] text-slate-400 font-medium">Relative to A4 Size</span>
+                          <span className="absolute bottom-2 right-3 text-[10px] text-muted-foreground font-medium">Relative to A4 Size</span>
                       </div>
                   </div>
                 </div>
@@ -510,7 +509,7 @@ export default function TemplateNewPage() {
                             <FormControl>
                               <Input type="number" min={1} max={20} className="rounded-xl w-32 font-bold text-center" {...field} onChange={e => field.onChange(parseInt(e.target.value)||1)} />
                             </FormControl>
-                            <p className="text-[11px] text-slate-500 mt-1">Cards usually 1 page, Portfolios 2+.</p>
+                            <p className="text-[11px] text-muted-foreground mt-1">Cards usually 1 page, Portfolios 2+.</p>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -523,13 +522,12 @@ export default function TemplateNewPage() {
                               <FormItem className="flex flex-col justify-start">
                                 <FormLabel className="mb-3 block pt-1">Has Back Side?</FormLabel>
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <Switch 
-                                        checked={field.value} 
+                                    <Switch
+                                        checked={field.value}
                                         onCheckedChange={(checked) => {
                                             field.onChange(checked);
                                             setValue('pageCount', checked ? 2 : 1, { shouldValidate: true });
-                                        }} 
-                                        className="data-[state=checked]:bg-[#b7102a]" 
+                                        }}
                                     />
                                     <span className="text-sm font-semibold">{field.value ? 'Yes (Double-sided)' : 'No (Single-sided)'}</span>
                                 </div>
@@ -539,7 +537,7 @@ export default function TemplateNewPage() {
                       )}
                   </div>
 
-                  <hr className="border-slate-100" />
+                  <hr className="border-border" />
 
                   <FormField
                     control={form.control}
@@ -547,23 +545,23 @@ export default function TemplateNewPage() {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center justify-between max-w-sm">
-                            <FormLabel className="flex items-center gap-2">Bleed Margin ({unit}) <span title="Extra area around canvas for safe print trimming" className="text-slate-300 cursor-help">ⓘ</span></FormLabel>
+                            <FormLabel className="flex items-center gap-2">Bleed Margin ({unit}) <span title="Extra area around canvas for safe print trimming" className="text-muted-foreground/60 cursor-help">ⓘ</span></FormLabel>
                             <FormControl>
-                                <Input 
-                                    type="number" 
-                                    min={0} 
-                                    max={100} 
-                                    step="any" 
-                                    className="w-20 text-center font-bold" 
-                                    {...field} 
-                                    value={formatUnit(fromPx(field.value, 'mm'), unit) /* We just format the underlying mm value into the selected display unit temporarily for UI.*/} 
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    max={100}
+                                    step="any"
+                                    className="w-20 text-center font-bold"
+                                    {...field}
+                                    value={formatUnit(fromPx(field.value, 'mm'), unit) /* We just format the underlying mm value into the selected display unit temporarily for UI.*/}
                                     onChange={e => {
                                         const parsed = parseFloat(e.target.value) || 0;
                                         // Store in DB consistently as mm, so we convert the user's unit input back to mm via PX
                                         const pxValue = toPx(parsed, unit);
                                         const mmValue = fromPx(pxValue, 'mm');
                                         field.onChange(mmValue);
-                                    }} 
+                                    }}
                                 />
                             </FormControl>
                         </div>
@@ -577,24 +575,24 @@ export default function TemplateNewPage() {
                     name="dpi"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Print Resolution <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel>Print Resolution <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={(val: string) => field.onChange(Number(val))}
                             defaultValue={field.value.toString()}
                             className="space-y-1"
                           >
-                            <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                <RadioGroupItem value="72" id="r1" className="text-[#b7102a]" />
-                                <FormLabel htmlFor="r1" className="font-medium cursor-pointer">Screen Quality (72 DPI) <span className="text-slate-400 font-normal">— digital only</span></FormLabel>
+                            <div className="flex items-center space-x-3 bg-muted/40 p-3 rounded-lg border border-border">
+                                <RadioGroupItem value="72" id="r1" />
+                                <FormLabel htmlFor="r1" className="font-medium cursor-pointer">Screen Quality (72 DPI) <span className="text-muted-foreground font-normal">— digital only</span></FormLabel>
                             </div>
-                            <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                <RadioGroupItem value="300" id="r2" className="text-[#b7102a]" />
-                                <FormLabel htmlFor="r2" className="font-medium cursor-pointer">Print Quality (300 DPI) <span className="text-slate-400 font-normal">— standard print</span></FormLabel>
+                            <div className="flex items-center space-x-3 bg-muted/40 p-3 rounded-lg border border-border">
+                                <RadioGroupItem value="300" id="r2" />
+                                <FormLabel htmlFor="r2" className="font-medium cursor-pointer">Print Quality (300 DPI) <span className="text-muted-foreground font-normal">— standard print</span></FormLabel>
                             </div>
-                            <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                <RadioGroupItem value="600" id="r3" className="text-[#b7102a]" />
-                                <FormLabel htmlFor="r3" className="font-medium cursor-pointer">High Quality (600 DPI) <span className="text-slate-400 font-normal">— professional press</span></FormLabel>
+                            <div className="flex items-center space-x-3 bg-muted/40 p-3 rounded-lg border border-border">
+                                <RadioGroupItem value="600" id="r3" />
+                                <FormLabel htmlFor="r3" className="font-medium cursor-pointer">High Quality (600 DPI) <span className="text-muted-foreground font-normal">— professional press</span></FormLabel>
                             </div>
                           </RadioGroup>
                         </FormControl>
@@ -608,7 +606,7 @@ export default function TemplateNewPage() {
                     name="colorMode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Color Mode <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel>Color Mode <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
@@ -616,12 +614,12 @@ export default function TemplateNewPage() {
                             className="flex flex-wrap gap-4"
                           >
                             <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="rgb" id="c1" className="text-[#b7102a]" />
-                                <FormLabel htmlFor="c1" className="cursor-pointer font-medium">RGB <span className="text-slate-400 font-normal text-xs">(Digital)</span></FormLabel>
+                                <RadioGroupItem value="rgb" id="c1" />
+                                <FormLabel htmlFor="c1" className="cursor-pointer font-medium">RGB <span className="text-muted-foreground font-normal text-xs">(Digital)</span></FormLabel>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="cmyk" id="c2" className="text-[#b7102a]" />
-                                <FormLabel htmlFor="c2" className="cursor-pointer font-medium">CMYK-ready <span className="text-slate-400 font-normal text-xs">(Print)</span></FormLabel>
+                                <RadioGroupItem value="cmyk" id="c2" />
+                                <FormLabel htmlFor="c2" className="cursor-pointer font-medium">CMYK-ready <span className="text-muted-foreground font-normal text-xs">(Print)</span></FormLabel>
                             </div>
                           </RadioGroup>
                         </FormControl>
@@ -630,53 +628,45 @@ export default function TemplateNewPage() {
                     )}
                   />
 
-                  <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 mt-6">
-                      <p className="text-[11px] font-bold text-blue-800 uppercase tracking-widest mb-1.5 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 block"></span> Summary
+                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mt-6">
+                      <p className="text-[11px] font-bold text-primary uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary block"></span> Summary
                       </p>
-                      <p className="text-xs text-blue-900 leading-relaxed font-medium">
-                          You are creating a <span className="font-bold">{watch('serviceType')?.replace('_', ' ') || 'Template'}</span> 
-                          {' '}({Math.round(fromPx(widthPx, 'mm'))}×{Math.round(fromPx(heightPx, 'mm'))}mm) 
+                      <p className="text-xs text-foreground leading-relaxed font-medium">
+                          You are creating a <span className="font-bold">{watch('serviceType')?.replace('_', ' ') || 'Template'}</span>
+                          {' '}({Math.round(fromPx(widthPx, 'mm'))}×{Math.round(fromPx(heightPx, 'mm'))}mm)
                           for <span className="font-bold">{watch('targetAudience')}</span> audiences.
                           <br />
-                          <span className="opacity-80 mt-1 block">Settings: {pages} page(s) · {watch('hasBackSide') ? 'Double' : 'Single'}-sided · {watch('dpi')} DPI · {watch('colorMode').toUpperCase()}</span>
+                          <span className="text-muted-foreground mt-1 block">Settings: {pages} page(s) · {watch('hasBackSide') ? 'Double' : 'Single'}-sided · {watch('dpi')} DPI · {watch('colorMode').toUpperCase()}</span>
                       </p>
                   </div>
                 </div>
               )}
 
               {/* --- Footer Controls --- */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                <Button 
-                    type="button" 
-                    variant="ghost" 
-                    onClick={handleBack} 
+              <div className="flex items-center justify-between pt-4 border-t border-border">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleBack}
                     disabled={step === 1 || createTemplate.isPending}
-                    className="text-slate-500 hover:text-slate-700 hover:bg-slate-100"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
 
                 {step < 3 ? (
-                  <Button 
-                    type="button" 
-                    onClick={handleNext} 
-                    className="bg-[#191c1d] hover:bg-slate-800 text-white rounded-xl px-6"
-                  >
+                  <Button type="button" onClick={handleNext} className="rounded-xl px-6">
                     Next Step <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 ) : (
-                  <Button 
-                      type="submit" 
-                      className="bg-[#b7102a] text-white hover:bg-[#a60e26] w-full"
+                  <Button
+                      type="submit"
+                      className="w-full"
                       disabled={createTemplate.isPending}
                   >
                       {createTemplate.isPending ? (
                         <>
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
+                          <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5" />
                           Creating...
                         </>
                       ) : 'Create Template'}

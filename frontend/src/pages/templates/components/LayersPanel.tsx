@@ -157,7 +157,7 @@ export default function LayersPanel() {
     if (!currentPage) return null;
 
     return (
-        <div className="flex flex-col h-full bg-card" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <div className="flex flex-col h-full bg-card">
             <div className="px-6 pt-6 pb-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Layers</p>
             </div>
