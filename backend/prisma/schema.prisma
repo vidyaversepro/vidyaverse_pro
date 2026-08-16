@@ -2350,6 +2350,7 @@ model TransportStop {
   longitude     Float?
   createdAt     DateTime       @default(now()) @map("created_at")
   route         TransportRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  assignments   StudentTransport[]
 
   @@index([institutionId])
   @@index([routeId])
@@ -2367,6 +2368,7 @@ model StudentTransport {
   createdAt     DateTime                @default(now()) @map("created_at")
   updatedAt     DateTime                @updatedAt @map("updated_at")
   route         TransportRoute          @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  stop          TransportStop?          @relation(fields: [stopId], references: [id])
 
   @@index([institutionId])
   @@index([studentId])
