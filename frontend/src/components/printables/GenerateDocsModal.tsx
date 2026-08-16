@@ -121,15 +121,15 @@ export function GenerateDocsModal({
             ? { institutionId, classId: selectedClassId, sectionId: selectedSectionId, limit: '500' }
             : undefined
     );
-    const students: any[] = studentsData?.data || [];
+    const students: any[] = useMemo(() => studentsData?.data || [], [studentsData]);
 
     // Staff for department scope
     const { data: staffData } = useStaff(
-        (audienceType === 'staff' || audienceType === 'both') && institutionId 
-            ? { institutionId } 
+        (audienceType === 'staff' || audienceType === 'both') && institutionId
+            ? { institutionId }
             : undefined
     );
-    const staff = staffData || [];
+    const staff = useMemo(() => staffData || [], [staffData]);
 
     const departments = useMemo(() => {
         const deps = new Set(staff.map((s: any) => s.department).filter(Boolean));
