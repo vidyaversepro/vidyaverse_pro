@@ -6,8 +6,10 @@ don't re-derive it. Update it at the end of each phase.
 
 **Status: Phase 0 + Phase 1 + Phase 2 + Phase 3 + Phase 4 done. Landing page
 also fully reference-matched (not originally phase-scoped, done as a
-follow-up ask). Phase 5 not started. Nothing committed yet — all changes are
-uncommitted in the working tree (see file list at the bottom).**
+follow-up ask). Phase 5 is complete except the `templates/` canvas editor
+(deliberately deferred, see below). Everything through this point is
+**committed and pushed** to `origin/design/indic` — pushing this branch does
+NOT deploy (Coolify watches `main`; confirmed via `origin/HEAD -> main`).**
 
 **Phases 3 & 4 are now LIVE-VERIFIED (2026-08-16)** — first authenticated
 click-through against a running backend + Postgres. Six pages exercised at
@@ -591,6 +593,76 @@ apply the same one-liner — not yet done, out of the doc-studio scope.
   wizard logic untouched (only className strings changed). **NOT live-verified**
   — same caveat as the rest of Phase 5.
 
+## Live verification 2026-08-16 (session 3) — the 7 remaining Phase 5 areas
+
+Backend/frontend/Postgres from the prior session were still running
+(`netstat` confirmed :3002/:5173/:5439 all listening) — used that rather than
+starting a fresh stack. Logged in as `thevinstitution@gmail.com` (super_admin)
+for the doc-studio galleries and Institution detail, then logged out and back
+in as `study0644@gmail.com` for the student-facing pages, both `Admin@123`
+per the prior session's local password reset.
+
+**All 7 areas confirmed rendering with real data, zero new console errors:**
+IdCards, GroupPhotos, HallTickets, LibraryCards, TransferCertificates
+(empty states / real pagination as appropriate), InstitutionDetailPage's
+Overview/Modules/Branding tabs (real subscription tier, full module catalogue
+with tier gating, branding upload UI), and all 5 student-facing files
+(SaathiFeed, SaathiConnections, Visionarium magazine/test-series/submissions).
+`arch-section-header` + weight-400 confirmed live on IdCardsPage's `PageHeader`
+title (the shell's own top-bar titles are separate, pre-existing, out of
+Phase-5 scope — don't mistake those for the PageHeader when spot-checking;
+`document.querySelectorAll('h1')` returns 3 on these pages, only the last is
+the real one).
+
+**Found and FIXED — a real infinite-render-loop bug**, live on
+`TransferCertificatesPage` (the console showed "Maximum update depth
+exceeded" immediately on page load, not just when the modal opens):
+`GenerateDocsModal.tsx` derived `students`/`staff` as `queryData ?? []` —
+a fresh array literal every render whenever the query is disabled (the
+default state before a class is picked). The `manual-students` mode's
+`useEffect` depends on that array, so it fired every render → `setSelectedIds`
+→ re-render → new `[]` again → forever. Only `selectionMode="manual-students"`
+pages hit it (TransferCertificates is the one that does; IdCards/HallTickets/
+LibraryCards use the default `bulk-section` and never hit the effect) — but
+`GenerateDocsModal` is shared by all 9 printable pages, so this was silently
+live wherever manual-students mode is used, not just here. Fixed with
+`useMemo` keyed on the query data. **Verifying the fix took an extra step**:
+the already-open tab's `read_console_messages` kept showing the same stale
+error after the fix landed (Vite HMR *had* served the new module — confirmed
+via `read_network_requests` showing a new `?t=` timestamp — but the tool
+appears to return an accumulating buffer, not a live view). Opening a fresh
+tab and navigating there directly showed zero loop errors, confirming the fix.
+**If a fix looks like it didn't take effect in an already-open tab, open a
+new tab before concluding it's broken.**
+
+**Found, NOT fixed — two pre-existing defects, out of Phase-5 re-skin scope:**
+- `group-photo-queries.ts`'s frontend hooks call routes
+  (`PATCH /group-photo/:id`, `GET /group-photo/:id/faces`,
+  `POST /group-photo/:id/extract`) that don't exist on the backend at all —
+  the actual registered routes (`group-photo.routes.ts`) use a completely
+  different shape: multipart upload on `POST /`, `POST /:id/extract-faces`,
+  `POST /:id/match-students`, `PATCH /extractions/:extractionId`, no `PATCH
+  /:id` at all. This is deeper than the systemic `take:<string>` pattern —
+  it's a feature-level mismatch (possibly the frontend hooks were written
+  against an older API shape) needing real reconciliation, not a query-parse
+  one-liner. The list `GET /` at least is closer (`/api/v1/group-photos` vs.
+  the frontend's singular `/group-photo` — but list is a 404-not-found kind
+  of broken, and create/update/extract are all broken in their own,
+  different ways). Left alone pending a decision.
+- `GET /api/v1/entitlements/me` returns 403 for the student role on every
+  student-facing page (visible in every page's network log this session).
+  Doesn't block any page — all the actual content queries return 200 — but
+  worth a look; may be an institution-scoping gap specific to students.
+
+**Verified**: `tsc --noEmit` exit 0 after the `GenerateDocsModal` fix.
+Committed (`80484a4`) and pushed. All prior Phase 5 work (shared primitives,
+Settings, all 8 doc-studio galleries, student-facing, institution detail) is
+also now committed and pushed as of this session, in `62711e8`
+("feat(indic): re-skin auth, module pages, and doc studio galleries") — a
+single large batch commit covering everything from Phase 2 through this
+verification pass, since it had all accumulated uncommitted across sessions
+before now.
+
 ## Research already done — use this, don't re-derive it
 
 From three Explore-agent passes at the start of this work (still accurate
@@ -693,68 +765,24 @@ unless someone else has touched these files):
 
 ## Next step
 
-Phase 5 (remainder — Document Studio, student-facing saathi/visionarium,
-Settings, Institution detail, and the final shared-primitives sweep) is next
-in the rollout order. Re-read `CLAUDE_CODE_PROMPT.md`'s Phase 5 description
-before starting — it's the broadest and least concretely-scoped phase, more
-a checklist than a fixed file list. Separately, the master doc's Phase 4
-description also asks to roll the table/card archetype out to Users, HR,
-Transport, Inventory, Health, Hostel, Alumni, Placement, Notices,
-Assignments, Gradebook, and OnlineTests — none of that is started; it's a
-distinct, large follow-on from the four files Phase 4 actually touched here.
-Before any of that, though: **Phases 3 AND 4 have never been seen running**
-— no backend/Postgres any session so far — so a real authenticated
-click-through of all six touched pages (`/app/institutions`,
-`/student/dashboard`, `/app/students`, `/app/attendance`, `/app/fees`,
-`/app/admissions`) at both breakpoints is worth doing first if the backend
-becomes available, rather than compounding two unverified phases with a
-third.
+Everything through Phase 5 is done and live-verified except the `templates/`
+canvas editor (`CanvasEditor`, `LayersPanel`, `PropertiesInspector`, `Ruler`
+under `pages/templates/`) — flagged from the start as "treat separately, not
+a gallery re-skin" since it's a complex canvas tool with no reference screen
+to work from, not a list/gallery page. That's the one concretely-scoped
+piece of work actually remaining in the 5-phase plan. Two other things are
+explicitly NOT in scope but worth remembering they exist:
+1. The master doc's Phase 4 text also asks to roll the table/card archetype
+   out to Users, HR, Transport, Inventory, Health, Hostel, Alumni,
+   Placement, Notices, Assignments, Gradebook, OnlineTests — a large,
+   distinct follow-on from the 4 files Phase 4 actually touched, not started.
+2. Two pre-existing backend defects found this session (group-photo route
+   mismatch, entitlements/me 403 for students — see "Live verification
+   session 3" above) need a decision, not a re-skin patch.
 
-## Uncommitted files (as of this write-up)
+## Uncommitted files
 
-```
-Modified:
- frontend/src/App.tsx
- frontend/src/components/dashboard/QuickActionsPanel.tsx
- frontend/src/components/dashboard/StatsBar.tsx
- frontend/src/components/layout/DashboardLayout.tsx
- frontend/src/components/layout/HamburgerButton.tsx
- frontend/src/components/shared/{StatCard,PageHeader}.tsx
- frontend/src/pages/dashboard/InstitutionsPage.tsx
- frontend/src/pages/student-dashboard/StudentDashboardPage.tsx
- frontend/src/pages/students/StudentsPage.tsx
- frontend/src/pages/attendance/AttendancePage.tsx
- frontend/src/pages/fees/FeesPage.tsx
- frontend/src/pages/admissions/AdmissionsPage.tsx
- frontend/src/components/students/StudentFilterBar.tsx
- frontend/src/main.tsx
- frontend/src/pages/dashboard/dashboard.config.ts
- frontend/src/pages/auth/{AdminSignupPage,ForgotPasswordPage,LoginPage,
-   RegisterPage,ResetPasswordPage,VerifyEmailPage}.tsx
- frontend/src/pages/oauth/ConsentPage.tsx
- frontend/src/pages/dashboard/views/{MainAdmin,SchoolAdmin,Teacher}DashboardView.tsx
- frontend/src/pages/landing/LandingPage.tsx
- frontend/src/pages/landing/components/{CTASection,ComparisonSection,EcosystemSection,
-   HeroSection,HowItWorks,ModuleUniverse,Navbar,StatsSection,UseCases,WhatsAppComms}.tsx
- frontend/src/pages/landing/hooks/useTheme.tsx
- frontend/src/pages/settings/SettingsPage.tsx
- frontend/src/stores/theme.store.ts
- frontend/src/styles/landing.css
-
-Deleted:
- frontend/src/pages/landing/components/ProblemSection.tsx
-
-New (untracked):
- .github/dependabot.yml   (pre-existing, unrelated to this work)
- design_handoff_app_upgrade/   (this folder)
- frontend/src/components/layout/nav-config.ts
- frontend/src/pages/landing/assets/   (mandala-floral.png, pre-existing)
- frontend/src/pages/landing/components/{CardMandala,DocumentStudio,LiveCommandCentre,ROICalculator}.tsx
- frontend/src/pages/auth/components/{AuthShell,PasswordRules}.tsx
- frontend/src/styles/accent-peacock.css
-```
-
-Also unwired but still present, not deleted (flagged to the user, no
-decision yet): `frontend/src/pages/landing/components/ServicesSection.tsx`
-— the old 8-card "Document Studio" grid, superseded by `DocumentStudio.tsx`
-but not removed since its content isn't preserved anywhere else.
+None — everything is committed and pushed to `origin/design/indic` as of
+this session (commits `62711e8` and `80484a4`). `git status` should be clean;
+if it isn't, something changed after this write-up and this section is
+stale — trust `git status` over this file.
