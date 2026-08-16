@@ -150,8 +150,18 @@ export const useFeeSummary = (institutionId: string) =>
   useQuery({
     queryKey: ["fee-summary", institutionId],
     queryFn: async () => {
-      const { data } = await api.get<{ data: FeeSummary }>("/payments/summary");
-      return data.data;
+      // The API returns `totalOutstanding`; the UI (and FeeSummary) use `outstanding`.
+      // Normalise here so `summary.outstanding` isn't undefined → ₹NaN.
+      const { data } = await api.get<{ data: FeeSummary & { totalOutstanding?: number } }>(
+        "/payments/summary"
+      );
+      const s = data.data;
+      return {
+        totalBilled: s.totalBilled ?? 0,
+        totalCollected: s.totalCollected ?? 0,
+        outstanding: s.outstanding ?? s.totalOutstanding ?? 0,
+        collectionRate: s.collectionRate ?? 0,
+      } as FeeSummary;
     },
     enabled: !!institutionId,
   });
