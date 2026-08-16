@@ -4,12 +4,17 @@ Tracks execution of `CLAUDE_CODE_PROMPT.md` against `reference/*.dc.html`.
 Read this before starting a new phase — it's the "what's already true" so you
 don't re-derive it. Update it at the end of each phase.
 
-**Status: Phase 0 + Phase 1 + Phase 2 + Phase 3 + Phase 4 done. Landing page
-also fully reference-matched (not originally phase-scoped, done as a
-follow-up ask). Phase 5 is complete except the `templates/` canvas editor
-(deliberately deferred, see below). Everything through this point is
-**committed and pushed** to `origin/design/indic` — pushing this branch does
-NOT deploy (Coolify watches `main`; confirmed via `origin/HEAD -> main`).**
+**Status: ALL FIVE PHASES DONE**, including the `templates/` canvas editor
+(the one piece explicitly deferred — see "Templates canvas editor" below).
+Landing page also fully reference-matched (not originally phase-scoped,
+done as a follow-up ask). Everything is **committed and pushed** to
+`origin/design/indic` — pushing this branch does NOT deploy (Coolify
+watches `main`; confirmed via `origin/HEAD -> main`). The Indic re-skin of
+Vidyaverse Pro is, as of this writing, feature-complete against the
+5-phase plan. What's left is explicitly out of THIS plan's scope (see
+"Not in scope" at the very bottom) — a wider Phase-4-style rollout to
+non-doc-studio module pages, and a couple of pre-existing backend defects
+found along the way.
 
 **Phases 3 & 4 are now LIVE-VERIFIED (2026-08-16)** — first authenticated
 click-through against a running backend + Postgres. Six pages exercised at
@@ -663,6 +668,135 @@ single large batch commit covering everything from Phase 2 through this
 verification pass, since it had all accumulated uncommitted across sessions
 before now.
 
+## Templates canvas editor — DONE (2026-08-16, session 4)
+
+The one piece of Phase 5 explicitly deferred ("treat separately, not a
+gallery re-skin") since it's a Figma/Canva-style tool
+(`CanvasEditor`/`LayersPanel`/`PropertiesInspector`/`Ruler`, Konva-based),
+not a list/gallery page, and has no reference screen in the master doc's
+prototype set to work from. Handled in its own session as the final
+piece of the 5-phase plan, worked through 8 files with a task list to
+stay disciplined given the size (~3,500 lines across the editor).
+
+**The whole studio was on a completely foreign palette** — not the
+reference's off-brand hex from elsewhere in the project, a *different*
+one: literal Material Design 3 tonal values (`#b7102a`/`#191c1d`/
+`#ffdad8`/`#410007`/`#db313f`/`#a60e26`/`#ba1a1a`) plus slate-* grays and
+a blue-tinted summary box, used as the primary/text/surface colours
+throughout the gallery, the 3-step creation wizard, and the entire studio
+shell (top navbar, left tool rail, Elements/Layers/Properties side
+panels, floating page-manager/context/zoom toolbars). None of it touched
+Indic tokens anywhere.
+
+**The governing distinction, applied consistently across all 8 files:**
+colour that is *app chrome* (buttons, panels, active states, focus
+rings) went to Indic tokens; colour that is *document content* (Konva
+element fill/stroke defaults, the background-swatch presets, the
+color-picker's own fallback value) was left alone — that's what actually
+prints, the same "print pipeline stays untouched" rule the doc-studio
+galleries followed. Two deliberate exceptions, where the colour was
+clearly *intended* to be "our brand" rather than a generic default: the
+Dynamic-Fields panel's "insert a bound variable" text now defaults to
+kumkum instead of the foreign red (same functional purpose — make bound
+text visibly distinct — just correctly sourced), and the Properties
+panel's `BRAND_COLORS` quick-pick array (literally named for brand
+intent, previously `['#b7102a', '#191c1d', '#64748b', '#006860',
+'#3b82f6', '#f59e0b', '#10b981', '#8b5cf6']`) now offers our actual eight
+pigments instead of a foreign palette + a rainbow of unrelated web
+colours.
+
+- **`TemplatesPage.tsx`** (gallery): swapped the hand-rolled header for
+  `PageHeader`, converted the service-type/audience filter buttons to the
+  established chip pattern, moved the card container from a raw `Card`
+  to `indic-card` matching the doc-studio archetype exactly. The
+  gradient card header and status dot were already accent-token-driven
+  from before — only the default-template star icon and active/inactive
+  dot got explicit token colours.
+- **`TemplateNewPage.tsx`** (3-step creation wizard, a `Dialog`): full
+  token pass, MD3 red → primary throughout. Kept the wizard's own
+  colour-blocked dialog header as a deliberate design pattern (unique in
+  this app — every other dialog is plain) rather than restructuring it to
+  match, since recolouring existing chrome in place is what every other
+  page this project did; restructuring would have been scope creep. Zod
+  schemas, step validation, unit conversion, and the create-template
+  payload are byte-identical to before.
+- **`TemplateEditorPage.tsx`** (the studio shell): every chrome surface
+  — navbar, tool rail, floating toolbars (page manager, element context
+  bar, zoom control), right panel — moved to tokens. The canvas
+  workspace backdrop (dot-grid pattern) moved from literal cool grays to
+  `hsl(var(--border))`/`hsl(var(--muted))` so it stops clashing with the
+  now-token-driven surrounding chrome. Keyboard shortcuts (Ctrl+S/Z/Y),
+  save/undo/redo, and the page-load/hydrate `useEffect` are untouched.
+- **`ElementsLibrary.tsx`** / **`LayersPanel.tsx`** / **`PropertiesInspector.tsx`**:
+  same systematic pass. `LayersPanel` turned out to already be
+  token-driven from an earlier pass (likely written well from the
+  start) — only needed a stray `fontFamily: 'Inter'` override removed so
+  Plus Jakarta Sans cascades correctly; that same override existed in
+  all the other files too and came out everywhere.
+- **`Ruler.tsx`**: upgraded to real CSS custom properties
+  (`hsl(var(--card))`, `hsl(var(--border))`, etc.) rather than literal
+  hex — unlike the Konva canvas, this renders plain inline `<svg>`, which
+  *can* reference `var(--x)` directly since it's DOM/CSS-cascaded, not a
+  one-shot canvas rasterisation. The major-tick colour was already
+  `hsl(var(--primary))` from some earlier point — left as-is.
+- **`CanvasEditor.tsx`**: the **only** literal-hex change in the whole
+  pass — the non-printing grid-guide `<Line>` colour (`#b7102a` →
+  `#C0392B`, kumkum). This one genuinely cannot use a CSS custom
+  property: Konva draws to `<canvas>` via the Canvas 2D API, which
+  resolves colour strings once at draw time and has no live binding to
+  the CSS cascade. Nothing else in this file was touched — every other
+  colour here (text fill, shape fill/stroke, line colour, QR/barcode
+  placeholder fills) is the *document being designed*, not app chrome.
+
+**Verified end-to-end, not just structurally**: `tsc --noEmit` and
+`eslint` both exit 0 across all 8 files; a residual grep for every
+off-brand hex/slate-*/Inter-override across the whole `templates/`
+directory returned zero hits outside the deliberately-kept document-
+content defaults. Then a real authenticated session against the running
+dev backend: opened the Templates gallery (confirmed `arch-section-header`
+weight-400 title, `indic-card` gradient resolving to kumkum
+`rgb(192,57,43)`), opened a real template into the studio, added a text
+element via the Elements panel (confirmed the Properties Inspector
+correctly switched to the element view and its active-tab underline
+resolved to kumkum), toggled the grid on and confirmed the ruler's major
+ticks read `rgb(192,57,43)` through the live `hsl(var(--primary))`
+reference, then saved and confirmed via the network response that the
+`PATCH` persisted the new element with its correct default fill
+(`#191c1d`, the document-content default — proving the app-chrome/
+document-content boundary held in practice, not just in the source).
+
+**Gotcha worth recording**: the Browser tool's coordinate/ref-based click
+was unreliable against this page specifically — clicks that should have
+landed on the Elements panel's buttons kept resolving to nothing, and a
+`getBoundingClientRect()` check showed the target button sitting
+partially off-screen (`left: -52`) despite `get_page_text` reading its
+content normally. Likely an interaction between the tool's hit-testing
+and the panel's `framer-motion` width-animation-in. Worked around by
+calling `.click()` directly on the located DOM element via
+`javascript_tool` — this still exercises the real `onClick` handler (it's
+not a store-mutation shortcut), just bypasses the tool's pixel-position
+click. If this recurs on other `AnimatePresence`/motion-animated panels,
+try the same workaround before concluding the underlying feature is
+broken.
+
+## Not in scope (flagged, not started)
+
+Two things noticed across this whole project that are explicitly outside
+the 5-phase plan as scoped, not overlooked:
+1. The master doc's Phase 4 text asks to roll the table/card archetype
+   out to Users, HR, Transport, Inventory, Health, Hostel, Alumni,
+   Placement, Notices, Assignments, Gradebook, OnlineTests — a large,
+   distinct follow-on from the 4 files (Students/Attendance/Fees/
+   Admissions) Phase 4 actually scoped and touched.
+2. Two pre-existing backend defects found during live verification (not
+   re-skin regressions) need an owner decision, not a UI patch:
+   `group-photo-queries.ts`'s frontend hooks call routes that don't exist
+   on the backend at all (a deeper mismatch than a typo — a different API
+   shape entirely, `PATCH /:id`/`GET /:id/faces`/`POST /:id/extract` vs.
+   the backend's actual `POST /:id/extract-faces`/`POST /:id/match-students`/
+   `PATCH /extractions/:id`), and `GET /entitlements/me` 403s for the
+   student role on every student-facing page (non-blocking, but real).
+
 ## Research already done — use this, don't re-derive it
 
 From three Explore-agent passes at the start of this work (still accurate
@@ -765,20 +899,14 @@ unless someone else has touched these files):
 
 ## Next step
 
-Everything through Phase 5 is done and live-verified except the `templates/`
-canvas editor (`CanvasEditor`, `LayersPanel`, `PropertiesInspector`, `Ruler`
-under `pages/templates/`) — flagged from the start as "treat separately, not
-a gallery re-skin" since it's a complex canvas tool with no reference screen
-to work from, not a list/gallery page. That's the one concretely-scoped
-piece of work actually remaining in the 5-phase plan. Two other things are
-explicitly NOT in scope but worth remembering they exist:
-1. The master doc's Phase 4 text also asks to roll the table/card archetype
-   out to Users, HR, Transport, Inventory, Health, Hostel, Alumni,
-   Placement, Notices, Assignments, Gradebook, OnlineTests — a large,
-   distinct follow-on from the 4 files Phase 4 actually touched, not started.
-2. Two pre-existing backend defects found this session (group-photo route
-   mismatch, entitlements/me 403 for students — see "Live verification
-   session 3" above) need a decision, not a re-skin patch.
+**The 5-phase Indic re-skin plan is complete.** There is no next phase.
+If asked to continue this specific project, the honest answer is: there
+isn't a next scoped step, only the two explicitly-out-of-scope items
+under "Not in scope" above (the wider Phase-4-style module rollout, and
+the two pre-existing backend defects). Don't invent new scope — check
+with the user about which of those (if either) they actually want, or
+whether this re-skin work is simply done and the next ask is something
+else entirely.
 
 ## Uncommitted files
 
