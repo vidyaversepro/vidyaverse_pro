@@ -23,13 +23,39 @@ export const TONE = {
     red: '#C0392B',
     peacock: '#006A6E',
     indigo: '#1A237E',
-    lotus: '#9C27B0',
+    lotus: '#AD1457',
     saffron: '#E07A28',
 } as const;
 
 export type ToneValue = string;
 
-type ToneName = keyof typeof TONE;
+export type ToneName = keyof typeof TONE;
+
+/**
+ * Theme-aware TEXT colours. Use these anywhere a tone is applied to text
+ * (`style={{ color: TONE_VAR.green }}`) instead of the raw hex — the raw hexes
+ * fail WCAG AA on the dark theme (indigo body text measured 1.34:1).
+ */
+export const TONE_VAR: Record<ToneName, string> = {
+    green: 'var(--tone-green-fg)',
+    temple: 'var(--tone-temple-fg)',
+    red: 'var(--tone-red-fg)',
+    peacock: 'var(--tone-peacock-fg)',
+    indigo: 'var(--tone-indigo-fg)',
+    lotus: 'var(--tone-lotus-fg)',
+    saffron: 'var(--tone-saffron-fg)',
+};
+
+/** Theme-aware TINT backgrounds, the partner of `TONE_VAR` (icon plinths etc.). */
+export const TONE_TINT: Record<ToneName, string> = {
+    green: 'var(--tone-green-bg)',
+    temple: 'var(--tone-temple-bg)',
+    red: 'var(--tone-red-bg)',
+    peacock: 'var(--tone-peacock-bg)',
+    indigo: 'var(--tone-indigo-bg)',
+    lotus: 'var(--tone-lotus-bg)',
+    saffron: 'var(--tone-saffron-bg)',
+};
 
 /** Maps a TONE hex back to its name so callers can keep passing `TONE.x`. */
 const HEX_TO_NAME: Record<string, ToneName> = Object.entries(TONE).reduce(
@@ -37,8 +63,14 @@ const HEX_TO_NAME: Record<string, ToneName> = Object.entries(TONE).reduce(
     {} as Record<string, ToneName>,
 );
 
+/** Accepts either a tone name ('green') or one of the TONE hexes. */
+export function toneName(tone: ToneValue): ToneName | null {
+    if (tone in TONE) return tone as ToneName;
+    return HEX_TO_NAME[String(tone).toLowerCase()] ?? null;
+}
+
 function toneClass(tone: ToneValue): string | null {
-    const name = HEX_TO_NAME[String(tone).toLowerCase()];
+    const name = toneName(tone);
     return name ? `pill-${name}` : null;
 }
 

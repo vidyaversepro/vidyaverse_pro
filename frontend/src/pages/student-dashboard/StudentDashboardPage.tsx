@@ -10,6 +10,7 @@ import {
 } from '@/lib/queries/student/student-queries';
 import { useStudentInvoices } from '@/lib/queries/payments-queries';
 import { useActiveInstitution } from '@/stores/activeInstitution';
+import { TONE, TONE_VAR, TONE_TINT } from '@/components/shared/Pill';
 import {
   Loader2,
   GraduationCap,
@@ -28,15 +29,6 @@ import {
   Download,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-const TONE = {
-  green: '#15803d',
-  temple: '#B8860B',
-  red: '#C0392B',
-  peacock: '#006A6E',
-  indigo: '#1A237E',
-  lotus: '#AD1457',
-};
 
 function initials(name: string) {
   return name
@@ -149,21 +141,21 @@ export default function StudentDashboardPage() {
         <div className="bg-card border rounded-2xl p-3.5">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Class &amp; Section</div>
           <div className="flex items-center gap-1.5 mt-1.5 font-bold text-[15px]">
-            <GraduationCap className="h-4 w-4" style={{ color: TONE.peacock }} />
+            <GraduationCap className="h-4 w-4" style={{ color: TONE_VAR.peacock }} />
             {profile.section.class.name} — {profile.section.name}
           </div>
         </div>
         <div className="bg-card border rounded-2xl p-3.5">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Admission No.</div>
           <div className="flex items-center gap-1.5 mt-1.5 font-bold text-[15px]">
-            <Hash className="h-4 w-4" style={{ color: TONE.lotus }} />
+            <Hash className="h-4 w-4" style={{ color: TONE_VAR.lotus }} />
             {profile.admissionNumber ?? '—'}
           </div>
         </div>
         <div className="bg-card border rounded-2xl p-3.5">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Roll No.</div>
           <div className="flex items-center gap-1.5 mt-1.5 font-bold text-[15px]">
-            <Hash className="h-4 w-4" style={{ color: TONE.indigo }} />
+            <Hash className="h-4 w-4" style={{ color: TONE_VAR.indigo }} />
             {profile.rollNumber ?? '—'}
           </div>
         </div>
@@ -198,15 +190,15 @@ export default function StudentDashboardPage() {
               <div className="flex-1 space-y-2 text-[13.5px]">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Present</span>
-                  <span className="font-bold" style={{ color: TONE.green }}>{attendanceData.stats.present}</span>
+                  <span className="font-bold" style={{ color: TONE_VAR.green }}>{attendanceData.stats.present}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Absent</span>
-                  <span className="font-bold" style={{ color: TONE.red }}>{attendanceData.stats.absent}</span>
+                  <span className="font-bold" style={{ color: TONE_VAR.red }}>{attendanceData.stats.absent}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Late</span>
-                  <span className="font-bold" style={{ color: TONE.temple }}>{attendanceData.stats.late}</span>
+                  <span className="font-bold" style={{ color: TONE_VAR.temple }}>{attendanceData.stats.late}</span>
                 </div>
               </div>
             </div>
@@ -256,8 +248,8 @@ export default function StudentDashboardPage() {
         {/* Fee status */}
         <WidgetCard title="Fee status" icon={IndianRupee}>
           {unpaidInvoices.length === 0 ? (
-            <div className="flex items-center gap-2 text-sm" style={{ color: TONE.green }}>
-              <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgb(21 128 61 / .12)', color: TONE.green }}>
+            <div className="flex items-center gap-2 text-sm" style={{ color: TONE_VAR.green }}>
+              <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: TONE_TINT.green, color: TONE_VAR.green }}>
                 All clear
               </span>
               <span className="text-muted-foreground">No outstanding dues</span>
@@ -268,7 +260,7 @@ export default function StudentDashboardPage() {
                 <span className="text-[13px] text-muted-foreground">
                   {unpaidInvoices.length} unpaid invoice{unpaidInvoices.length !== 1 ? 's' : ''}
                 </span>
-                <span className="text-[22px]" style={{ fontFamily: 'var(--font-display)', color: TONE.red }}>
+                <span className="text-[22px]" style={{ fontFamily: 'var(--font-display)', color: TONE_VAR.red }}>
                   ₹{totalOutstanding.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -277,7 +269,7 @@ export default function StudentDashboardPage() {
                   <span className="text-muted-foreground truncate max-w-[180px]">{inv.invoiceNumber}</span>
                   <span
                     className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full"
-                    style={inv.status === 'partial' ? { color: TONE.temple, background: 'rgb(184 134 11 / .16)' } : { color: TONE.red, background: 'rgb(192 57 43 / .12)' }}
+                    style={inv.status === 'partial' ? { color: TONE_VAR.temple, background: TONE_TINT.temple } : { color: TONE_VAR.red, background: TONE_TINT.red }}
                   >
                     {inv.status}
                   </span>
@@ -414,10 +406,10 @@ export default function StudentDashboardPage() {
           ) : documentsData ? (
             <div className="flex flex-col gap-3.5">
               {[
-                { label: 'ID Cards', items: documentsData.idCards, tone: TONE.peacock, name: (d: any) => d.cardNumber || 'ID Card' },
-                { label: 'Hall Tickets', items: documentsData.hallTickets, tone: TONE.indigo, name: (d: any) => d.hallTicketNumber || 'Hall Ticket' },
-                { label: 'Certificates', items: documentsData.certificates, tone: TONE.temple, name: (d: any) => `${d.title}${d.certificateNumber ? ` (${d.certificateNumber})` : ''}` },
-                { label: 'Transfer Certificates', items: documentsData.transferCertificates ?? [], tone: TONE.lotus, name: (d: any) => `TC${d.tcSerialNumber ? ` (${d.tcSerialNumber})` : ''}` },
+                { label: 'ID Cards', items: documentsData.idCards, tone: TONE_VAR.peacock, name: (d: any) => d.cardNumber || 'ID Card' },
+                { label: 'Hall Tickets', items: documentsData.hallTickets, tone: TONE_VAR.indigo, name: (d: any) => d.hallTicketNumber || 'Hall Ticket' },
+                { label: 'Certificates', items: documentsData.certificates, tone: TONE_VAR.temple, name: (d: any) => `${d.title}${d.certificateNumber ? ` (${d.certificateNumber})` : ''}` },
+                { label: 'Transfer Certificates', items: documentsData.transferCertificates ?? [], tone: TONE_VAR.lotus, name: (d: any) => `TC${d.tcSerialNumber ? ` (${d.tcSerialNumber})` : ''}` },
               ].map((group) => (
                 <div key={group.label}>
                   <h4 className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">{group.label}</h4>
@@ -456,7 +448,7 @@ export default function StudentDashboardPage() {
           onClick={() => navigate('/student/visionarium')}
           className="text-left bg-card border rounded-2xl p-4 flex items-center gap-3.5 hover:border-primary hover:-translate-y-0.5 transition-all"
         >
-          <span className="w-10 h-10 rounded-[11px] flex items-center justify-center flex-shrink-0" style={{ background: `${TONE.indigo}1f`, color: TONE.indigo }}>
+          <span className="w-10 h-10 rounded-[11px] flex items-center justify-center flex-shrink-0" style={{ background: TONE_TINT.indigo, color: TONE_VAR.indigo }}>
             <BookOpen className="h-5 w-5" />
           </span>
           <div>
@@ -469,7 +461,7 @@ export default function StudentDashboardPage() {
           onClick={() => navigate('/student/feed')}
           className="text-left bg-card border rounded-2xl p-4 flex items-center gap-3.5 hover:border-primary hover:-translate-y-0.5 transition-all"
         >
-          <span className="w-10 h-10 rounded-[11px] flex items-center justify-center flex-shrink-0" style={{ background: `${TONE.lotus}1f`, color: TONE.lotus }}>
+          <span className="w-10 h-10 rounded-[11px] flex items-center justify-center flex-shrink-0" style={{ background: TONE_TINT.lotus, color: TONE_VAR.lotus }}>
             <Heart className="h-5 w-5" />
           </span>
           <div>

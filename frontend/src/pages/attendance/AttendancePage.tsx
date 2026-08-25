@@ -39,15 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Users, UserCheck, UserX, UserMinus, PlusCircle, Calendar } from "lucide-react";
-
-const TONE = {
-  green: '#15803d',
-  temple: '#B8860B',
-  red: '#C0392B',
-  peacock: '#006A6E',
-  indigo: '#1A237E',
-  lotus: '#AD1457',
-};
+import { Pill, NeutralPill, TONE, TONE_VAR, type ToneName } from "@/components/shared/Pill";
 
 const SESSION_TYPE_TONE: Record<string, string> = {
   class: TONE.peacock,
@@ -56,33 +48,14 @@ const SESSION_TYPE_TONE: Record<string, string> = {
   event: TONE.indigo,
 };
 
-function Pill({ label, tone }: { label: string; tone: string }) {
-  return (
-    <span
-      className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full whitespace-nowrap"
-      style={{ color: tone, background: `${tone}1f` }}
-    >
-      {label}
-    </span>
-  );
-}
-
-function NeutralPill({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full bg-muted text-muted-foreground border whitespace-nowrap">
-      {label}
-    </span>
-  );
-}
-
-function StatTile({ label, value, icon: Icon, tone, valueColor }: { label: string; value: string | number; icon: ComponentType<{ className?: string }>; tone: string; valueColor?: string }) {
+function StatTile({ label, value, icon: Icon, tone, tintValue }: { label: string; value: string | number; icon: ComponentType<{ className?: string }>; tone: ToneName; tintValue?: boolean }) {
   return (
     <div className="bg-card border rounded-2xl p-[15px] flex items-center gap-[13px]">
-      <span className="w-[42px] h-[42px] rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${tone}1f`, color: tone }}>
+      <span className={`w-[42px] h-[42px] rounded-xl flex items-center justify-center flex-shrink-0 tone-bg-${tone} tone-text-${tone}`}>
         <Icon className="h-5 w-5" />
       </span>
       <div className="min-w-0">
-        <div className="text-[21px] leading-none" style={{ fontFamily: 'var(--font-display)', color: valueColor }}>{value}</div>
+        <div className={`text-[21px] leading-none ${tintValue ? `tone-text-${tone}` : ''}`} style={{ fontFamily: 'var(--font-display)' }}>{value}</div>
         <div className="text-xs text-muted-foreground font-semibold mt-1">{label}</div>
       </div>
     </div>
@@ -142,10 +115,10 @@ export default function AttendancePage() {
           ) : statsQuery.data ? (
             <>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <StatTile label="Total marked" value={statsQuery.data.totals.total} icon={Users} tone={TONE.peacock} />
-                <StatTile label="Present" value={statsQuery.data.totals.present} icon={UserCheck} tone={TONE.green} valueColor={TONE.green} />
-                <StatTile label="Late" value={statsQuery.data.totals.late} icon={UserMinus} tone={TONE.temple} valueColor={TONE.temple} />
-                <StatTile label="Absent" value={statsQuery.data.totals.absent} icon={UserX} tone={TONE.red} valueColor={TONE.red} />
+                <StatTile label="Total marked" value={statsQuery.data.totals.total} icon={Users} tone="peacock" />
+                <StatTile label="Present" value={statsQuery.data.totals.present} icon={UserCheck} tone="green" tintValue />
+                <StatTile label="Late" value={statsQuery.data.totals.late} icon={UserMinus} tone="temple" tintValue />
+                <StatTile label="Absent" value={statsQuery.data.totals.absent} icon={UserX} tone="red" tintValue />
               </div>
 
               {/* Desktop table */}
@@ -155,9 +128,9 @@ export default function AttendancePage() {
                     <TableRow className="bg-muted/40 hover:bg-muted/40">
                       <TableHead>Class & Section</TableHead>
                       <TableHead>Type</TableHead>
-                      <TableHead className="text-right" style={{ color: TONE.green }}>Present</TableHead>
-                      <TableHead className="text-right" style={{ color: TONE.temple }}>Late</TableHead>
-                      <TableHead className="text-right" style={{ color: TONE.red }}>Absent</TableHead>
+                      <TableHead className="text-right" style={{ color: TONE_VAR.green }}>Present</TableHead>
+                      <TableHead className="text-right" style={{ color: TONE_VAR.temple }}>Late</TableHead>
+                      <TableHead className="text-right" style={{ color: TONE_VAR.red }}>Absent</TableHead>
                       <TableHead className="text-right">Total</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -165,10 +138,10 @@ export default function AttendancePage() {
                     {statsQuery.data.sessions.map((s) => (
                       <TableRow key={s.sessionId} className="cursor-pointer" onClick={() => navigate(`/app/attendance/sessions/${s.sessionId}`)}>
                         <TableCell className="font-bold">{s.class} – {s.section}</TableCell>
-                        <TableCell><Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} /></TableCell>
-                        <TableCell className="text-right font-semibold" style={{ color: TONE.green }}>{s.present}</TableCell>
-                        <TableCell className="text-right font-semibold" style={{ color: TONE.temple }}>{s.late}</TableCell>
-                        <TableCell className="text-right font-semibold" style={{ color: TONE.red }}>{s.absent}</TableCell>
+                        <TableCell><Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} className="capitalize" /></TableCell>
+                        <TableCell className="text-right font-semibold" style={{ color: TONE_VAR.green }}>{s.present}</TableCell>
+                        <TableCell className="text-right font-semibold" style={{ color: TONE_VAR.temple }}>{s.late}</TableCell>
+                        <TableCell className="text-right font-semibold" style={{ color: TONE_VAR.red }}>{s.absent}</TableCell>
                         <TableCell className="text-right font-bold">{s.total}</TableCell>
                       </TableRow>
                     ))}
@@ -193,12 +166,12 @@ export default function AttendancePage() {
                   >
                     <div className="flex items-center justify-between mb-2.5">
                       <span className="font-bold text-[14.5px]">{s.class} – {s.section}</span>
-                      <Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} />
+                      <Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} className="capitalize" />
                     </div>
                     <div className="flex gap-3.5 text-[13px]">
-                      <span className="font-bold" style={{ color: TONE.green }}>{s.present} <span className="text-muted-foreground font-medium">present</span></span>
-                      <span className="font-bold" style={{ color: TONE.temple }}>{s.late} <span className="text-muted-foreground font-medium">late</span></span>
-                      <span className="font-bold" style={{ color: TONE.red }}>{s.absent} <span className="text-muted-foreground font-medium">absent</span></span>
+                      <span className="font-bold" style={{ color: TONE_VAR.green }}>{s.present} <span className="text-muted-foreground font-medium">present</span></span>
+                      <span className="font-bold" style={{ color: TONE_VAR.temple }}>{s.late} <span className="text-muted-foreground font-medium">late</span></span>
+                      <span className="font-bold" style={{ color: TONE_VAR.red }}>{s.absent} <span className="text-muted-foreground font-medium">absent</span></span>
                     </div>
                   </button>
                 ))}
@@ -241,9 +214,9 @@ export default function AttendancePage() {
                       <TableCell>{s.section?.class?.name}</TableCell>
                       <TableCell>{s.section?.name}</TableCell>
                       <TableCell className="text-muted-foreground">{s.startTime} – {s.endTime || 'Ongoing'}</TableCell>
-                      <TableCell><Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} /></TableCell>
+                      <TableCell><Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} className="capitalize" /></TableCell>
                       <TableCell>
-                        {s.status === 'open' ? <Pill label="Open" tone={TONE.green} /> : <NeutralPill label={s.status} />}
+                        {s.status === 'open' ? <Pill label="Open" tone={TONE.green} className="capitalize" /> : <NeutralPill label={s.status} className="capitalize" />}
                       </TableCell>
                       <TableCell className="text-right font-semibold">{s._count?.records || 0}</TableCell>
                     </TableRow>
@@ -268,11 +241,11 @@ export default function AttendancePage() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-[14.5px]">{s.section?.class?.name} – {s.section?.name}</span>
-                    {s.status === 'open' ? <Pill label="Open" tone={TONE.green} /> : <NeutralPill label={s.status} />}
+                    {s.status === 'open' ? <Pill label="Open" tone={TONE.green} className="capitalize" /> : <NeutralPill label={s.status} className="capitalize" />}
                   </div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>{s.startTime} – {s.endTime || 'Ongoing'}</span>
-                    <Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} />
+                    <Pill label={s.type} tone={SESSION_TYPE_TONE[s.type] || TONE.peacock} className="capitalize" />
                   </div>
                   <div className="text-xs text-muted-foreground mt-1.5">{s._count?.records || 0} marked</div>
                 </button>
@@ -458,9 +431,9 @@ function ReportsTab({ institutionId }: { institutionId: string }) {
             <TableHeader>
               <TableRow className="bg-muted/40 hover:bg-muted/40">
                 <TableHead>Student</TableHead>
-                <TableHead className="text-right" style={{ color: TONE.green }}>Present</TableHead>
-                <TableHead className="text-right" style={{ color: TONE.temple }}>Late</TableHead>
-                <TableHead className="text-right" style={{ color: TONE.red }}>Absent</TableHead>
+                <TableHead className="text-right" style={{ color: TONE_VAR.green }}>Present</TableHead>
+                <TableHead className="text-right" style={{ color: TONE_VAR.temple }}>Late</TableHead>
+                <TableHead className="text-right" style={{ color: TONE_VAR.red }}>Absent</TableHead>
                 <TableHead className="text-right">Excused</TableHead>
                 <TableHead className="text-right">Rate</TableHead>
               </TableRow>
@@ -472,9 +445,9 @@ function ReportsTab({ institutionId }: { institutionId: string }) {
                     <div className="font-bold">{s.student.name}</div>
                     <div className="text-xs text-muted-foreground">{s.student.admissionNumber}</div>
                   </TableCell>
-                  <TableCell className="text-right font-semibold" style={{ color: TONE.green }}>{s.present}</TableCell>
-                  <TableCell className="text-right font-semibold" style={{ color: TONE.temple }}>{s.late}</TableCell>
-                  <TableCell className="text-right font-semibold" style={{ color: TONE.red }}>{s.absent}</TableCell>
+                  <TableCell className="text-right font-semibold" style={{ color: TONE_VAR.green }}>{s.present}</TableCell>
+                  <TableCell className="text-right font-semibold" style={{ color: TONE_VAR.temple }}>{s.late}</TableCell>
+                  <TableCell className="text-right font-semibold" style={{ color: TONE_VAR.red }}>{s.absent}</TableCell>
                   <TableCell className="text-right">{s.excused}</TableCell>
                   <TableCell className="text-right font-bold">{s.attendanceRate}%</TableCell>
                 </TableRow>

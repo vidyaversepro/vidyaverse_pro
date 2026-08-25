@@ -63,14 +63,7 @@ import { BulkStudentUploadModal } from '@/components/students/bulk-upload/BulkSt
 import { BulkPhotoUploadModal } from '@/components/students/bulk-upload/BulkPhotoUploadModal';
 import { StudentDraftGrid } from '@/components/students/StudentDraftGrid';
 import { StudentFilterBar, type StudentFilterValues } from '@/components/students/StudentFilterBar';
-
-const TONE = {
-    green: '#15803d',
-    temple: '#B8860B',
-    red: '#C0392B',
-    peacock: '#006A6E',
-    indigo: '#1A237E',
-};
+import { Pill, NeutralPill, TONE } from '@/components/shared/Pill';
 
 // Data status → literal tone (matches the reference's SSTAT palette exactly)
 const dataStatusConfig: Record<DataStatus, { label: string; tone: string }> = {
@@ -81,25 +74,6 @@ const dataStatusConfig: Record<DataStatus, { label: string; tone: string }> = {
     approved: { label: 'Approved', tone: TONE.green },
     rejected: { label: 'Rejected', tone: TONE.red },
 };
-
-function Pill({ label, tone }: { label: string; tone: string }) {
-    return (
-        <span
-            className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
-            style={{ color: tone, background: `${tone}1f` }}
-        >
-            {label}
-        </span>
-    );
-}
-
-function NeutralPill({ label }: { label: string }) {
-    return (
-        <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full bg-muted text-muted-foreground border whitespace-nowrap">
-            {label}
-        </span>
-    );
-}
 
 export default function StudentsPage() {
     const [searchParams, setSearchParams] = useSearchParams();

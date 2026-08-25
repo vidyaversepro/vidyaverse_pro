@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { NeutralPill, TONE } from '@/components/shared/Pill';
+import { NeutralPill, type ToneName } from '@/components/shared/Pill';
 import {
   useBiometricDevices,
   useStaffAttendance,
@@ -17,10 +17,10 @@ import {
 import { StaffPicker } from '@/components/shared/StaffPicker';
 
 /** Attendance summary cell — literal semantic tone, dark-mode safe (tinted from the tone itself). */
-function SummaryCell({ label, value, tone }: { label: string; value: number; tone: string }) {
+function SummaryCell({ label, value, tone }: { label: string; value: number; tone: ToneName }) {
   return (
-    <div className="rounded-xl p-2 text-center" style={{ background: `${tone}1f` }}>
-      <p className="font-bold text-lg leading-tight" style={{ color: tone }}>{value}</p>
+    <div className={`rounded-xl p-2 text-center tone-bg-${tone}`}>
+      <p className={`font-bold text-lg leading-tight tone-text-${tone}`}>{value}</p>
       <p className="text-[10px] text-muted-foreground">{label}</p>
     </div>
   );
@@ -96,10 +96,10 @@ export default function BiometricPage() {
             </div>
             {attendance && (
               <div className="mb-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <SummaryCell label="Present" value={attendance.summary.present} tone={TONE.green} />
-                <SummaryCell label="Absent" value={attendance.summary.absent} tone={TONE.red} />
-                <SummaryCell label="Half-day" value={attendance.summary.half_day} tone={TONE.temple} />
-                <SummaryCell label="Leave" value={attendance.summary.leave} tone={TONE.indigo} />
+                <SummaryCell label="Present" value={attendance.summary.present} tone="green" />
+                <SummaryCell label="Absent" value={attendance.summary.absent} tone="red" />
+                <SummaryCell label="Half-day" value={attendance.summary.half_day} tone="temple" />
+                <SummaryCell label="Leave" value={attendance.summary.leave} tone="indigo" />
               </div>
             )}
             <div className="flex flex-col sm:flex-row gap-2">

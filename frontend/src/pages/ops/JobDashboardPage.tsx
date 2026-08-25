@@ -6,17 +6,17 @@ import { cn } from '../../lib/utils.js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { TONE } from '@/components/shared/Pill';
+import { TONE_VAR, TONE_TINT, type ToneName } from '@/components/shared/Pill';
 
-const STATUS_TONE: Record<string, string> = {
-    completed: TONE.green,
-    failed: TONE.red,
-    processing: TONE.peacock,
-    queued: TONE.temple,
+const STATUS_TONE: Record<string, ToneName> = {
+    completed: 'green',
+    failed: 'red',
+    processing: 'peacock',
+    queued: 'temple',
 };
 
-function statusTone(status: string) {
-    return STATUS_TONE[status] ?? TONE.indigo;
+function statusTone(status: string): ToneName {
+    return STATUS_TONE[status] ?? 'indigo';
 }
 
 function StatusChip({ status }: { status: string }) {
@@ -31,9 +31,10 @@ function StatusChip({ status }: { status: string }) {
         <span
             className={cn(
                 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border capitalize whitespace-nowrap',
+                `pill-${tone}`,
                 status === 'processing' && 'animate-pulse',
             )}
-            style={{ color: tone, background: `${tone}1f`, borderColor: `${tone}33` }}
+            style={{ borderColor: TONE_TINT[tone] }}
         >
             {icon}
             {status}
@@ -47,7 +48,7 @@ function ProgressBar({ progress, failed }: { progress: number; failed: boolean }
             <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden min-w-[80px]">
                 <div
                     className="h-full rounded-full transition-all duration-500"
-                    style={{ width: `${progress}%`, background: failed ? TONE.red : 'hsl(var(--primary))' }}
+                    style={{ width: `${progress}%`, background: failed ? TONE_VAR.red : 'hsl(var(--primary))' }}
                 />
             </div>
             <span className="text-xs font-medium min-w-[36px]">{progress}%</span>
@@ -58,9 +59,9 @@ function ProgressBar({ progress, failed }: { progress: number; failed: boolean }
 function ResultCounts({ job }: { job: JobExecution }) {
     return (
         <div className="text-sm">
-            <span className="font-medium" style={{ color: TONE.green }}>{job.successfulItems}</span>
+            <span className="font-medium tone-text-green">{job.successfulItems}</span>
             <span className="text-muted-foreground mx-1">/</span>
-            <span className="font-medium" style={{ color: TONE.red }}>{job.failedItems}</span>
+            <span className="font-medium tone-text-red">{job.failedItems}</span>
             <span className="text-muted-foreground mx-1">of</span>
             <span>{job.totalItems}</span>
         </div>
@@ -171,7 +172,7 @@ export default function JobDashboardPage() {
                                             <td className="p-4">
                                                 <ResultCounts job={job} />
                                                 {job.errorMessage && (
-                                                    <p className="text-xs mt-1 line-clamp-1" style={{ color: TONE.red }} title={job.errorMessage}>
+                                                    <p className="text-xs mt-1 line-clamp-1" style={{ color: TONE_VAR.red }} title={job.errorMessage}>
                                                         {job.errorMessage}
                                                     </p>
                                                 )}
@@ -229,7 +230,7 @@ export default function JobDashboardPage() {
                                     </div>
 
                                     {job.errorMessage && (
-                                        <p className="text-xs mt-1.5 line-clamp-2" style={{ color: TONE.red }} title={job.errorMessage}>
+                                        <p className="text-xs mt-1.5 line-clamp-2" style={{ color: TONE_VAR.red }} title={job.errorMessage}>
                                             {job.errorMessage}
                                         </p>
                                     )}

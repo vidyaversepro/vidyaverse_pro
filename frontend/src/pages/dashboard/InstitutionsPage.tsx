@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
+import { TONE_VAR, TONE_TINT } from '@/components/shared/Pill';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -53,11 +54,13 @@ import { InstitutionModal } from './InstitutionModal';
 type SubscriptionTier = 'starter' | 'professional' | 'enterprise';
 type SubscriptionStatus = 'trial' | 'active' | 'suspended' | 'cancelled';
 
+// Same {text, tint} shape as before, but sourced from the theme-aware tokens —
+// the old literal hexes failed WCAG AA on the dark theme (see styles/status-tones.css).
 const TONE = {
-    green: { t: '#15803d', bg: 'rgb(21 128 61 / .12)' },
-    temple: { t: '#B8860B', bg: 'rgb(184 134 11 / .16)' },
-    red: { t: '#C0392B', bg: 'rgb(192 57 43 / .12)' },
-    peacock: { t: '#006A6E', bg: 'rgb(0 106 110 / .13)' },
+    green: { t: TONE_VAR.green, bg: TONE_TINT.green },
+    temple: { t: TONE_VAR.temple, bg: TONE_TINT.temple },
+    red: { t: TONE_VAR.red, bg: TONE_TINT.red },
+    peacock: { t: TONE_VAR.peacock, bg: TONE_TINT.peacock },
 };
 
 function statusTone(status: SubscriptionStatus) {

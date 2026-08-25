@@ -863,6 +863,69 @@ route measured 0. **Always reload after resizing before trusting a
 measurement**, and treat a "bug" that appears on every single page at
 once as a measurement artifact until proven otherwise.
 
+## Palette unification — every page on one theme-aware tone set (DONE, 2026-08-26)
+
+Follow-on to the rollout: the single-value pigment palette is now gone from
+the codebase. **It was 6 files, not the 4 assumed** — the two Phase-3 pages
+(`dashboard/InstitutionsPage`, `student-dashboard/StudentDashboardPage`)
+carried it too — **and the damage was much wider than status pills.**
+
+**What was actually broken.** Measured against the real theme tokens
+(`--card: 222 47% 8%`, `--background: 224 71.4% 4.1%`), the literal hexes
+used as *plain text on a card* scored:
+
+| tone | light | dark |
+|---|---|---|
+| indigo | 13.24 | **1.34** |
+| lotus | 6.97 | **2.55** |
+| peacock | 6.39 | **2.78** |
+| red | 5.44 | **3.26** |
+| green | 5.02 | **3.54** |
+| temple | **3.25** | 5.45 |
+
+i.e. **5 of 6 tones failed AA as body text on dark, and `temple` failed
+LIGHT.** `AttendancePage` alone had ~14 such sites — table headers and the
+present/late/absent figures in both the table and the mobile cards — none of
+them pills. `StudentDashboardPage` had hand-written `rgb(... / .12)` tints
+duplicating the light-mode values, which vanish on dark.
+
+**Fix.** `styles/status-tones.css` gained three class families — `.pill-*`
+(text+tint), `.tone-text-*` (text only), `.tone-bg-*` (tint only) — plus
+`TONE_VAR` / `TONE_TINT` exports for the inline-style sites. `lotus` was
+reconciled to the pages' established `#AD1457` rather than the rollout's
+`#9C27B0`, so **no screen changes appearance in light mode** — this is
+purely a dark-mode correction.
+
+**What deliberately kept raw hex:** solid button/badge fills that carry white
+text on top (`AdmissionsPage`'s "Convert to Student", `StudentDashboardPage`'s
+overdue badge). Swapping those to the dark-mode variable would put white text
+on a pale fill — worse, not better. `TONE` still exports hex for exactly these.
+
+**Also fixed:** two files from the rollout itself had the same defect and were
+caught by the same sweep — `ops/JobDashboardPage`'s `StatusChip` (an 11px bold
+pill built from inline hex) and `biometric`'s `SummaryCell`.
+
+**Verified:** `tsc --noEmit` 0, `eslint` 0 (one pre-existing `useMemo` deps
+warning in `StudentsPage`, documented in Phase 4 and untouched), build 0. Live
+authenticated pass: all 6 migrated pages render, **0 elements still carry an
+inline hex colour**, 0 horizontal overflow, and **28 of 28 contrast
+measurements pass** (pill + plain-text roles x 7 tones x light/dark), read
+from `getComputedStyle` on probe elements injected into the live DOM against
+the real card surface. Worst value 5.18:1. `StudentsPage` net change:
+**+1 import, -27 lines**.
+
+**Left alone deliberately:** `StudentDashboardPage`'s overdue badge is
+white-on-`#B8860B` (~3.4:1), a pre-existing contrast issue on a solid fill.
+Fixing it means choosing a new fill colour — a design decision, not a token
+swap.
+
+**Grep that keeps this from coming back** — it should only ever match
+`components/shared/Pill.tsx`:
+
+```bash
+grep -rn 'background: `${.*}1f`' --include=*.tsx frontend/src/
+```
+
 ## Known debt introduced/uncovered by this pass
 
 - `student_transport.stop_id` now has a Prisma `@relation` (from the
@@ -872,9 +935,9 @@ once as a measurement artifact until proven otherwise.
   deploy` had nothing to apply, so the deploy was safe. But `prisma
   migrate dev` will want to create that FK, and doing so on prod could
   fail on orphaned `stop_id` values. Vet the data before generating it.
-- The 4 original Phase-4 pages still hold local `TONE`/`Pill` copies, so
-  their pills keep the failing single-value palette. Migrate them to
-  `components/shared/Pill.tsx`.
+- ~~The 4 original Phase-4 pages still hold local `TONE`/`Pill` copies.~~
+  **DONE 2026-08-26** — see the palette-unification section above. It was 6
+  files, not 4, and the damage was wider than pills.
 
 ## Not in scope (flagged, not started)
 
@@ -1003,10 +1066,8 @@ left is small and listed under "Not in scope" / "Known debt":
 1. The two pre-existing backend defects (`group-photo-queries.ts` route
    mismatch; `GET /entitlements/me` 403 for students) — owner decision,
    not a UI patch.
-2. The 4 original Phase-4 pages (Students/Attendance/Fees/Admissions)
-   still carry their own local `TONE`/`Pill` copies with the single-value
-   palette, so their pills still fail dark-mode contrast. Migrating them
-   to `components/shared/Pill.tsx` is mechanical and tsc-checked.
+2. ~~The 4 original Phase-4 pages still carry local `TONE`/`Pill` copies.~~
+   **DONE** — all 6 files that carried the pattern are migrated.
 3. `student_transport.stop_id` has a Prisma relation but no DB foreign
    key (see "Known debt" below).
 4. **Nothing in this project has ever been seen in a screenshot** — the

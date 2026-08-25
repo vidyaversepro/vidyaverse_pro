@@ -57,6 +57,7 @@ import type {
   CreateFeeInvoiceInput,
   InvoiceStatus,
 } from "@vidyaverse/shared-validation";
+import { Pill, NeutralPill, TONE, TONE_VAR, type ToneName } from "@/components/shared/Pill";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -84,15 +85,6 @@ const FREQUENCY_LABELS: Record<string, string> = {
   annual: "Annual",
 };
 
-const TONE = {
-  green: '#15803d',
-  temple: '#B8860B',
-  red: '#C0392B',
-  peacock: '#006A6E',
-  indigo: '#1A237E',
-  lotus: '#AD1457',
-};
-
 const STATUS_TONE: Record<InvoiceStatus, string> = {
   unpaid: TONE.red,
   partial: TONE.temple,
@@ -113,33 +105,14 @@ const STATUS_FILTERS = [
   "all", "unpaid", "partial", "paid", "waived", "cancelled",
 ] as const;
 
-function Pill({ label, tone }: { label: string; tone: string }) {
-  return (
-    <span
-      className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
-      style={{ color: tone, background: `${tone}1f` }}
-    >
-      {label}
-    </span>
-  );
-}
-
-function NeutralPill({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full bg-muted text-muted-foreground border whitespace-nowrap">
-      {label}
-    </span>
-  );
-}
-
-function StatTile({ label, value, icon: Icon, tone, valueColor }: { label: string; value: string; icon: ComponentType<{ className?: string }>; tone: string; valueColor?: string }) {
+function StatTile({ label, value, icon: Icon, tone, tintValue }: { label: string; value: string; icon: ComponentType<{ className?: string }>; tone: ToneName; tintValue?: boolean }) {
   return (
     <div className="bg-card border rounded-2xl p-[15px] flex items-center gap-[13px]">
-      <span className="w-[42px] h-[42px] rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${tone}1f`, color: tone }}>
+      <span className={`w-[42px] h-[42px] rounded-xl flex items-center justify-center flex-shrink-0 tone-bg-${tone} tone-text-${tone}`}>
         <Icon className="h-5 w-5" />
       </span>
       <div className="min-w-0">
-        <div className="text-[21px] leading-none" style={{ fontFamily: 'var(--font-display)', color: valueColor }}>{value}</div>
+        <div className={`text-[21px] leading-none ${tintValue ? `tone-text-${tone}` : ''}`} style={{ fontFamily: 'var(--font-display)' }}>{value}</div>
         <div className="text-xs text-muted-foreground font-semibold mt-1">{label}</div>
       </div>
     </div>
@@ -544,10 +517,10 @@ export default function FeesPage() {
 
       {/* Summary tiles */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile label="Total billed" value={summary ? inr(summary.totalBilled) : "—"} icon={IndianRupee} tone={TONE.peacock} />
-        <StatTile label="Collected" value={summary ? inr(summary.totalCollected) : "—"} icon={CheckCircle2} tone={TONE.green} valueColor={TONE.green} />
-        <StatTile label="Outstanding" value={summary ? inr(summary.outstanding) : "—"} icon={AlertCircle} tone={TONE.red} valueColor={TONE.red} />
-        <StatTile label="Collection rate" value={summary ? `${summary.collectionRate.toFixed(1)}%` : "—"} icon={TrendingUp} tone={TONE.indigo} />
+        <StatTile label="Total billed" value={summary ? inr(summary.totalBilled) : "—"} icon={IndianRupee} tone="peacock" />
+        <StatTile label="Collected" value={summary ? inr(summary.totalCollected) : "—"} icon={CheckCircle2} tone="green" tintValue />
+        <StatTile label="Outstanding" value={summary ? inr(summary.outstanding) : "—"} icon={AlertCircle} tone="red" tintValue />
+        <StatTile label="Collection rate" value={summary ? `${summary.collectionRate.toFixed(1)}%` : "—"} icon={TrendingUp} tone="indigo" />
       </div>
 
       {/* Tabs */}
@@ -707,7 +680,7 @@ export default function FeesPage() {
                           size="icon"
                           variant="outline"
                           className="h-9 w-9 rounded-[10px]"
-                          style={{ color: TONE.green }}
+                          style={{ color: TONE_VAR.green }}
                           onClick={() => handleRemind(inv.id)}
                           disabled={sendReminder.isPending}
                           title="Send WhatsApp reminder"

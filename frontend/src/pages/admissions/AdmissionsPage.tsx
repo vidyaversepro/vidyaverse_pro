@@ -26,18 +26,10 @@ import {
   type EnquiryActivityType,
   type Enquiry,
 } from '@/lib/queries/admissions/admissions-queries';
+import { Pill, NeutralPill, TONE, TONE_VAR, TONE_TINT } from '@/components/shared/Pill';
 
 const STATUSES: EnquiryStatus[] = ['new', 'contacted', 'visited', 'application', 'admitted', 'lost'];
 const SOURCES: EnquirySource[] = ['walk_in', 'website', 'referral', 'whatsapp', 'phone', 'social', 'other'];
-
-const TONE = {
-  green: '#15803d',
-  temple: '#B8860B',
-  red: '#C0392B',
-  peacock: '#006A6E',
-  indigo: '#1A237E',
-  lotus: '#AD1457',
-};
 
 const STATUS_TONE: Record<EnquiryStatus, string> = {
   new: TONE.indigo,
@@ -48,30 +40,11 @@ const STATUS_TONE: Record<EnquiryStatus, string> = {
   lost: TONE.red,
 };
 
-function Pill({ label, tone }: { label: string; tone: string }) {
-  return (
-    <span
-      className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full whitespace-nowrap"
-      style={{ color: tone, background: `${tone}1f` }}
-    >
-      {label}
-    </span>
-  );
-}
-
-function NeutralPill({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center text-[11px] font-bold capitalize px-2.5 py-1 rounded-full bg-muted text-muted-foreground border whitespace-nowrap">
-      {label}
-    </span>
-  );
-}
-
 const ACTIVITY_ICONS: Partial<Record<EnquiryActivityType, React.ReactNode>> = {
-  call: <PhoneCall className="w-4 h-4" style={{ color: TONE.peacock }} />,
+  call: <PhoneCall className="w-4 h-4" style={{ color: TONE_VAR.peacock }} />,
   note: <StickyNote className="w-4 h-4 text-muted-foreground" />,
-  visit: <MapPin className="w-4 h-4" style={{ color: TONE.lotus }} />,
-  whatsapp: <MessageCircle className="w-4 h-4" style={{ color: TONE.green }} />,
+  visit: <MapPin className="w-4 h-4" style={{ color: TONE_VAR.lotus }} />,
+  whatsapp: <MessageCircle className="w-4 h-4" style={{ color: TONE_VAR.green }} />,
 };
 
 function isOverdue(dateStr: string | null | undefined) {
@@ -179,7 +152,7 @@ export default function AdmissionsPage() {
                       <CardContent className="p-3 space-y-2">
                         <div className="flex justify-between items-start gap-2">
                           <div className="font-bold text-[13.5px]">{enq.studentName}</div>
-                          <NeutralPill label={enq.source.replace('_', ' ')} />
+                          <NeutralPill label={enq.source.replace('_', ' ')} className="capitalize" />
                         </div>
                         <div className="text-xs text-muted-foreground flex justify-between items-center">
                           <span>{enq.phone}</span>
@@ -188,7 +161,7 @@ export default function AdmissionsPage() {
                         {enq.followUpAt && (
                           <div
                             className="text-[10.5px] font-bold"
-                            style={{ color: isOverdue(enq.followUpAt) ? TONE.red : 'hsl(var(--muted-foreground))' }}
+                            style={{ color: isOverdue(enq.followUpAt) ? TONE_VAR.red : 'hsl(var(--muted-foreground))' }}
                           >
                             Follow-up · {new Date(enq.followUpAt).toLocaleDateString()}
                           </div>
@@ -260,11 +233,11 @@ export default function AdmissionsPage() {
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">{e.phone}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{e.classInterested || '—'}</TableCell>
-                        <TableCell><NeutralPill label={e.source.replace('_', ' ')} /></TableCell>
+                        <TableCell><NeutralPill label={e.source.replace('_', ' ')} className="capitalize" /></TableCell>
                         <TableCell onClick={ev => ev.stopPropagation()}>
                           <Select value={e.status} onValueChange={(v) => changeStatus(e.id, v as EnquiryStatus)}>
                             <SelectTrigger className="w-36 h-8">
-                              <Pill label={e.status} tone={STATUS_TONE[e.status]} />
+                              <Pill label={e.status} tone={STATUS_TONE[e.status]} className="capitalize" />
                             </SelectTrigger>
                             <SelectContent>
                               {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
@@ -294,10 +267,10 @@ export default function AdmissionsPage() {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-bold text-[14.5px] truncate">{e.studentName}</span>
-                    <Pill label={e.status} tone={STATUS_TONE[e.status]} />
+                    <Pill label={e.status} tone={STATUS_TONE[e.status]} className="capitalize" />
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">{e.phone} · {e.classInterested || '—'}</div>
-                  <div className="mt-1.5"><NeutralPill label={e.source.replace('_', ' ')} /></div>
+                  <div className="mt-1.5"><NeutralPill label={e.source.replace('_', ' ')} className="capitalize" /></div>
                 </button>
               ))
             )}
@@ -374,7 +347,7 @@ function EnquiryDetailSheetContent({ enquiryId, onClose }: { enquiryId: string |
       <SheetHeader>
         <div className="flex justify-between items-start gap-2">
           <SheetTitle className="text-xl">{enquiry.studentName}</SheetTitle>
-          <Pill label={enquiry.status} tone={STATUS_TONE[enquiry.status]} />
+          <Pill label={enquiry.status} tone={STATUS_TONE[enquiry.status]} className="capitalize" />
         </div>
         <p className="text-sm text-muted-foreground">{enquiry.enquiryNumber}</p>
       </SheetHeader>
@@ -472,7 +445,7 @@ function EnquiryDetailSheetContent({ enquiryId, onClose }: { enquiryId: string |
                 <DialogTitle>Convert to Student</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <div className="p-3 rounded-md text-sm flex gap-2" style={{ background: `${TONE.temple}1f`, color: TONE.temple }}>
+                <div className="p-3 rounded-md text-sm flex gap-2" style={{ background: TONE_TINT.temple, color: TONE_VAR.temple }}>
                   <AlertCircle className="w-5 h-5 flex-shrink-0" />
                   <p>This will create a permanent Student record and mark the enquiry as Admitted. This action cannot be reversed.</p>
                 </div>
