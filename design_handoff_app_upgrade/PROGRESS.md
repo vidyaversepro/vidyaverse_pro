@@ -4,7 +4,10 @@ Tracks execution of `CLAUDE_CODE_PROMPT.md` against `reference/*.dc.html`.
 Read this before starting a new phase — it's the "what's already true" so you
 don't re-derive it. Update it at the end of each phase.
 
-**Status: ALL FIVE PHASES DONE**, including the `templates/` canvas editor
+**Status: ALL FIVE PHASES DONE + the wider Phase-4 module rollout, and
+`main` IS LIVE ON ALL OF IT** (`5354155`, 2026-08-26 — the merge
+fast-forwarded `main` from `33d8e2e` straight to the whole re-skin plus
+the 6 stranded backend bug fixes). Includes the `templates/` canvas editor
 (the one piece explicitly deferred — see "Templates canvas editor" below).
 Landing page also fully reference-matched (not originally phase-scoped,
 done as a follow-up ask). Everything is **committed and pushed** to
@@ -779,15 +782,109 @@ click. If this recurs on other `AnimatePresence`/motion-animated panels,
 try the same workaround before concluding the underlying feature is
 broken.
 
+## Phase 4 rollout — the 24 remaining module pages (DONE, 2026-08-26)
+
+The master doc's wider Phase-4 ask, executed and **shipped to `main`**
+(`5354155`, 29 files, +1299/-964). This is the first time `main` has
+carried any of the Indic work — the merge fast-forwarded `main` from
+`33d8e2e` (2026-08-08) straight to the full 5-phase re-skin plus this
+rollout, 11 commits including the 6 backend bug fixes that had been
+stranded on `design/indic`.
+
+**Covered (24 page areas):** admin(OAuthClients), alumni, assignments,
+biometric, communications, fees-advanced, finance, gradebook, health,
+hostel, hr, integrations(via `IntegrationLaunchPanel`), inventory,
+live-classes, mobile-app, notices, onboard(2 public pages), online-tests,
+ops, placement, reports, timetable, transport, visitor.
+
+**The archetype applied to each:** shared `PageHeader`, root
+`p-4 sm:p-6 space-y-4`, `grid-cols-2 lg:grid-cols-N` stat rows on the
+shared toned `StatCard`, `rounded-2xl border bg-card` panels,
+`flex-wrap` action rows with `flex-1 sm:flex-none` buttons, and
+`min-w-0`/`truncate` on every flex row that previously pushed the page
+wide. Data layer untouched — same hooks, query keys, endpoints.
+
+**Table -> card at `lg`** where a real table existed: HR staff roster,
+Finance trial balance, Ops job dashboard. **Timetable** is the one screen
+that couldn't take the standard treatment — a 6-day x N-period grid is
+unreadable at 375px even scrolled, so it keeps the scrollable week grid
+at `sm+` and gets a day-chip picker + stacked period list on phones.
+
+**Three real bugs fixed in passing, none of them re-skin regressions:**
+- `ops/JobDashboardPage` was on a **foreign dark-glass design system**
+  (`brand-primary`/`brand-surface`/`brand-muted`/`text-white`/
+  `border-white/5`) — a different palette again from the templates
+  studio's MD3 one. In the Indic light theme it rendered white text on
+  white. Fully rewritten onto tokens.
+- `components/ui/dialog.tsx` had `max-h-[90vh]` with **no
+  `overflow-y-auto`**, so any dialog taller than the viewport clipped its
+  own submit button with no way to scroll. App-wide, every dialog.
+- Several **dark-mode bugs from light-only Tailwind pairs**
+  (`bg-amber-50`, `bg-green-50`, `bg-blue-100`, `border-red-200`) that had
+  no `dark:` counterpart — replaced with tone-derived tints.
+
+**The status palette is now theme-aware — this was a real accessibility
+defect.** The single-value pigment set used since Phase 4 renders as
+`color: TONE.x` on `background: TONE.x + '1f'`. Measured against the live
+dark background that gives **indigo 1.48:1 — invisible**, plus peacock
+2.95, lotus 3.00, red 3.47, green 3.69, all below the 4.5:1 AA floor for
+11px bold text; light mode failed too (saffron 2.66, temple 2.86). New
+`styles/status-tones.css` defines measured light/dark pairs and
+`components/shared/Pill.tsx` resolves a known pigment to a `.pill-*`
+class instead of an inline style. **All 14 values now measure >= 4.5:1
+against live rendered CSS** (indigo dark: 6.81). `TONE` still exports raw
+hex for non-text uses (icon strokes, borders, tinted panels) where the
+3:1 threshold applies.
+
+**Verified:** `tsc --noEmit` 0, `eslint` 0 across all 28 touched files,
+`npm run build` 0, and a live authenticated pass (super-admin, real
+backend + `vv_gate` Postgres) at **375 / 768 / 1280**:
+- **zero horizontal overflow** on all 22 admin routes *and* the 4
+  existing Phase-4 pages, at all three widths;
+- 375 & 768: sidebar `display:none`, bottom tab bar present, card lists
+  shown, tables hidden, stats 2-up;
+- 1280: sidebar 256px, bottom bar hidden, tables shown, cards hidden,
+  stats 3-up;
+- contrast ratios computed from `getComputedStyle` on probe elements
+  injected into the live DOM, in both themes.
+- CI: the repo's designated **Typecheck gate passed**. `CI Pipeline`,
+  `CI/CD Pipeline` and `E2E Tests` are red — but they were red on every
+  main commit back to 2026-07-31, on backend files this work never
+  touched (missing `@vidyaverse/shared-validation` build, ungenerated
+  Prisma enums, `smoke-*.ts` implicit anys). Pre-existing, not caused here.
+
+**Gotcha that nearly caused a wrong diagnosis:** the Browser tool's
+viewport presets do **not** re-apply to an already-loaded SPA — after
+`resize_window` the first measurements showed every page overflowing by
+55-166px, with `<main>` at `w=119 left=256`, i.e. the desktop `lg:pl-64`
+still applied at 375px while `matchMedia('(min-width:1024px)')` already
+reported false. A hard `navigate` after the resize fixed it and every
+route measured 0. **Always reload after resizing before trusting a
+measurement**, and treat a "bug" that appears on every single page at
+once as a measurement artifact until proven otherwise.
+
+## Known debt introduced/uncovered by this pass
+
+- `student_transport.stop_id` now has a Prisma `@relation` (from the
+  earlier `fix(transport)` commit) but **no foreign key in the database** —
+  `0_init` creates the column with no constraint and no migration adds
+  one. Harmless at runtime (Prisma joins on the column) and `migrate
+  deploy` had nothing to apply, so the deploy was safe. But `prisma
+  migrate dev` will want to create that FK, and doing so on prod could
+  fail on orphaned `stop_id` values. Vet the data before generating it.
+- The 4 original Phase-4 pages still hold local `TONE`/`Pill` copies, so
+  their pills keep the failing single-value palette. Migrate them to
+  `components/shared/Pill.tsx`.
+
 ## Not in scope (flagged, not started)
 
 Two things noticed across this whole project that are explicitly outside
 the 5-phase plan as scoped, not overlooked:
-1. The master doc's Phase 4 text asks to roll the table/card archetype
+1. ~~The master doc's Phase 4 text asks to roll the table/card archetype
    out to Users, HR, Transport, Inventory, Health, Hostel, Alumni,
-   Placement, Notices, Assignments, Gradebook, OnlineTests — a large,
-   distinct follow-on from the 4 files (Students/Attendance/Fees/
-   Admissions) Phase 4 actually scoped and touched.
+   Placement, Notices, Assignments, Gradebook, OnlineTests.~~ **DONE
+   2026-08-26** — see "Phase 4 rollout" below. All 24 remaining module
+   page areas now carry the archetype.
 2. Two pre-existing backend defects found during live verification (not
    re-skin regressions) need an owner decision, not a UI patch:
    `group-photo-queries.ts`'s frontend hooks call routes that don't exist
@@ -899,18 +996,28 @@ unless someone else has touched these files):
 
 ## Next step
 
-**The 5-phase Indic re-skin plan is complete.** There is no next phase.
-If asked to continue this specific project, the honest answer is: there
-isn't a next scoped step, only the two explicitly-out-of-scope items
-under "Not in scope" above (the wider Phase-4-style module rollout, and
-the two pre-existing backend defects). Don't invent new scope — check
-with the user about which of those (if either) they actually want, or
-whether this re-skin work is simply done and the next ask is something
-else entirely.
+**The 5-phase plan AND the wider Phase-4 module rollout are both complete,
+and `main` is live on them (`5354155`, 2026-08-26).** What is genuinely
+left is small and listed under "Not in scope" / "Known debt":
+
+1. The two pre-existing backend defects (`group-photo-queries.ts` route
+   mismatch; `GET /entitlements/me` 403 for students) — owner decision,
+   not a UI patch.
+2. The 4 original Phase-4 pages (Students/Attendance/Fees/Admissions)
+   still carry their own local `TONE`/`Pill` copies with the single-value
+   palette, so their pills still fail dark-mode contrast. Migrating them
+   to `components/shared/Pill.tsx` is mechanical and tsc-checked.
+3. `student_transport.stop_id` has a Prisma relation but no DB foreign
+   key (see "Known debt" below).
+4. **Nothing in this project has ever been seen in a screenshot** — the
+   Browser tool's screenshot has been down across every session. All
+   verification is measurement-based. Contrast is now measured rather than
+   eyeballed, which closes the specific hole that bit in the mandala
+   incident, but a human eyeball pass on prod is still worth doing.
 
 ## Uncommitted files
 
-None — everything is committed and pushed to `origin/design/indic` as of
-this session (commits `62711e8` and `80484a4`). `git status` should be clean;
-if it isn't, something changed after this write-up and this section is
-stale — trust `git status` over this file.
+None. As of 2026-08-26 `main` == `origin/main` == `design/indic` ==
+`5354155`; the branches are no longer divergent. `git status` should be
+clean apart from this file; if it isn't, something changed after this
+write-up — trust `git status` over this file.
