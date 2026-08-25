@@ -438,7 +438,7 @@ function EnquiryDetailSheetContent({ enquiryId, onClose }: { enquiryId: string |
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t sm:absolute">
           <Dialog open={convertDialogOpen} onOpenChange={setConvertDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full text-white" style={{ background: TONE.green }}>Convert to Student</Button>
+              <Button className="w-full solid-green hover:opacity-90">Convert to Student</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -470,7 +470,7 @@ function EnquiryDetailSheetContent({ enquiryId, onClose }: { enquiryId: string |
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setConvertDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleConvert} disabled={!convertSectionId || convertMutation.isPending} className="text-white" style={{ background: TONE.green }}>
+                <Button onClick={handleConvert} disabled={!convertSectionId || convertMutation.isPending} className="solid-green hover:opacity-90">
                   Confirm Conversion
                 </Button>
               </DialogFooter>

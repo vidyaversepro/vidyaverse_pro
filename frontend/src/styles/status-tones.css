@@ -21,13 +21,20 @@
  * Light-mode hues are unchanged from the original palette wherever they already
  * passed, so no screen changes appearance in light mode.
  *
- * Three ways to consume, all equivalent:
+ * Four ways to consume:
  *   .pill-<tone>       text + tint together (status badges)
  *   .tone-text-<tone>  text only (table cells, coloured figures)
  *   .tone-bg-<tone>    tint only (icon plinths)
+ *   .solid-<tone>      SOLID fill + its own contrasting ink (loud badges, filled
+ *                      buttons) — do NOT hand-roll `text-white` over a tone hex.
+ *                      White on temple `#B8860B` measured 3.25:1 and failed.
  * plus `TONE_VAR` / `TONE_TINT` in `components/shared/Pill.tsx` for the inline-style
  * cases. `TONE` in that file stays raw hex for NON-text uses (icon strokes, card
  * borders) where the 3:1 threshold applies and one value is fine.
+ *
+ * The solid family inverts across themes on purpose: a dark fill with white ink on
+ * light, a bright fill with dark ink on dark — the same direction the pills take,
+ * so a solid badge stays loud against either page without ever going muddy.
  */
 
 :root {
@@ -45,6 +52,21 @@
     --tone-lotus-bg: rgba(173, 20, 87, 0.12);
     --tone-saffron-fg: #9a4b17;
     --tone-saffron-bg: rgba(154, 75, 23, 0.12);
+
+    --tone-green-solid: #116631;
+    --tone-green-on-solid: #ffffff;
+    --tone-temple-solid: #7a5a07;
+    --tone-temple-on-solid: #ffffff;
+    --tone-red-solid: #b03325;
+    --tone-red-on-solid: #ffffff;
+    --tone-peacock-solid: #00595c;
+    --tone-peacock-on-solid: #ffffff;
+    --tone-indigo-solid: #1a237e;
+    --tone-indigo-on-solid: #ffffff;
+    --tone-lotus-solid: #ad1457;
+    --tone-lotus-on-solid: #ffffff;
+    --tone-saffron-solid: #9a4b17;
+    --tone-saffron-on-solid: #ffffff;
 }
 
 .dark {
@@ -62,6 +84,21 @@
     --tone-lotus-bg: rgba(249, 168, 212, 0.22);
     --tone-saffron-fg: #fdba74;
     --tone-saffron-bg: rgba(253, 186, 116, 0.22);
+
+    --tone-green-solid: #4ade80;
+    --tone-green-on-solid: #0b111e;
+    --tone-temple-solid: #fcd34d;
+    --tone-temple-on-solid: #0b111e;
+    --tone-red-solid: #f87171;
+    --tone-red-on-solid: #0b111e;
+    --tone-peacock-solid: #5eead4;
+    --tone-peacock-on-solid: #0b111e;
+    --tone-indigo-solid: #a5b4fc;
+    --tone-indigo-on-solid: #0b111e;
+    --tone-lotus-solid: #f9a8d4;
+    --tone-lotus-on-solid: #0b111e;
+    --tone-saffron-solid: #fdba74;
+    --tone-saffron-on-solid: #0b111e;
 }
 
 /* text + tint — status pills */
@@ -90,3 +127,21 @@
 .tone-bg-indigo  { background: var(--tone-indigo-bg); }
 .tone-bg-lotus   { background: var(--tone-lotus-bg); }
 .tone-bg-saffron { background: var(--tone-saffron-bg); }
+
+/*
+ * Solid fill + contrasting ink — loud badges, filled buttons.
+ *
+ * The `:hover` selector is not decoration: shadcn's Button carries
+ * `hover:bg-primary/90`, whose compiled `.hover\:bg-primary\/90:hover` has
+ * specificity (0,2,0) and would beat a bare `.solid-green` (0,1,0) — the button
+ * would snap to the kumkum accent on hover. Matching the pseudo-class here (and
+ * loading after Tailwind) keeps the fill put. Pair with `hover:opacity-90` for
+ * the hover affordance, since that rides on `opacity` and never collides.
+ */
+.solid-green, .solid-green:hover { color: var(--tone-green-on-solid); background: var(--tone-green-solid); }
+.solid-temple, .solid-temple:hover { color: var(--tone-temple-on-solid); background: var(--tone-temple-solid); }
+.solid-red, .solid-red:hover { color: var(--tone-red-on-solid); background: var(--tone-red-solid); }
+.solid-peacock, .solid-peacock:hover { color: var(--tone-peacock-on-solid); background: var(--tone-peacock-solid); }
+.solid-indigo, .solid-indigo:hover { color: var(--tone-indigo-on-solid); background: var(--tone-indigo-solid); }
+.solid-lotus, .solid-lotus:hover { color: var(--tone-lotus-on-solid); background: var(--tone-lotus-solid); }
+.solid-saffron, .solid-saffron:hover { color: var(--tone-saffron-on-solid); background: var(--tone-saffron-solid); }

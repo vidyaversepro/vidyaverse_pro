@@ -889,8 +889,9 @@ present/late/absent figures in both the table and the mobile cards — none of
 them pills. `StudentDashboardPage` had hand-written `rgb(... / .12)` tints
 duplicating the light-mode values, which vanish on dark.
 
-**Fix.** `styles/status-tones.css` gained three class families — `.pill-*`
-(text+tint), `.tone-text-*` (text only), `.tone-bg-*` (tint only) — plus
+**Fix.** `styles/status-tones.css` gained class families — `.pill-*`
+(text+tint), `.tone-text-*` (text only), `.tone-bg-*` (tint only), and
+`.solid-*` (solid fill + its own ink, added in the follow-up below) — plus
 `TONE_VAR` / `TONE_TINT` exports for the inline-style sites. `lotus` was
 reconciled to the pages' established `#AD1457` rather than the rollout's
 `#9C27B0`, so **no screen changes appearance in light mode** — this is
@@ -914,16 +915,37 @@ from `getComputedStyle` on probe elements injected into the live DOM against
 the real card surface. Worst value 5.18:1. `StudentsPage` net change:
 **+1 import, -27 lines**.
 
-**Left alone deliberately:** `StudentDashboardPage`'s overdue badge is
-white-on-`#B8860B` (~3.4:1), a pre-existing contrast issue on a solid fill.
-Fixing it means choosing a new fill colour — a design decision, not a token
-swap.
+**Solid fills — fixed in a follow-up the same day.** An earlier draft of this
+section called the offender an "overdue badge"; it is actually the **"Pinned"**
+badge on a notice in `StudentDashboardPage`. Measured white-on-`#B8860B` =
+**3.25:1, failing**. There were three hand-rolled solid fills app-wide: that
+badge plus `AdmissionsPage`'s two "Convert to Student" buttons
+(white-on-`#15803d` = 5.02, already passing).
 
-**Grep that keeps this from coming back** — it should only ever match
-`components/shared/Pill.tsx`:
+`styles/status-tones.css` gained a fourth family, `.solid-<tone>`, backed by
+`--tone-<x>-solid` / `--tone-<x>-on-solid`. It **inverts across themes on
+purpose** — dark fill + white ink on light, bright fill + dark ink on dark —
+the same direction the pills take, so a solid badge stays loud against either
+page instead of going muddy. Results: badge **3.25 → 6.38 light / 13.08 dark**;
+buttons **5.02 → 7.07 light / 10.83 dark**. All three sites converted, so
+`grep "background: TONE\."` now returns nothing.
+
+**The trap this hid, worth knowing before using `.solid-*` on a Button:**
+shadcn's Button carries `hover:bg-primary/90`, and the compiled
+`.hover\:bg-primary\/90:hover` is specificity **(0,2,0)** against a bare
+`.solid-green` **(0,1,0)** — so the fill held at rest but the button **snapped
+to the kumkum accent on hover**. The class family therefore declares
+`.solid-<tone>, .solid-<tone>:hover` together. Confirmed by walking the CSSOM
+in cascade order: `.solid-green:hover` wins both `background` and `color`.
+Pair with `hover:opacity-90` for the affordance — that rides on `opacity` and
+never collides. Verified present in the production CSS, not just dev.
+
+**Two greps that keep this from coming back.** The first should only ever
+match `components/shared/Pill.tsx`; the second should return nothing at all:
 
 ```bash
 grep -rn 'background: `${.*}1f`' --include=*.tsx frontend/src/
+grep -rn 'background: TONE\.' --include=*.tsx frontend/src/
 ```
 
 ## Known debt introduced/uncovered by this pass

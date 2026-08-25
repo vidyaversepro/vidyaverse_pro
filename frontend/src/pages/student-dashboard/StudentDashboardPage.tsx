@@ -10,7 +10,7 @@ import {
 } from '@/lib/queries/student/student-queries';
 import { useStudentInvoices } from '@/lib/queries/payments-queries';
 import { useActiveInstitution } from '@/stores/activeInstitution';
-import { TONE, TONE_VAR, TONE_TINT } from '@/components/shared/Pill';
+import { TONE_VAR, TONE_TINT } from '@/components/shared/Pill';
 import {
   Loader2,
   GraduationCap,
@@ -307,7 +307,7 @@ export default function StudentDashboardPage() {
                       {notice.category}
                     </span>
                     {notice.isPinned && (
-                      <span className="text-[10px] font-bold uppercase tracking-wide text-white rounded-[6px] px-1.5 py-0.5" style={{ background: TONE.temple }}>
+                      <span className="text-[10px] font-bold uppercase tracking-wide solid-temple rounded-[6px] px-1.5 py-0.5">
                         Pinned
                       </span>
                     )}
