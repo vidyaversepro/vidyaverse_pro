@@ -5,9 +5,10 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { StatCard } from '@/components/shared/StatCard';
+import { Pill, NeutralPill, TONE } from '@/components/shared/Pill';
 import {
   useAlumni,
   useAlumniStats,
@@ -42,15 +43,15 @@ export default function AlumniPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 space-y-4">
       <PageHeader
         breadcrumb={[{ label: 'Insights' }, { label: 'Alumni Management' }]}
         title="Alumni Management"
         description="Alumni network, mentors and reunions"
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Dialog open={eventOpen} onOpenChange={setEventOpen}>
-              <DialogTrigger asChild><Button variant="outline"><CalendarHeart className="mr-2 h-4 w-4" /> Event</Button></DialogTrigger>
+              <DialogTrigger asChild><Button variant="outline" className="flex-1 sm:flex-none"><CalendarHeart className="mr-2 h-4 w-4" /> Event</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>New Alumni Event</DialogTitle></DialogHeader>
                 <div className="space-y-3">
@@ -62,12 +63,12 @@ export default function AlumniPage() {
               </DialogContent>
             </Dialog>
             <Dialog open={alumOpen} onOpenChange={setAlumOpen}>
-              <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Alumnus</Button></DialogTrigger>
+              <DialogTrigger asChild><Button className="flex-1 sm:flex-none"><Plus className="mr-2 h-4 w-4" /> Alumnus</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>Add Alumnus</DialogTitle></DialogHeader>
                 <div className="space-y-3">
                   <Input placeholder="Full name" value={alum.name} onChange={(e) => setAlum({ ...alum, name: e.target.value })} />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Input placeholder="Grad year" type="number" value={alum.graduationYear} onChange={(e) => setAlum({ ...alum, graduationYear: e.target.value })} />
                     <Input placeholder="Email" value={alum.email} onChange={(e) => setAlum({ ...alum, email: e.target.value })} />
                   </div>
@@ -82,28 +83,31 @@ export default function AlumniPage() {
         }
       />
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <Card><CardContent className="flex items-center gap-3 p-4"><div className="rounded-lg bg-primary/10 p-2"><Users className="h-5 w-5 text-primary" /></div><div><p className="text-2xl font-bold">{stats?.total ?? 0}</p><p className="text-xs text-muted-foreground">Total Alumni</p></div></CardContent></Card>
-        <Card><CardContent className="flex items-center gap-3 p-4"><div className="rounded-lg bg-primary/10 p-2"><Handshake className="h-5 w-5 text-primary" /></div><div><p className="text-2xl font-bold">{stats?.mentors ?? 0}</p><p className="text-xs text-muted-foreground">Mentors</p></div></CardContent></Card>
-        <Card><CardContent className="flex items-center gap-3 p-4"><div className="rounded-lg bg-primary/10 p-2"><CalendarHeart className="h-5 w-5 text-primary" /></div><div><p className="text-2xl font-bold">{events?.length ?? 0}</p><p className="text-xs text-muted-foreground">Events</p></div></CardContent></Card>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+        <StatCard title="Total Alumni" value={stats?.total ?? 0} icon={Users} tone="teal" />
+        <StatCard title="Mentors" value={stats?.mentors ?? 0} icon={Handshake} tone="gold" />
+        <StatCard title="Events" value={events?.length ?? 0} icon={CalendarHeart} tone="saffron" className="col-span-2 lg:col-span-1" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardContent className="p-4">
-            <div className="mb-3 flex items-center justify-between">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <h3 className="flex items-center gap-2 font-semibold"><GraduationCap className="h-4 w-4" /> Directory</h3>
-              <Button size="sm" variant={mentorsOnly ? 'default' : 'outline'} onClick={() => setMentorsOnly(!mentorsOnly)}><Handshake className="mr-1.5 h-3.5 w-3.5" /> Mentors only</Button>
+              <Button size="sm" variant={mentorsOnly ? 'default' : 'outline'} className="rounded-full" onClick={() => setMentorsOnly(!mentorsOnly)}><Handshake className="mr-1.5 h-3.5 w-3.5" /> Mentors only</Button>
             </div>
             {isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : !alumni?.length ? <p className="text-sm text-muted-foreground">No alumni{mentorsOnly ? ' mentors' : ''} yet.</p> : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {alumni.map((a) => (
-                  <div key={a.id} className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <p className="font-medium">{a.name} {a.graduationYear && <Badge variant="outline" className="ml-1">'{String(a.graduationYear).slice(2)}</Badge>}</p>
-                      <p className="text-xs text-muted-foreground">{[a.designation, a.currentOrganization].filter(Boolean).join(' @ ') || '—'}</p>
+                  <div key={a.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium truncate">{a.name}</p>
+                        {a.graduationYear ? <NeutralPill label={String(a.graduationYear)} /> : null}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">{[a.designation, a.currentOrganization].filter(Boolean).join(' @ ') || '—'}</p>
                     </div>
-                    {a.willingToMentor && <Badge variant="secondary">mentor</Badge>}
+                    {a.willingToMentor && <Pill label="mentor" tone={TONE.peacock} />}
                   </div>
                 ))}
               </div>
@@ -111,18 +115,18 @@ export default function AlumniPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
             <h3 className="mb-3 flex items-center gap-2 font-semibold"><CalendarHeart className="h-4 w-4" /> Events</h3>
             {!events?.length ? <p className="text-sm text-muted-foreground">No alumni events.</p> : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {events.map((e) => (
-                  <div key={e.id} className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <p className="font-medium">{e.title}</p>
-                      <p className="text-xs text-muted-foreground">{new Date(e.eventDate).toLocaleDateString('en-IN')}{e.venue ? ` · ${e.venue}` : ''}</p>
+                  <div key={e.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{e.title}</p>
+                      <p className="text-xs text-muted-foreground truncate">{new Date(e.eventDate).toLocaleDateString('en-IN')}{e.venue ? ' · ' + e.venue : ''}</p>
                     </div>
-                    <Badge variant="secondary">{e.rsvpCount} RSVP</Badge>
+                    <Pill label={e.rsvpCount + ' RSVP'} tone={TONE.indigo} />
                   </div>
                 ))}
               </div>

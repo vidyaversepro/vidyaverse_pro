@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
     Dialog,
     DialogContent,
@@ -18,6 +17,8 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { Pill, TONE } from '@/components/shared/Pill';
 import {
     useOAuthClients,
     useCreateOAuthClient,
@@ -66,7 +67,7 @@ function SecretRevealDialog({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <ShieldAlert className="h-5 w-5 text-amber-500" /> Save these credentials now
+                        <ShieldAlert className="h-5 w-5" style={{ color: TONE.temple }} /> Save these credentials now
                     </DialogTitle>
                     <DialogDescription>
                         The client secret will <strong>not</strong> be shown again. Copy it into the RP's environment now.
@@ -145,7 +146,7 @@ function RegisterDialog({
                         <div className="space-y-1.5">
                             <Label htmlFor="name">Display name</Label>
                             <Input id="name" placeholder="PDLMS" {...register('name')} />
-                            {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+                            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                         </div>
                         <div className="space-y-1.5">
                             <Label htmlFor="redirectUrls">Redirect URLs (one per line)</Label>
@@ -155,7 +156,7 @@ function RegisterDialog({
                                 placeholder={'http://localhost:3000/api/auth/oauth2/callback/vidyaverse\nhttps://pdlms.example.com/api/auth/oauth2/callback/vidyaverse'}
                                 {...register('redirectUrls')}
                             />
-                            {errors.redirectUrls && <p className="text-xs text-red-500">{errors.redirectUrls.message}</p>}
+                            {errors.redirectUrls && <p className="text-xs text-destructive">{errors.redirectUrls.message}</p>}
                         </div>
                     </div>
                     <DialogFooter>
@@ -206,23 +207,22 @@ export default function OAuthClientsPage() {
     };
 
     return (
-        <div className="p-6 space-y-6">
-            <div className="flex items-start justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold">OAuth Clients</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Relying parties registered against Vidyaverse's OpenID Connect provider.
-                    </p>
-                </div>
-                <Button onClick={() => setRegisterOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" /> Register client
-                </Button>
-            </div>
+        <div className="p-4 sm:p-6 space-y-4">
+            <PageHeader
+                breadcrumb={[{ label: 'System' }, { label: 'OAuth Clients' }]}
+                title="OAuth Clients"
+                description="Relying parties registered against Vidyaverse's OpenID Connect provider."
+                action={
+                    <Button className="w-full sm:w-auto" onClick={() => setRegisterOpen(true)}>
+                        <Plus className="h-4 w-4 mr-2" /> Register client
+                    </Button>
+                }
+            />
 
             {isLoading ? (
-                <Card><CardContent className="py-12 flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></CardContent></Card>
+                <Card className="rounded-2xl"><CardContent className="py-12 flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></CardContent></Card>
             ) : !clients || clients.length === 0 ? (
-                <Card>
+                <Card className="rounded-2xl">
                     <CardContent className="py-12 text-center text-sm text-muted-foreground">
                         No OAuth clients registered yet. Register PDLMS or DigiClassroom to enable federated sign-in.
                     </CardContent>
@@ -230,17 +230,17 @@ export default function OAuthClientsPage() {
             ) : (
                 <div className="grid gap-3">
                     {clients.map((c) => (
-                        <Card key={c.id}>
+                        <Card key={c.id} className="rounded-2xl">
                             <CardHeader className="pb-3">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <CardTitle className="flex items-center gap-2 text-base">
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0">
+                                        <CardTitle className="flex flex-wrap items-center gap-2 text-base">
                                             {c.name}
-                                            {c.disabled && <Badge variant="destructive">Disabled</Badge>}
+                                            {c.disabled && <Pill label="Disabled" tone={TONE.red} />}
                                         </CardTitle>
-                                        <CardDescription className="font-mono text-xs mt-1">{c.clientId}</CardDescription>
+                                        <CardDescription className="font-mono text-xs mt-1 break-all">{c.clientId}</CardDescription>
                                     </div>
-                                    <div className="flex gap-1">
+                                    <div className="flex gap-1 shrink-0">
                                         <Button variant="ghost" size="sm" onClick={() => rotate(c.clientId, c.name)} title="Rotate secret">
                                             <RefreshCw className="h-4 w-4" />
                                         </Button>
@@ -253,7 +253,7 @@ export default function OAuthClientsPage() {
                                                 <PowerOff className="h-4 w-4" />
                                             </Button>
                                         )}
-                                        <Button variant="ghost" size="sm" onClick={() => remove(c.clientId, c.name)} title="Delete" className="text-red-600 hover:text-red-700">
+                                        <Button variant="ghost" size="sm" onClick={() => remove(c.clientId, c.name)} title="Delete" className="text-destructive hover:text-destructive">
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
@@ -262,7 +262,7 @@ export default function OAuthClientsPage() {
                             <CardContent className="pt-0">
                                 <div className="text-xs text-muted-foreground">
                                     <div className="font-medium text-foreground mb-1">Redirect URLs</div>
-                                    <ul className="space-y-0.5 font-mono">
+                                    <ul className="space-y-0.5 font-mono break-all">
                                         {c.redirectUrls.map((u) => <li key={u}>{u}</li>)}
                                     </ul>
                                 </div>

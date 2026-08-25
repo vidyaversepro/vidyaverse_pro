@@ -13,6 +13,8 @@ import './design/indic/indic-tokens.css';
 import './design/indic/indic-app.css';
 import './design/indic/indic-design-system.css';
 import './styles/indic-bridge.css';
+// Semantic status pigments (light/dark pairs). Outside the accent switch on purpose.
+import './styles/status-tones.css';
 // App-local (not synced) — alternate accent, applied via `.acc-peacock` on
 // <html>. Must stay last: needs to win a same-specificity tie against every
 // :root block above that also sets --accent-primary*/--accent-strong* etc.

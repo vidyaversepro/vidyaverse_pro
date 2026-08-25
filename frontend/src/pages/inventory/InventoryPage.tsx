@@ -5,9 +5,10 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { StatCard } from '@/components/shared/StatCard';
+import { Pill, TONE } from '@/components/shared/Pill';
 import {
   useInventoryCategories,
   useInventoryItems,
@@ -16,20 +17,6 @@ import {
   useCreateItem,
   useRecordStock,
 } from '@/lib/queries/inventory/inventory-queries';
-
-function Stat({ icon: Icon, label, value, alert }: { icon: typeof Package; label: string; value: string | number; alert?: boolean }) {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className={`rounded-lg p-2 ${alert ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}><Icon className="h-5 w-5" /></div>
-        <div>
-          <p className="text-2xl font-bold">{value}</p>
-          <p className="text-xs text-muted-foreground">{label}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function InventoryPage() {
   const [catOpen, setCatOpen] = useState(false);
@@ -57,7 +44,7 @@ export default function InventoryPage() {
     );
   };
   const adjustStock = (itemId: string, type: 'stock_in' | 'stock_out') => {
-    const qStr = window.prompt(`${type === 'stock_in' ? 'Add' : 'Remove'} quantity:`);
+    const qStr = window.prompt((type === 'stock_in' ? 'Add' : 'Remove') + ' quantity:');
     if (!qStr) return;
     const quantity = Number(qStr);
     if (!quantity || quantity <= 0) return toast.error('Enter a positive number');
@@ -65,15 +52,15 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 space-y-4">
       <PageHeader
         breadcrumb={[{ label: 'Operations' }, { label: 'Inventory & Assets' }]}
         title="Inventory & Assets"
         description="Store items, stock movements and valuation"
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Dialog open={catOpen} onOpenChange={setCatOpen}>
-              <DialogTrigger asChild><Button variant="outline"><Plus className="mr-2 h-4 w-4" /> Category</Button></DialogTrigger>
+              <DialogTrigger asChild><Button variant="outline" className="flex-1 sm:flex-none"><Plus className="mr-2 h-4 w-4" /> Category</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>New Category</DialogTitle></DialogHeader>
                 <div className="space-y-3">
@@ -87,7 +74,7 @@ export default function InventoryPage() {
               </DialogContent>
             </Dialog>
             <Dialog open={itemOpen} onOpenChange={setItemOpen}>
-              <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Item</Button></DialogTrigger>
+              <DialogTrigger asChild><Button className="flex-1 sm:flex-none"><Plus className="mr-2 h-4 w-4" /> Item</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>New Item</DialogTitle></DialogHeader>
                 <div className="space-y-3">
@@ -96,7 +83,7 @@ export default function InventoryPage() {
                     {categories?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                   <Input placeholder="Item name" value={item.name} onChange={(e) => setItem({ ...item, name: e.target.value })} />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Input placeholder="Unit (pcs)" value={item.unit} onChange={(e) => setItem({ ...item, unit: e.target.value })} />
                     <Input placeholder="Opening qty" type="number" value={item.quantity} onChange={(e) => setItem({ ...item, quantity: e.target.value })} />
                     <Input placeholder="Reorder level" type="number" value={item.reorderLevel} onChange={(e) => setItem({ ...item, reorderLevel: e.target.value })} />
@@ -110,17 +97,17 @@ export default function InventoryPage() {
         }
       />
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <Stat icon={Package} label="Items" value={val?.itemCount ?? 0} />
-        <Stat icon={IndianRupee} label="Stock Value" value={`₹${(val?.totalValue ?? 0).toLocaleString('en-IN')}`} />
-        <Stat icon={AlertTriangle} label="Low Stock" value={val?.lowStockCount ?? 0} alert={(val?.lowStockCount ?? 0) > 0} />
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+        <StatCard title="Items" value={val?.itemCount ?? 0} icon={Package} tone="teal" />
+        <StatCard title="Stock Value" value={'₹' + (val?.totalValue ?? 0).toLocaleString('en-IN')} icon={IndianRupee} tone="gold" />
+        <StatCard title="Low Stock" value={val?.lowStockCount ?? 0} icon={AlertTriangle} tone={(val?.lowStockCount ?? 0) > 0 ? 'saffron' : 'indigo'} className="col-span-2 lg:col-span-1" />
       </div>
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="mb-3 flex items-center justify-between">
+      <Card className="rounded-2xl">
+        <CardContent className="p-4 sm:p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-semibold">Items</h3>
-            <Button size="sm" variant={showLow ? 'default' : 'outline'} onClick={() => setShowLow(!showLow)}>
+            <Button size="sm" variant={showLow ? 'default' : 'outline'} className="rounded-full" onClick={() => setShowLow(!showLow)}>
               <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> {showLow ? 'Showing low stock' : 'Low stock only'}
             </Button>
           </div>
@@ -129,18 +116,21 @@ export default function InventoryPage() {
           ) : !items?.length ? (
             <p className="text-sm text-muted-foreground">No items{showLow ? ' below reorder level' : ''}.</p>
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2.5">
               {items.map((it) => {
                 const low = it.quantity <= it.reorderLevel;
                 return (
-                  <div key={it.id} className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <p className="font-medium">{it.name} {low && <Badge variant="destructive" className="ml-1">low</Badge>}</p>
-                      <p className="text-xs text-muted-foreground">{it.category?.name} · {it.quantity} {it.unit} · reorder @ {it.reorderLevel}</p>
+                  <div key={it.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border bg-card p-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium truncate">{it.name}</p>
+                        {low && <Pill label="low" tone={TONE.red} />}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">{it.category?.name} · {it.quantity} {it.unit} · reorder @ {it.reorderLevel}</p>
                     </div>
-                    <div className="flex gap-1.5">
-                      <Button size="sm" variant="outline" onClick={() => adjustStock(it.id, 'stock_in')}>+ In</Button>
-                      <Button size="sm" variant="outline" onClick={() => adjustStock(it.id, 'stock_out')}><ArrowDownUp className="mr-1 h-3 w-3" /> Out</Button>
+                    <div className="flex gap-1.5 shrink-0">
+                      <Button size="sm" variant="outline" className="flex-1 sm:flex-none rounded-full" onClick={() => adjustStock(it.id, 'stock_in')}>+ In</Button>
+                      <Button size="sm" variant="outline" className="flex-1 sm:flex-none rounded-full" onClick={() => adjustStock(it.id, 'stock_out')}><ArrowDownUp className="mr-1 h-3 w-3" /> Out</Button>
                     </div>
                   </div>
                 );

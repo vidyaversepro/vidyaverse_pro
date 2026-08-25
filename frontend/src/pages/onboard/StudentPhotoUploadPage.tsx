@@ -115,15 +115,15 @@ export default function StudentPhotoUploadPage() {
     };
 
     if (isLoading) {
-        return <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-500"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+        return <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground"><Loader2 className="w-8 h-8 animate-spin" /></div>;
     }
 
     if (isError || !student) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-                <div className="text-center p-8 bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-red-200 dark:border-red-900/30 w-full max-w-sm">
-                    <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Invalid Link</h2>
-                    <p className="text-gray-600 dark:text-gray-300">This photo upload link is invalid or has expired.</p>
+            <div className="min-h-screen flex items-center justify-center bg-background px-4">
+                <div className="text-center p-6 sm:p-8 bg-card shadow-sm rounded-2xl border border w-full max-w-sm">
+                    <h2 className="text-xl font-bold text-destructive mb-2">Invalid Link</h2>
+                    <p className="text-muted-foreground">This photo upload link is invalid or has expired.</p>
                 </div>
             </div>
         );
@@ -131,11 +131,11 @@ export default function StudentPhotoUploadPage() {
 
     if (saveMutation.isSuccess) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
-                <div className="text-center p-8 bg-white dark:bg-gray-900 shadow-sm rounded-xl border border-gray-200 dark:border-gray-800 w-full max-w-md flex flex-col items-center">
-                    <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
+            <div className="min-h-screen flex items-center justify-center bg-background px-4">
+                <div className="text-center p-6 sm:p-8 bg-card shadow-sm rounded-2xl border border w-full max-w-md flex flex-col items-center">
+                    <CheckCircle2 className="w-16 h-16 text-[#15803d] mb-4" />
                     <h2 className="text-2xl font-bold mb-2">Photo Uploaded!</h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    <p className="text-muted-foreground mb-6">
                         Thank you for providing the photograph for <strong>{student.name}</strong>. You may now close this page.
                     </p>
                 </div>
@@ -144,9 +144,9 @@ export default function StudentPhotoUploadPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center">
+        <div className="min-h-screen bg-background flex flex-col items-center">
             {/* Header */}
-            <div className="w-full bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between mb-8">
+            <div className="w-full bg-card shadow-sm border-b border px-6 py-4 flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                     {student.institution?.logoUrl ? (
                         <img src={student.institution.logoUrl} alt="Institution Logo" className="h-8 w-auto" />
@@ -157,22 +157,22 @@ export default function StudentPhotoUploadPage() {
                     )}
                     <div>
                         <h1 className="font-bold text-lg leading-tight">{student.institution?.name || 'Institution'}</h1>
-                        <p className="text-xs text-gray-500 font-medium tracking-wide">PHOTO COLLECTION</p>
+                        <p className="text-xs text-muted-foreground font-medium tracking-wide">PHOTO COLLECTION</p>
                     </div>
                 </div>
             </div>
 
             {/* Container */}
-            <div className="w-full max-w-md px-4 pb-12">
+            <div className="w-full max-w-md px-4 sm:px-6 pb-12">
                 <div className="mb-6 text-center">
                     <h2 className="text-2xl font-bold">Upload Photo</h2>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">For <strong>{student.name}</strong></p>
+                    <p className="text-muted-foreground mt-1">For <strong>{student.name}</strong></p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                <div className="bg-card rounded-2xl border border p-6 shadow-sm">
                     {photoMode === 'choose' && (
                         <div className="flex flex-col gap-4">
-                            <div className="aspect-[3/4] bg-gray-100 dark:bg-gray-800 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700">
+                            <div className="aspect-[3/4] bg-muted rounded-lg flex flex-col items-center justify-center border-2 border-dashed border">
                                 {isCompressing ? (
                                     <div className="flex flex-col items-center text-primary">
                                         <Loader2 className="h-8 w-8 animate-spin mb-2" />
@@ -180,8 +180,8 @@ export default function StudentPhotoUploadPage() {
                                     </div>
                                 ) : (
                                     <>
-                                        <Camera className="h-12 w-12 text-gray-400 mb-2" />
-                                        <p className="text-sm text-gray-500">No photo selected</p>
+                                        <Camera className="h-12 w-12 text-muted-foreground mb-2" />
+                                        <p className="text-sm text-muted-foreground">No photo selected</p>
                                     </>
                                 )}
                             </div>
@@ -215,13 +215,13 @@ export default function StudentPhotoUploadPage() {
                                     onChange={handleFileUpload}
                                 />
                             </div>
-                            <p className="text-xs text-center text-gray-500">Max size 5MB. JPG, PNG, WEBP.</p>
+                            <p className="text-xs text-center text-muted-foreground">Max size 5MB. JPG, PNG, WEBP.</p>
                         </div>
                     )}
 
                     {photoMode === 'camera' && (
                         <div className="flex flex-col gap-4">
-                            <div className="relative aspect-[3/4] bg-black rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-800">
+                            <div className="relative aspect-[3/4] bg-black rounded-lg overflow-hidden border-2 border">
                                 <Webcam
                                     audio={false}
                                     ref={webcamRef}
@@ -243,7 +243,7 @@ export default function StudentPhotoUploadPage() {
 
                     {photoMode === 'preview' && previewUrl && (
                         <div className="flex flex-col gap-4">
-                            <div className="relative aspect-[3/4] rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 bg-black">
+                            <div className="relative aspect-[3/4] rounded-lg overflow-hidden border border bg-black">
                                 <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
                                 <div className="absolute top-2 right-2">
                                     <Button type="button" variant="secondary" size="icon" className="h-8 w-8 rounded-full shadow-sm opacity-80 hover:opacity-100" onClick={clearPhoto}>

@@ -5,9 +5,9 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { NeutralPill, Pill, TONE } from '@/components/shared/Pill';
 import {
   useNotices,
   useUpcomingEvents,
@@ -38,15 +38,15 @@ export default function NoticesPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 space-y-4">
       <PageHeader
         breadcrumb={[{ label: 'Communication' }, { label: 'Notices & Calendar' }]}
         title="Notices & Calendar"
         description="Circulars, announcements and the academic calendar"
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Dialog open={eventOpen} onOpenChange={setEventOpen}>
-              <DialogTrigger asChild><Button variant="outline"><CalendarDays className="mr-2 h-4 w-4" /> Event</Button></DialogTrigger>
+              <DialogTrigger asChild><Button variant="outline" className="flex-1 sm:flex-none"><CalendarDays className="mr-2 h-4 w-4" /> Event</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>New Calendar Event</DialogTitle></DialogHeader>
                 <div className="space-y-3">
@@ -60,13 +60,13 @@ export default function NoticesPage() {
               </DialogContent>
             </Dialog>
             <Dialog open={noticeOpen} onOpenChange={setNoticeOpen}>
-              <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Notice</Button></DialogTrigger>
+              <DialogTrigger asChild><Button className="flex-1 sm:flex-none"><Plus className="mr-2 h-4 w-4" /> Notice</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>New Notice</DialogTitle></DialogHeader>
                 <div className="space-y-3">
                   <Input placeholder="Title" value={notice.title} onChange={(e) => setNotice({ ...notice, title: e.target.value })} />
                   <textarea className="flex w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[100px]" placeholder="Notice body" value={notice.body} onChange={(e) => setNotice({ ...notice, body: e.target.value })} />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <select className="rounded-md border bg-background px-3 py-2 text-sm" value={notice.audience} onChange={(e) => setNotice({ ...notice, audience: e.target.value })}>
                       <option value="all">Everyone</option><option value="staff">Staff</option><option value="students">Students</option><option value="parents">Parents</option>
                     </select>
@@ -83,27 +83,27 @@ export default function NoticesPage() {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardContent className="p-4">
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="rounded-2xl lg:col-span-2">
+          <CardContent className="p-4 sm:p-5">
             <h3 className="mb-3 flex items-center gap-2 font-semibold"><Megaphone className="h-4 w-4" /> Notices</h3>
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading…</p>
             ) : !notices?.length ? (
               <p className="text-sm text-muted-foreground">No notices yet.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {notices.map((n) => (
-                  <div key={n.id} className="rounded-lg border p-3">
-                    <div className="flex items-start justify-between">
-                      <p className="font-medium">{n.isPinned && <Pin className="mr-1 inline h-3.5 w-3.5 text-amber-500" />}{n.title}</p>
-                      <div className="flex items-center gap-1.5">
-                        <Badge variant="secondary">{n.audience}</Badge>
-                        <Badge variant="outline">{n.category}</Badge>
-                        {n.status !== 'archived' && <Button size="sm" variant="ghost" onClick={() => archive.mutate(n.id, { onSuccess: () => toast.success('Archived') })}><Archive className="h-3.5 w-3.5" /></Button>}
+                  <div key={n.id} className="rounded-xl border bg-card p-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                      <p className="font-medium min-w-0">{n.isPinned && <Pin className="mr-1 inline h-3.5 w-3.5" style={{ color: TONE.temple }} />}{n.title}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                        <Pill label={n.audience} tone={TONE.indigo} />
+                        <NeutralPill label={n.category} />
+                        {n.status !== 'archived' && <Button size="sm" variant="ghost" aria-label="Archive notice" onClick={() => archive.mutate(n.id, { onSuccess: () => toast.success('Archived') })}><Archive className="h-3.5 w-3.5" /></Button>}
                       </div>
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>
+                    <p className="mt-1 text-sm text-muted-foreground break-words">{n.body}</p>
                   </div>
                 ))}
               </div>
@@ -111,17 +111,20 @@ export default function NoticesPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
             <h3 className="mb-3 flex items-center gap-2 font-semibold"><CalendarDays className="h-4 w-4" /> Upcoming</h3>
             {!events?.length ? (
               <p className="text-sm text-muted-foreground">No upcoming events.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {events.map((e) => (
-                  <div key={e.id} className="rounded-lg border p-3">
-                    <p className="font-medium text-sm">{e.title}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(e.eventDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} · <Badge variant="outline" className="text-[10px]">{e.eventType}</Badge></p>
+                  <div key={e.id} className="rounded-xl border bg-card p-3">
+                    <p className="font-medium text-sm truncate">{e.title}</p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-xs text-muted-foreground">{new Date(e.eventDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                      <NeutralPill label={e.eventType} />
+                    </div>
                   </div>
                 ))}
               </div>

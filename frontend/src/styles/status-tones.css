@@ -1,0 +1,58 @@
+/**
+ * Status-pill pigments, theme-aware.
+ *
+ * These are SEMANTIC colours (approved / overdue / pending), deliberately outside
+ * the kumkum ↔ peacock accent switch — a "rejected" pill must not turn teal.
+ *
+ * They are split light/dark because a single hex cannot work in both: the original
+ * single-value palette rendered `indigo` at a 1.48:1 contrast ratio on the dark
+ * page background — effectively invisible. Every pair below is measured at >= 4.5:1
+ * against its own 12% (light) / 22% (dark) tinted pill background, which is WCAG AA
+ * for the 11px bold text the pills use.
+ *
+ * Consumed by `components/shared/Pill.tsx`. The raw hexes in that file's `TONE`
+ * export remain for non-text uses (icon strokes, card borders, tinted panels),
+ * where the 3:1 non-text threshold applies and a single value is fine.
+ */
+
+:root {
+    --tone-green-fg: #116631;
+    --tone-green-bg: rgba(17, 102, 49, 0.12);
+    --tone-temple-fg: #7a5a07;
+    --tone-temple-bg: rgba(122, 90, 7, 0.12);
+    --tone-red-fg: #b03325;
+    --tone-red-bg: rgba(176, 51, 37, 0.12);
+    --tone-peacock-fg: #00595c;
+    --tone-peacock-bg: rgba(0, 89, 92, 0.12);
+    --tone-indigo-fg: #1a237e;
+    --tone-indigo-bg: rgba(26, 35, 126, 0.12);
+    --tone-lotus-fg: #8a22a0;
+    --tone-lotus-bg: rgba(138, 34, 160, 0.12);
+    --tone-saffron-fg: #9a4b17;
+    --tone-saffron-bg: rgba(154, 75, 23, 0.12);
+}
+
+.dark {
+    --tone-green-fg: #4ade80;
+    --tone-green-bg: rgba(74, 222, 128, 0.22);
+    --tone-temple-fg: #fcd34d;
+    --tone-temple-bg: rgba(252, 211, 77, 0.22);
+    --tone-red-fg: #f87171;
+    --tone-red-bg: rgba(248, 113, 113, 0.22);
+    --tone-peacock-fg: #5eead4;
+    --tone-peacock-bg: rgba(94, 234, 212, 0.22);
+    --tone-indigo-fg: #a5b4fc;
+    --tone-indigo-bg: rgba(165, 180, 252, 0.22);
+    --tone-lotus-fg: #e9a8f2;
+    --tone-lotus-bg: rgba(233, 168, 242, 0.22);
+    --tone-saffron-fg: #fdba74;
+    --tone-saffron-bg: rgba(253, 186, 116, 0.22);
+}
+
+.pill-green   { color: var(--tone-green-fg);   background: var(--tone-green-bg); }
+.pill-temple  { color: var(--tone-temple-fg);  background: var(--tone-temple-bg); }
+.pill-red     { color: var(--tone-red-fg);     background: var(--tone-red-bg); }
+.pill-peacock { color: var(--tone-peacock-fg); background: var(--tone-peacock-bg); }
+.pill-indigo  { color: var(--tone-indigo-fg);  background: var(--tone-indigo-bg); }
+.pill-lotus   { color: var(--tone-lotus-fg);   background: var(--tone-lotus-bg); }
+.pill-saffron { color: var(--tone-saffron-fg); background: var(--tone-saffron-bg); }

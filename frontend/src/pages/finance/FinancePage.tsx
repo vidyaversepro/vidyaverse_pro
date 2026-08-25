@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { NeutralPill, Pill, TONE } from '@/components/shared/Pill';
 import {
   useLedgerAccounts,
   useJournalEntries,
@@ -19,7 +19,26 @@ import {
   useRecordIncome,
 } from '@/lib/queries/finance/finance-queries';
 
-const inr = (v: number | string) => `₹${Number(v).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+const inr = (v: number | string) => '₹' + Number(v).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+
+/**
+ * Local stat tile rather than the shared StatCard: these values carry their own
+ * semantic colour (income green / expense red / profit either way), and StatCard
+ * has no coloured-value slot. Same reason AttendancePage and FeesPage keep one.
+ */
+function StatTile({ label, value, icon: Icon, tone }: { label: string; value: string; icon: typeof Wallet; tone: string }) {
+  return (
+    <Card className="rounded-2xl">
+      <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="text-xl sm:text-2xl font-bold mt-1 truncate" style={{ color: tone }}>{value}</p>
+        </div>
+        <Icon className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" style={{ color: tone }} />
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function FinancePage() {
   const [expense, setExpense] = useState({ amount: '', narration: '' });
@@ -48,22 +67,16 @@ export default function FinancePage() {
     );
   };
 
-  const stats = [
-    { label: 'Total Income', value: pnl ? inr(pnl.totalIncome) : '—', icon: TrendingUp, color: 'text-emerald-600' },
-    { label: 'Total Expense', value: pnl ? inr(pnl.totalExpense) : '—', icon: TrendingDown, color: 'text-red-600' },
-    { label: 'Net Profit', value: pnl ? inr(pnl.netProfit) : '—', icon: Wallet, color: (pnl?.netProfit ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600' },
-  ];
-
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4">
       <PageHeader
         breadcrumb={[{ label: 'Dashboard', href: '/app/dashboard' }, { label: 'Finance' }]}
         title="Finance & Accounting"
         description="Double-entry ledger — fee collections post here automatically"
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Dialog>
-              <DialogTrigger asChild><Button variant="outline"><Minus className="w-4 h-4 mr-2 text-red-600" /> Expense</Button></DialogTrigger>
+              <DialogTrigger asChild><Button variant="outline" className="flex-1 sm:flex-none"><Minus className="w-4 h-4 mr-2" style={{ color: TONE.red }} /> Expense</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>Record Expense</DialogTitle></DialogHeader>
                 <div className="space-y-3">
@@ -74,7 +87,7 @@ export default function FinancePage() {
               </DialogContent>
             </Dialog>
             <Dialog>
-              <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" /> Income</Button></DialogTrigger>
+              <DialogTrigger asChild><Button className="flex-1 sm:flex-none"><Plus className="w-4 h-4 mr-2" /> Income</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>Record Income</DialogTitle></DialogHeader>
                 <div className="space-y-3">
@@ -89,10 +102,10 @@ export default function FinancePage() {
       />
 
       {!accounts || accounts.length === 0 ? (
-        <Card className="border-0 shadow-sm">
+        <Card className="rounded-2xl">
           <CardContent className="p-8 text-center">
-            <Landmark className="w-10 h-10 text-amber-500 mx-auto mb-3" />
-            <p className="text-gray-600 dark:text-gray-300 mb-3">No chart of accounts yet.</p>
+            <Landmark className="w-10 h-10 mx-auto mb-3" style={{ color: TONE.saffron }} />
+            <p className="text-muted-foreground mb-3">No chart of accounts yet.</p>
             <Button onClick={() => ensureSystem.mutate(undefined, { onSuccess: () => toast.success('Chart of accounts created') })} disabled={ensureSystem.isPending}>
               Set up default accounts
             </Button>
@@ -101,34 +114,27 @@ export default function FinancePage() {
       ) : (
         <>
           {/* P&L */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {stats.map((s) => (
-              <Card key={s.label} className="border-0 shadow-lg">
-                <CardContent className="p-5 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{s.label}</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{s.value}</p>
-                  </div>
-                  <s.icon className={`w-8 h-8 ${s.color}`} />
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <StatTile label="Total Income" value={pnl ? inr(pnl.totalIncome) : '—'} icon={TrendingUp} tone={TONE.green} />
+            <StatTile label="Total Expense" value={pnl ? inr(pnl.totalExpense) : '—'} icon={TrendingDown} tone={TONE.red} />
+            <StatTile label="Net Profit" value={pnl ? inr(pnl.netProfit) : '—'} icon={Wallet} tone={(pnl?.netProfit ?? 0) >= 0 ? TONE.green : TONE.red} />
           </div>
 
           {/* Recent entries */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-5">
+          <Card className="rounded-2xl">
+            <CardContent className="p-4 sm:p-5">
               <h2 className="text-lg font-semibold mb-4">Recent Journal Entries</h2>
               {!entries || entries.length === 0 ? (
-                <p className="text-sm text-gray-500">No entries yet.</p>
+                <p className="text-sm text-muted-foreground">No entries yet.</p>
               ) : (
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2.5">
                   {entries.slice(0, 10).map((e) => (
-                    <div key={e.id} className="flex items-center justify-between text-sm border-b border-gray-50 dark:border-gray-800 pb-1">
-                      <span className="text-gray-700 dark:text-gray-300 truncate">
-                        {e.narration || e.type} {e.referenceType === 'fee_invoice' && <Badge variant="outline" className="ml-1 text-[10px]">fee</Badge>}
+                    <div key={e.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm">
+                      <span className="min-w-0 flex items-center gap-2">
+                        <span className="truncate">{e.narration || e.type}</span>
+                        {e.referenceType === 'fee_invoice' && <NeutralPill label="fee" />}
                       </span>
-                      <span className="text-gray-900 dark:text-white font-medium">{inr(e.totalAmount)}</span>
+                      <span className="font-medium shrink-0">{inr(e.totalAmount)}</span>
                     </div>
                   ))}
                 </div>
@@ -137,39 +143,68 @@ export default function FinancePage() {
           </Card>
 
           {/* Trial balance */}
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-4">
+          <Card className="rounded-2xl">
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <h2 className="text-lg font-semibold">Trial Balance</h2>
-                {tb && <Badge variant="outline" className={tb.balanced ? 'text-emerald-600' : 'text-red-600'}>{tb.balanced ? 'Balanced' : 'Unbalanced'}</Badge>}
+                {tb && <Pill label={tb.balanced ? 'Balanced' : 'Unbalanced'} tone={tb.balanced ? TONE.green : TONE.red} />}
               </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Account</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead className="text-right">Debit</TableHead>
-                    <TableHead className="text-right">Credit</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tb?.rows.filter((r) => r.debit || r.credit).map((r) => (
-                    <TableRow key={r.accountId}>
-                      <TableCell>{r.name}</TableCell>
-                      <TableCell><Badge variant="outline" className="capitalize text-xs">{r.type}</Badge></TableCell>
-                      <TableCell className="text-right">{r.debit ? inr(r.debit) : '—'}</TableCell>
-                      <TableCell className="text-right">{r.credit ? inr(r.credit) : '—'}</TableCell>
+
+              {/* Desktop table */}
+              <div className="hidden lg:block rounded-2xl border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Account</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead className="text-right">Debit</TableHead>
+                      <TableHead className="text-right">Credit</TableHead>
                     </TableRow>
-                  ))}
-                  {tb && (
-                    <TableRow className="font-semibold">
-                      <TableCell colSpan={2}>Total</TableCell>
-                      <TableCell className="text-right">{inr(tb.totalDebit)}</TableCell>
-                      <TableCell className="text-right">{inr(tb.totalCredit)}</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {tb?.rows.filter((r) => r.debit || r.credit).map((r) => (
+                      <TableRow key={r.accountId}>
+                        <TableCell>{r.name}</TableCell>
+                        <TableCell><NeutralPill label={r.type} /></TableCell>
+                        <TableCell className="text-right">{r.debit ? inr(r.debit) : '—'}</TableCell>
+                        <TableCell className="text-right">{r.credit ? inr(r.credit) : '—'}</TableCell>
+                      </TableRow>
+                    ))}
+                    {tb && (
+                      <TableRow className="font-semibold">
+                        <TableCell colSpan={2}>Total</TableCell>
+                        <TableCell className="text-right">{inr(tb.totalDebit)}</TableCell>
+                        <TableCell className="text-right">{inr(tb.totalCredit)}</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile / tablet card list */}
+              <div className="lg:hidden flex flex-col gap-2.5">
+                {tb?.rows.filter((r) => r.debit || r.credit).map((r) => (
+                  <div key={r.accountId} className="rounded-xl border bg-card p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium min-w-0 truncate">{r.name}</p>
+                      <NeutralPill label={r.type} />
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Debit <span className="font-medium text-foreground">{r.debit ? inr(r.debit) : '—'}</span></span>
+                      <span className="text-muted-foreground">Credit <span className="font-medium text-foreground">{r.credit ? inr(r.credit) : '—'}</span></span>
+                    </div>
+                  </div>
+                ))}
+                {tb && (
+                  <div className="rounded-xl border bg-muted p-3 font-semibold">
+                    <p className="text-sm">Total</p>
+                    <div className="mt-1.5 flex items-center justify-between text-xs">
+                      <span>Debit {inr(tb.totalDebit)}</span>
+                      <span>Credit {inr(tb.totalCredit)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </>

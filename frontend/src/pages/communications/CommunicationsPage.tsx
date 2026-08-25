@@ -10,8 +10,9 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { NeutralPill, Pill, StatusPill, TONE } from '@/components/shared/Pill';
 import {
   useFeeSummary,
   usePaymentClaims,
@@ -20,7 +21,24 @@ import {
   useReviewClaim,
 } from '@/lib/queries/messaging/messaging-queries';
 
-const inr = (v: number) => `₹${Number(v ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+const inr = (v: number) => '₹' + Number(v ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+
+/** Local tile — these KPI values carry their own semantic colour, which StatCard has no slot for. */
+function Kpi({ label, value, icon: Icon, tone, loading }: { label: string; value: string; icon: typeof IndianRupee; tone: string; loading?: boolean }) {
+  return (
+    <Card className="rounded-2xl">
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm text-muted-foreground">{label}</p>
+            <p className="text-lg sm:text-xl font-bold mt-1 truncate" style={{ color: tone }}>{loading ? '…' : value}</p>
+          </div>
+          <Icon className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" style={{ color: tone }} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function CommunicationsPage() {
   const { toast } = useToast();
@@ -40,71 +58,45 @@ export default function CommunicationsPage() {
     );
   };
 
-  const stats = [
-    { label: 'Total Billed', value: summary ? inr(summary.totalBilled) : '—', icon: ReceiptText, color: 'text-blue-600' },
-    { label: 'Collected', value: summary ? inr(summary.totalCollected) : '—', icon: TrendingUp, color: 'text-emerald-600' },
-    { label: 'Outstanding', value: summary ? inr(summary.totalOutstanding) : '—', icon: IndianRupee, color: 'text-amber-600' },
-    { label: 'Pending Invoices', value: summary ? String(summary.pendingInvoices) : '—', icon: AlertCircle, color: 'text-red-600' },
-  ];
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Communications</h1>
-          <p className="text-gray-500 dark:text-gray-400">
-            WhatsApp parent engagement — fees, payment claims & conversations
-          </p>
-        </div>
-        {summary && (
-          <Badge variant="outline" className="text-sm">
-            Collection rate: {summary.collectionRate.toFixed(1)}%
-          </Badge>
-        )}
-      </div>
+    <div className="p-4 sm:p-6 space-y-4">
+      <PageHeader
+        breadcrumb={[{ label: 'Communication' }, { label: 'Communications' }]}
+        title="Communications"
+        description="WhatsApp parent engagement — fees, payment claims & conversations"
+        action={summary ? <Pill label={'Collection rate: ' + summary.collectionRate.toFixed(1) + '%'} tone={TONE.peacock} /> : undefined}
+      />
 
       {/* Fee KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <Card key={s.label} className="border-0 shadow-lg">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{s.label}</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">
-                    {summaryLoading ? '…' : s.value}
-                  </p>
-                </div>
-                <s.icon className={`w-8 h-8 ${s.color}`} />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Kpi label="Total Billed" value={summary ? inr(summary.totalBilled) : '—'} icon={ReceiptText} tone={TONE.indigo} loading={summaryLoading} />
+        <Kpi label="Collected" value={summary ? inr(summary.totalCollected) : '—'} icon={TrendingUp} tone={TONE.green} loading={summaryLoading} />
+        <Kpi label="Outstanding" value={summary ? inr(summary.totalOutstanding) : '—'} icon={IndianRupee} tone={TONE.temple} loading={summaryLoading} />
+        <Kpi label="Pending Invoices" value={summary ? String(summary.pendingInvoices) : '—'} icon={AlertCircle} tone={TONE.red} loading={summaryLoading} />
       </div>
 
       {/* Pending payment claims */}
-      <Card className="border-0 shadow-lg">
-        <CardContent className="p-5">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      <Card className="rounded-2xl">
+        <CardContent className="p-4 sm:p-5">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <ReceiptText className="w-5 h-5" /> Pending Payment Claims
           </h2>
           {claimsLoading ? (
-            <p className="text-sm text-gray-400">Loading…</p>
+            <p className="text-sm text-muted-foreground">Loading…</p>
           ) : !claims || claims.length === 0 ? (
-            <p className="text-sm text-gray-500">No payment claims awaiting review. ✅</p>
+            <p className="text-sm text-muted-foreground">No payment claims awaiting review.</p>
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2.5">
               {claims.map((claim) => (
                 <div
                   key={claim.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 dark:border-gray-800 p-3"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border bg-card p-3"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    <p className="text-sm font-medium truncate">
                       {claim.claimAmount ? inr(Number(claim.claimAmount)) : 'Amount not stated'} · {claim.mediaType}
                     </p>
-                    <p className="text-xs text-gray-400 truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       Invoice {claim.invoiceId.slice(0, 8)} · {new Date(claim.createdAt).toLocaleDateString('en-IN')}
                     </p>
                   </div>
@@ -112,18 +104,20 @@ export default function CommunicationsPage() {
                     <Button
                       size="sm"
                       variant="outline"
+                      className="flex-1 sm:flex-none rounded-full"
                       disabled={reviewClaim.isPending}
                       onClick={() => handleReview(claim.id, 'approved')}
                     >
-                      <CheckCircle2 className="w-4 h-4 mr-1 text-emerald-600" /> Approve
+                      <CheckCircle2 className="w-4 h-4 mr-1" style={{ color: TONE.green }} /> Approve
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
+                      className="flex-1 sm:flex-none rounded-full"
                       disabled={reviewClaim.isPending}
                       onClick={() => handleReview(claim.id, 'rejected')}
                     >
-                      <XCircle className="w-4 h-4 mr-1 text-red-600" /> Reject
+                      <XCircle className="w-4 h-4 mr-1" style={{ color: TONE.red }} /> Reject
                     </Button>
                   </div>
                 </div>
@@ -134,23 +128,23 @@ export default function CommunicationsPage() {
       </Card>
 
       {/* Two-column: recent messages + conversations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-5">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <MessageSquare className="w-5 h-5" /> Recent Messages
             </h2>
             {!messages || messages.length === 0 ? (
-              <p className="text-sm text-gray-500">No messages yet.</p>
+              <p className="text-sm text-muted-foreground">No messages yet.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {messages.slice(0, 8).map((m) => (
-                  <div key={m.id} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700 dark:text-gray-300 truncate">
+                  <div key={m.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm">
+                    <span className="min-w-0 truncate">
                       {m.direction === 'inbound' ? '⬅ ' : '➡ '}
                       {m.templateCode ?? '(session message)'}
                     </span>
-                    <Badge variant="outline" className="text-xs">{m.status}</Badge>
+                    <StatusPill status={m.status} />
                   </div>
                 ))}
               </div>
@@ -158,21 +152,19 @@ export default function CommunicationsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-5">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Active Conversations</h2>
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
+            <h2 className="text-lg font-semibold mb-4">Active Conversations</h2>
             {!conversations || conversations.length === 0 ? (
-              <p className="text-sm text-gray-500">No conversations yet.</p>
+              <p className="text-sm text-muted-foreground">No conversations yet.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {conversations.slice(0, 8).map((c) => (
-                  <div key={c.id} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700 dark:text-gray-300">
+                  <div key={c.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm">
+                    <span className="min-w-0 truncate">
                       {c.lastIntent ?? 'conversation'} · {c.messageCount} msgs
                     </span>
-                    <span className="text-xs text-gray-400">
-                      {c.lastMessageAt ? new Date(c.lastMessageAt).toLocaleDateString('en-IN') : '—'}
-                    </span>
+                    <NeutralPill label={c.lastMessageAt ? new Date(c.lastMessageAt).toLocaleDateString('en-IN') : '—'} />
                   </div>
                 ))}
               </div>

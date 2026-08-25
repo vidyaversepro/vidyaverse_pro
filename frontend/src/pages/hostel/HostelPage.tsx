@@ -5,9 +5,10 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { StatCard } from '@/components/shared/StatCard';
+import { NeutralPill, StatusPill } from '@/components/shared/Pill';
 import {
   useHostelBlocks,
   useOccupancy,
@@ -15,20 +16,6 @@ import {
   useCreateBlock,
   usePayMessBill,
 } from '@/lib/queries/hostel/hostel-queries';
-
-function Stat({ icon: Icon, label, value }: { icon: typeof BedDouble; label: string; value: string | number }) {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className="rounded-lg bg-primary/10 p-2"><Icon className="h-5 w-5 text-primary" /></div>
-        <div>
-          <p className="text-2xl font-bold">{value}</p>
-          <p className="text-xs text-muted-foreground">{label}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function HostelPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -53,7 +40,7 @@ export default function HostelPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 space-y-4">
       <PageHeader
         breadcrumb={[{ label: 'Operations' }, { label: 'Hostel & Mess' }]}
         title="Hostel & Mess"
@@ -61,7 +48,7 @@ export default function HostelPage() {
         action={
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button><Plus className="mr-2 h-4 w-4" /> Add Block</Button>
+              <Button className="w-full sm:w-auto"><Plus className="mr-2 h-4 w-4" /> Add Block</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>New Hostel Block</DialogTitle></DialogHeader>
@@ -81,30 +68,30 @@ export default function HostelPage() {
         }
       />
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={Building2} label="Blocks" value={blocks?.length ?? 0} />
-        <Stat icon={DoorOpen} label="Total Rooms" value={occ?.totalRooms ?? 0} />
-        <Stat icon={BedDouble} label="Occupied Beds" value={`${occ?.occupiedBeds ?? 0}/${occ?.totalBeds ?? 0}`} />
-        <Stat icon={BedDouble} label="Vacant Beds" value={occ?.vacantBeds ?? 0} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard title="Blocks" value={blocks?.length ?? 0} icon={Building2} tone="teal" />
+        <StatCard title="Total Rooms" value={occ?.totalRooms ?? 0} icon={DoorOpen} tone="gold" />
+        <StatCard title="Occupied Beds" value={(occ?.occupiedBeds ?? 0) + '/' + (occ?.totalBeds ?? 0)} icon={BedDouble} tone="saffron" />
+        <StatCard title="Vacant Beds" value={occ?.vacantBeds ?? 0} icon={BedDouble} tone="indigo" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardContent className="p-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
             <h3 className="mb-3 font-semibold">Blocks</h3>
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Loading…</p>
             ) : !blocks?.length ? (
               <p className="text-sm text-muted-foreground">No blocks yet. Add one to get started.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {blocks.map((b) => (
-                  <div key={b.id} className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <p className="font-medium">{b.name}</p>
-                      <p className="text-xs text-muted-foreground">{b.wardenName ? `Warden: ${b.wardenName}` : 'No warden'} · {b._count?.rooms ?? 0} rooms</p>
+                  <div key={b.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{b.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{b.wardenName ? 'Warden: ' + b.wardenName : 'No warden'} · {b._count?.rooms ?? 0} rooms</p>
                     </div>
-                    <Badge variant="secondary">{b.type}</Badge>
+                    <NeutralPill label={b.type} />
                   </div>
                 ))}
               </div>
@@ -112,23 +99,23 @@ export default function HostelPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
             <h3 className="mb-3 font-semibold">Mess Bills</h3>
             {!bills?.length ? (
               <p className="text-sm text-muted-foreground">No mess bills yet.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {bills.slice(0, 10).map((bill) => (
-                  <div key={bill.id} className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
+                  <div key={bill.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3">
+                    <div className="min-w-0">
                       <p className="flex items-center font-medium"><IndianRupee className="h-3.5 w-3.5" />{bill.amount}</p>
-                      <p className="text-xs text-muted-foreground">{bill.billMonth}</p>
+                      <p className="text-xs text-muted-foreground truncate">{bill.billMonth}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={bill.status === 'paid' ? 'default' : 'secondary'}>{bill.status}</Badge>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <StatusPill status={bill.status} />
                       {bill.status !== 'paid' && (
-                        <Button size="sm" variant="outline" onClick={() => payBill.mutate(bill.id, { onSuccess: () => toast.success('Marked paid') })}>
+                        <Button size="sm" variant="outline" className="rounded-full" onClick={() => payBill.mutate(bill.id, { onSuccess: () => toast.success('Marked paid') })}>
                           Mark Paid
                         </Button>
                       )}

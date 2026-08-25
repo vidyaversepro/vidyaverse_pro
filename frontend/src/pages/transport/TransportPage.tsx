@@ -5,9 +5,9 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { NeutralPill, Pill, TONE } from '@/components/shared/Pill';
 import {
   useTransportRoutes,
   useActiveTrips,
@@ -48,14 +48,14 @@ export default function TransportPage() {
     startTrip.mutate(
       { routeId, direction: 'pickup' },
       {
-        onSuccess: (res) => toast.success(`Trip started — ${res?.data?.data?.notified ?? 0} parents alerted`),
+        onSuccess: (res) => toast.success('Trip started — ' + (res?.data?.data?.notified ?? 0) + ' parents alerted'),
         onError: () => toast.error('Failed to start trip'),
       },
     );
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4">
       <PageHeader
         breadcrumb={[{ label: 'Dashboard', href: '/app/dashboard' }, { label: 'Transport' }]}
         title="Transport"
@@ -63,7 +63,7 @@ export default function TransportPage() {
         action={
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button><Plus className="w-4 h-4 mr-2" /> New Route</Button>
+              <Button className="w-full sm:w-auto"><Plus className="w-4 h-4 mr-2" /> New Route</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>New Transport Route</DialogTitle></DialogHeader>
@@ -82,23 +82,23 @@ export default function TransportPage() {
 
       {/* Active trips */}
       {trips && trips.length > 0 && (
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-5">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-emerald-600" /> Live Trips
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5" style={{ color: TONE.green }} /> Live Trips
             </h2>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2.5">
               {trips.map((t) => (
-                <div key={t.id} className="flex items-center justify-between rounded-lg border border-gray-100 dark:border-gray-800 p-3">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{t.route?.name ?? 'Route'}</p>
-                    <p className="text-xs text-gray-400">
+                <div key={t.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border bg-card p-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{t.route?.name ?? 'Route'}</p>
+                    <p className="text-xs text-muted-foreground truncate">
                       {t.route?.vehicleNumber ?? '—'} ·{' '}
-                      {t.lastLatitude != null ? `📍 ${t.lastLatitude.toFixed(4)}, ${t.lastLongitude?.toFixed(4)}` : 'awaiting GPS'}
+                      {t.lastLatitude != null ? '📍 ' + t.lastLatitude.toFixed(4) + ', ' + t.lastLongitude?.toFixed(4) : 'awaiting GPS'}
                     </p>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => completeTrip.mutate(t.id, { onSuccess: () => toast.success('Trip completed') })}>
-                    <CheckCircle2 className="w-4 h-4 mr-1 text-emerald-600" /> Complete
+                  <Button size="sm" variant="outline" className="rounded-full shrink-0" onClick={() => completeTrip.mutate(t.id, { onSuccess: () => toast.success('Trip completed') })}>
+                    <CheckCircle2 className="w-4 h-4 mr-1" style={{ color: TONE.green }} /> Complete
                   </Button>
                 </div>
               ))}
@@ -108,31 +108,34 @@ export default function TransportPage() {
       )}
 
       {/* Routes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
         {isLoading ? (
-          <p className="text-sm text-gray-400">Loading…</p>
+          <p className="text-sm text-muted-foreground">Loading…</p>
         ) : !routes || routes.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
-              <Bus className="w-8 h-8 text-amber-600" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: `${TONE.saffron}1f` }}>
+              <Bus className="w-8 h-8" style={{ color: TONE.saffron }} />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">No Routes Yet</h3>
-            <p className="text-gray-500 mt-1">Create a transport route to get started.</p>
+            <h3 className="text-lg font-medium">No Routes Yet</h3>
+            <p className="text-muted-foreground mt-1">Create a transport route to get started.</p>
           </div>
         ) : (
           routes.map((r) => (
-            <Card key={r.id} className="border-0 shadow-sm">
-              <CardContent className="p-5 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">{r.name}</h3>
-                    <p className="text-xs text-gray-400">{r.code}</p>
+            <Card key={r.id} className="rounded-2xl">
+              <CardContent className="p-4 sm:p-5 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold truncate">{r.name}</h3>
+                    <p className="text-xs text-muted-foreground truncate">{r.code}</p>
                   </div>
-                  <Badge variant="outline" className="text-xs">{r._count?.assignments ?? 0} students</Badge>
+                  <Pill label={(r._count?.assignments ?? 0) + ' students'} tone={TONE.indigo} />
                 </div>
-                <div className="text-sm text-gray-500 space-y-1">
-                  <p>🚌 {r.vehicleNumber || '—'} · {r.driverName || 'No driver'}</p>
-                  <p>{r.stops.length} stops {r.feeAmount ? `· ₹${r.feeAmount}/mo` : ''}</p>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p className="truncate">🚌 {r.vehicleNumber || '—'} · {r.driverName || 'No driver'}</p>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <NeutralPill label={r.stops.length + ' stops'} />
+                    {r.feeAmount ? <NeutralPill label={'₹' + r.feeAmount + '/mo'} /> : null}
+                  </div>
                 </div>
                 <Button size="sm" className="w-full" onClick={() => start(r.id)} disabled={startTrip.isPending}>
                   <Play className="w-4 h-4 mr-1" /> Start Trip

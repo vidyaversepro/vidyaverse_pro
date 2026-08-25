@@ -30,32 +30,32 @@ export default function MobileAppPage() {
   const submit = () => save.mutate(cfg, { onSuccess: () => toast.success('Mobile app settings saved') });
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 space-y-4">
       <PageHeader
         breadcrumb={[{ label: 'Communication' }, { label: 'Mobile App' }]}
         title="Parent / Student Mobile App"
         description="Configure the mobile app: store links, version policy and enabled features"
       />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardContent className="space-y-3 p-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="rounded-2xl">
+          <CardContent className="space-y-3 p-4 sm:p-5">
             <h3 className="flex items-center gap-2 font-semibold"><Smartphone className="h-4 w-4" /> Store & Version</h3>
             <div><label className="text-xs text-muted-foreground">Android Play Store URL</label><Input value={cfg.androidUrl ?? ''} onChange={(e) => setCfg({ ...cfg, androidUrl: e.target.value })} placeholder="https://play.google.com/…" /></div>
             <div><label className="text-xs text-muted-foreground">iOS App Store URL</label><Input value={cfg.iosUrl ?? ''} onChange={(e) => setCfg({ ...cfg, iosUrl: e.target.value })} placeholder="https://apps.apple.com/…" /></div>
             <div><label className="text-xs text-muted-foreground">Minimum supported version</label><Input value={cfg.minSupportedVersion ?? ''} onChange={(e) => setCfg({ ...cfg, minSupportedVersion: e.target.value })} placeholder="2.1.0" /></div>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!cfg.forceUpdate} onChange={(e) => setCfg({ ...cfg, forceUpdate: e.target.checked })} /> Force update below minimum version</label>
-            <div><label className="text-xs text-muted-foreground">Primary color (hex)</label><Input value={cfg.primaryColor ?? ''} onChange={(e) => setCfg({ ...cfg, primaryColor: e.target.value })} placeholder="#E63946" /></div>
+            <div><label className="text-xs text-muted-foreground">Primary color (hex)</label><Input value={cfg.primaryColor ?? ''} onChange={(e) => setCfg({ ...cfg, primaryColor: e.target.value })} placeholder="#C0392B" /></div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="space-y-3 p-4">
+        <Card className="rounded-2xl">
+          <CardContent className="space-y-3 p-4 sm:p-5">
             <h3 className="font-semibold">Enabled Features</h3>
             <p className="text-xs text-muted-foreground">Modules visible in the parent/student app.</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 xl:grid-cols-3 gap-2">
               {ALL_FEATURES.map((f) => (
-                <label key={f} className="flex items-center gap-2 rounded-lg border p-2 text-sm capitalize">
+                <label key={f} className="flex items-center gap-2 rounded-xl border bg-card p-2.5 text-sm capitalize cursor-pointer">
                   <input type="checkbox" checked={(cfg.enabledFeatures ?? []).includes(f)} onChange={() => toggleFeature(f)} />
                   {f}
                 </label>

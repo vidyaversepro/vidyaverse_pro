@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { SectionPicker } from '@/components/shared/SectionPicker';
+import { StatusPill } from '@/components/shared/Pill';
 import {
   useAssignments,
   useSubmissions,
@@ -47,14 +47,14 @@ export default function AssignmentsPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 space-y-4">
       <PageHeader
         breadcrumb={[{ label: 'Academics' }, { label: 'Assignments & Homework' }]}
         title="Assignments & Homework"
         description="Publish work, collect submissions and grade"
         action={
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> New Assignment</Button></DialogTrigger>
+            <DialogTrigger asChild><Button className="w-full sm:w-auto"><Plus className="mr-2 h-4 w-4" /> New Assignment</Button></DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>New Assignment</DialogTitle></DialogHeader>
               <div className="space-y-3">
@@ -71,16 +71,16 @@ export default function AssignmentsPage() {
         }
       />
 
-      <Card className="mb-6">
+      <Card className="rounded-2xl">
         <CardContent className="p-4">
           <label className="text-xs text-muted-foreground">Section</label>
-          <SectionPicker value={sectionId} onChange={setSectionId} className="max-w-md" />
+          <SectionPicker value={sectionId} onChange={setSectionId} className="w-full sm:max-w-md" />
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardContent className="p-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
             <h3 className="mb-3 flex items-center gap-2 font-semibold"><ClipboardList className="h-4 w-4" /> Assignments</h3>
             {!sectionId ? (
               <p className="text-sm text-muted-foreground">Choose a section above to load assignments.</p>
@@ -89,18 +89,18 @@ export default function AssignmentsPage() {
             ) : !assignments?.length ? (
               <p className="text-sm text-muted-foreground">No assignments for this section.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {assignments.map((a) => (
-                  <div key={a.id} className="rounded-lg border p-3">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium">{a.title}</p>
-                      <Badge variant={a.status === 'published' ? 'default' : a.status === 'closed' ? 'secondary' : 'outline'}>{a.status}</Badge>
+                  <div key={a.id} className="rounded-xl border bg-card p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="font-medium min-w-0 truncate">{a.title}</p>
+                      <StatusPill status={a.status} />
                     </div>
-                    <p className="text-xs text-muted-foreground">{a.subjectName}{a.dueDate ? ` · due ${new Date(a.dueDate).toLocaleString('en-IN')}` : ''} · {a._count?.submissions ?? 0} submissions</p>
-                    <div className="mt-2 flex gap-1.5">
-                      <Button size="sm" variant="outline" onClick={() => setViewing(a.id)}>View submissions</Button>
-                      {a.status === 'draft' && <Button size="sm" variant="outline" onClick={() => publish.mutate(a.id, { onSuccess: () => toast.success('Published') })}><Send className="mr-1 h-3 w-3" /> Publish</Button>}
-                      {a.status === 'published' && <Button size="sm" variant="outline" onClick={() => closeIt.mutate(a.id, { onSuccess: () => toast.success('Closed') })}><Lock className="mr-1 h-3 w-3" /> Close</Button>}
+                    <p className="text-xs text-muted-foreground mt-0.5">{a.subjectName}{a.dueDate ? ' · due ' + new Date(a.dueDate).toLocaleString('en-IN') : ''} · {a._count?.submissions ?? 0} submissions</p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <Button size="sm" variant="outline" className="rounded-full" onClick={() => setViewing(a.id)}>View submissions</Button>
+                      {a.status === 'draft' && <Button size="sm" variant="outline" className="rounded-full" onClick={() => publish.mutate(a.id, { onSuccess: () => toast.success('Published') })}><Send className="mr-1 h-3 w-3" /> Publish</Button>}
+                      {a.status === 'published' && <Button size="sm" variant="outline" className="rounded-full" onClick={() => closeIt.mutate(a.id, { onSuccess: () => toast.success('Closed') })}><Lock className="mr-1 h-3 w-3" /> Close</Button>}
                     </div>
                   </div>
                 ))}
@@ -109,24 +109,24 @@ export default function AssignmentsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
+        <Card className="rounded-2xl">
+          <CardContent className="p-4 sm:p-5">
             <h3 className="mb-3 flex items-center gap-2 font-semibold"><CheckSquare className="h-4 w-4" /> Submissions {viewing ? '' : '(select an assignment)'}</h3>
             {!viewing ? (
-              <p className="text-sm text-muted-foreground">Click "View submissions" on an assignment.</p>
+              <p className="text-sm text-muted-foreground">Tap “View submissions” on an assignment.</p>
             ) : !submissions?.length ? (
               <p className="text-sm text-muted-foreground">No submissions yet.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {submissions.map((s) => (
-                  <div key={s.id} className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <p className="font-medium text-sm">{s.studentId.slice(0, 8)}…</p>
-                      <p className="text-xs text-muted-foreground">{new Date(s.submittedAt).toLocaleString('en-IN')}{s.marksObtained != null ? ` · ${s.marksObtained} marks` : ''}</p>
+                  <div key={s.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{s.studentId.slice(0, 8)}…</p>
+                      <p className="text-xs text-muted-foreground truncate">{new Date(s.submittedAt).toLocaleString('en-IN')}{s.marksObtained != null ? ' · ' + s.marksObtained + ' marks' : ''}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={s.status === 'graded' ? 'default' : s.status === 'late' ? 'destructive' : 'secondary'}>{s.status}</Badge>
-                      {s.status !== 'graded' && <Button size="sm" variant="outline" onClick={() => gradeSubmission(s.id)}>Grade</Button>}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <StatusPill status={s.status} />
+                      {s.status !== 'graded' && <Button size="sm" variant="outline" className="rounded-full" onClick={() => gradeSubmission(s.id)}>Grade</Button>}
                     </div>
                   </div>
                 ))}
