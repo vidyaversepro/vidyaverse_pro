@@ -135,7 +135,7 @@ jobs:
           BETTER_AUTH_URL: http://localhost:3000
 
       - name: Upload Coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           files: ./backend/coverage/lcov.info
           fail_ci_if_error: false
