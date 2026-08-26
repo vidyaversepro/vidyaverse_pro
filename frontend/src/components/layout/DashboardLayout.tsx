@@ -64,10 +64,18 @@ export default function DashboardLayout() {
     const location = useLocation();
     const { sidebarOpen, mobileSidebar, setMobileSidebar } = useLayoutStore();
     const { isDarkMode, toggleDarkMode } = useThemeStore();
-    const { data: myEnt } = useMyEntitlements();
 
     // Pick sidebar items based on whether we are in admin or student routes
     const isStudentRoute = location.pathname.startsWith('/student');
+
+    // Entitlements gate the ADMIN nav only — `enabledSet` below is hard-coded to
+    // null on student routes, so the response was fetched and then thrown away
+    // there. It is also an admin-side endpoint that 403s for a student whose
+    // `student_access_enabled` is false (the column default) or who has no
+    // membership, so every student page load fired a request that was expected
+    // to fail and whose answer was never read. Skipping it on student routes
+    // removes the failing call without changing any behaviour.
+    const { data: myEnt } = useMyEntitlements({ enabled: !isStudentRoute });
     const flatSidebarItems = isStudentRoute ? studentSidebarItems : adminSidebarItems;
     const homeLink = isStudentRoute ? '/student/feed' : '/app/dashboard';
     const bottomTabs = isStudentRoute ? studentBottomTabs : adminBottomTabs;
