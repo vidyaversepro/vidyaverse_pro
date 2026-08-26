@@ -17,7 +17,7 @@ const categories = [
     {
         icon: GraduationCap,
         name: 'Academics',
-        color: 'var(--peacock)',
+        color: 'var(--ink-peacock)',
         rgbVar: '--peacock-teal-rgb',
         chipAlpha: 0.06,
         modules: ['Student Info', 'Classes & Sections', 'Attendance', 'Timetable', 'Examinations', 'Gradebook (CCE)', 'Online Tests', 'Assignments', 'AI Tutor', 'Live Classes'],
@@ -25,7 +25,7 @@ const categories = [
     {
         icon: Wrench,
         name: 'Operations',
-        color: 'var(--indigo)',
+        color: 'var(--ink-indigo)',
         rgbVar: '--indigo-rgb',
         chipAlpha: 0.06,
         modules: ['Transport + GPS', 'Hostel & Mess', 'Inventory', 'Health & Clinic', 'Visitor & Gate Pass', 'Library'],
@@ -33,7 +33,7 @@ const categories = [
     {
         icon: Wallet,
         name: 'Finance',
-        color: 'var(--clay-mid)',
+        color: 'var(--ink-clay)',
         rgbVar: '--deep-saffron-rgb',
         chipAlpha: 0.09,
         modules: ['Fees & Invoicing', 'Concessions & Plans', 'Online Payments', 'HR & Payroll', 'Accounting'],
@@ -41,7 +41,7 @@ const categories = [
     {
         icon: MessageSquare,
         name: 'Communication',
-        color: 'var(--teal-light)',
+        color: 'var(--ink-teal)',
         rgbVar: '--teal-rgb',
         chipAlpha: 0.07,
         modules: ['WhatsApp Messaging', 'AI Inbound Replies', 'Voice Notes', 'Notices & Events', 'Guardian Digests'],
@@ -49,7 +49,7 @@ const categories = [
     {
         icon: FileText,
         name: 'Document Studio',
-        color: 'var(--lotus-pink)',
+        color: 'var(--ink-lotus)',
         rgbVar: '--lotus-pink-rgb',
         chipAlpha: 0.07,
         modules: ['ID Cards', 'Certificates', 'Marksheets', 'Hall Tickets', 'Transfer Certs', 'Portfolios', 'Library Cards', 'Group Photos'],

@@ -37,9 +37,9 @@ function useCounter(target: number, suffix = '', duration = 2000) {
 
 const stats = [
     { target: 47, suffix: '', label: 'Integrated modules', color: 'var(--brand)' },
-    { target: 6, suffix: '', label: 'Connected categories', color: 'var(--peacock-teal)' },
-    { target: 8, suffix: '', label: 'Printable documents', color: 'var(--lotus-pink)' },
-    { target: 10, suffix: 'm', label: 'Minutes to set up', color: 'var(--deep-saffron)' },
+    { target: 6, suffix: '', label: 'Connected categories', color: 'var(--ink-peacock)' },
+    { target: 8, suffix: '', label: 'Printable documents', color: 'var(--ink-lotus)' },
+    { target: 10, suffix: 'm', label: 'Minutes to set up', color: 'var(--ink-saffron)' },
 ];
 
 function Stat({ stat }: { stat: typeof stats[0] }) {

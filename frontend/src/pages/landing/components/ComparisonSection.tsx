@@ -47,6 +47,10 @@ export default function ComparisonSection() {
                 <motion.div {...fadeUp} className="text-center max-w-[660px] mx-auto mb-13">
                     <span
                         className="inline-block text-xs font-bold tracking-[0.16em] uppercase px-3 py-1 rounded-full"
+                        /* --gold, not --ink-gold. This band is dark in BOTH themes (it paints
+                           its own night-ink wash), so the theme-aware ink is wrong here: in
+                           light it resolves to a dark amber and measured 2.24:1 on the dark
+                           band. The bright pigment is the correct ink on a dark surface. */
                         style={{ color: 'var(--gold)', background: 'rgb(var(--gold-rgb) / 0.14)', border: '1px solid rgb(var(--gold-rgb) / 0.34)' }}
                     >
                         Why Vidyaverse

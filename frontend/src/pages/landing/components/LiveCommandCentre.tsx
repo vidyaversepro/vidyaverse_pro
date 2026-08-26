@@ -7,9 +7,9 @@ const tabs: DashTab[] = ['Overview', 'Attendance', 'Fees', 'Admissions'];
 
 const kpis = [
     { label: 'Students', value: '1,248', sub: '+18 this week', color: 'var(--brand)' },
-    { label: 'Present today', value: '96.2%', sub: '1,201 / 1,248', color: 'var(--peacock)' },
-    { label: 'Fees collected', value: '₹18.4L', sub: '82% of target', color: 'var(--deep-saffron)' },
-    { label: 'Pending dues', value: '₹4.1L', sub: '214 students', color: 'var(--lotus-pink)' },
+    { label: 'Present today', value: '96.2%', sub: '1,201 / 1,248', color: 'var(--ink-peacock)' },
+    { label: 'Fees collected', value: '₹18.4L', sub: '82% of target', color: 'var(--ink-saffron)' },
+    { label: 'Pending dues', value: '₹4.1L', sub: '214 students', color: 'var(--ink-lotus)' },
 ];
 
 const attWeek = [
@@ -50,7 +50,7 @@ function PanelHeader({ title, value }: { title: string; value?: string }) {
             style={{ color: 'var(--text)' }}
         >
             <span>{title}</span>
-            {value && <span style={{ color: 'var(--deep-saffron)' }}>{value}</span>}
+            {value && <span style={{ color: 'var(--ink-saffron)' }}>{value}</span>}
         </div>
     );
 }
@@ -68,7 +68,7 @@ export default function LiveCommandCentre() {
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                     className="text-center max-w-[720px] mx-auto mb-11"
                 >
-                    <span className="text-xs font-bold tracking-[0.16em] uppercase" style={{ color: 'var(--peacock)' }}>
+                    <span className="text-xs font-bold tracking-[0.16em] uppercase" style={{ color: 'var(--ink-peacock)' }}>
                         Live preview
                     </span>
                     <h2
@@ -218,7 +218,7 @@ export default function LiveCommandCentre() {
                                                     {p.cls} · {p.time}
                                                 </div>
                                             </div>
-                                            <span className="font-extrabold text-sm" style={{ color: 'var(--peacock)' }}>
+                                            <span className="font-extrabold text-sm" style={{ color: 'var(--ink-peacock)' }}>
                                                 {p.amt}
                                             </span>
                                         </div>

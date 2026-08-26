@@ -1668,3 +1668,74 @@ should be fixed.
 
 `tsc` **0** (frontend and backend), `eslint` on all eight touched files **0**,
 `npm run build` **0**.
+
+## The landing page — 79 defects, all fixed (2026-08-26)
+
+Held back from the whole-app sweep as a design call; the owner chose to fix
+everything, mockups included. **Before: 47 failures in light, 32 in dark.
+After: 0 at 375/768/1280 in both themes**, across `/`, `/login`, `/register`,
+`/forgot-password` and `/reset-password`.
+
+### Root cause: the landing never got the tone treatment the app did
+
+Its pigments are **single values**, and a single value cannot serve both themes —
+exactly the problem `status-tones.css` solved for the app a phase earlier. The
+landing was never brought along. Measured as ink on a 10% tint of itself:
+
+| pigment | light | dark |
+|---|---|---|
+| `--deep-saffron` | **1.94** | 7.46 |
+| `--gold` | **1.32** | 10.81 |
+| `--clay-mid` | **3.15** | 4.58 |
+| `--lotus-pink` | **3.52** | **4.11** |
+| `--teal-light` | **3.71** | **3.86** |
+| `--indigo-ink` | 10.71 | **1.35** |
+| `--peacock-teal` | 5.38 | **2.68** |
+| `--kumkum` | 4.59 | **3.18** |
+
+Every pigment fails in one theme or the other: the deep ones vanish on the navy,
+the bright ones on the cream.
+
+**Fixed by aliasing the app's existing `--tone-*-fg` family** rather than
+inventing a second palette that would drift from it — verified on this page's
+real surfaces at **4.98–10.96 light, 6.26–11.57 dark**. The new `--ink-*` tokens
+deliberately do **not** shadow the pigments: those also drive the hero mandala,
+the CTA wash and the ecosystem orbit gradients, and redefining them would darken
+the artwork rather than just the type. Rule: `--ink-*` for `color:`, the pigment
+for everything else. 45 `color:` call sites moved across 12 components; not one
+gradient or fill was touched.
+
+### The three things a pure token swap could not fix
+
+1. **`--text-tertiary` was a pigment.** It resolved to `--clay-mid` (#C87533,
+   burnt amber) and carried tertiary body text on **23 elements** at 3.30–3.47 —
+   the single largest group on the page. Now a neutral warm ink (#736552): 5.66
+   on white, 5.37 on surface, 5.18 on sand.
+2. **Always-dark surfaces defeat theme-aware ink.** The footer and the
+   comparison band paint their own `--night-ink` in *both* themes, so in light
+   the ink resolved to a dark amber and sat on navy — 2.99 and 2.24. Those use
+   the bright pigment directly; the theme is the wrong signal there, the surface
+   is.
+3. **A white pill in both themes needs the opposite.** The CTA's
+   "Join the founding cohort" is white-on-brand always, so the theme-aware ink
+   lightened it into 2.77:1. Reverted to the deep pigment. Same family as the
+   app's `--primary-foreground` problem, and the selected doc-type pill got the
+   matching `--on-brand` token (white in light, near-black on the dark lifted
+   accent, where white measured 3.30).
+
+### The mockups, fixed without breaking the illusion
+
+- **WhatsApp "Pay now" bubble: 1.98.** The green is *kept* — `#25D366` is
+  WhatsApp's own, and recolouring it would stop the mock reading as WhatsApp.
+  The ink went white → near-black instead: **7.49**.
+- **Printed-document mocks** used `#999`/`#aaa` on white paper (2.32–2.85) for
+  the ID-card field labels and folios. Now `#6e6e6e` (5.10) — still clearly
+  secondary print grey.
+- The `ATTENDANCE` chat label (4.38) and the hero's `₹` tile glyph moved onto
+  compliant values.
+
+### Gates
+
+`tsc` **0**, `eslint` on `src/pages/landing/` **0**, `npm run build` **0**.
+Spot-checked eight app routes afterwards for regressions from the shared
+`--tone-*` reuse: **0** — the new tokens are `.landing-root`-scoped.

@@ -38,7 +38,13 @@
        secondary is a large part of why the old landing read as generic SaaS
        even where the brand colour was already applied. */
     --text-secondary: var(--bark);
-    --text-tertiary: var(--clay-mid);
+    /* NOT --clay-mid. That is a pigment (#C87533, burnt amber) and it was
+       carrying tertiary body text on 23 elements at 3.30–3.47:1 — the single
+       largest group of contrast failures on the page. This is a neutral warm
+       ink at the same visual weight: 5.66 on white, 5.37 on --bg-surface,
+       5.18 on --sand. The pigment itself is untouched and still available for
+       plinths and gradients. */
+    --text-tertiary: #736552;
     --border: rgb(var(--temple-stone-rgb) / 0.24);
     --border-light: rgb(var(--temple-stone-rgb) / 0.14);
 
@@ -89,6 +95,9 @@
     --bg: var(--night-ink);
     --bg-surface: var(--navy-deep);
     --bg-elevated: var(--slate-blue);
+    /* See --on-brand in the light block: the lifted accent is bright, so it
+       takes dark ink. */
+    --on-brand: #0b111e;
     --text-primary: var(--ivory-cream);
     --text-secondary: rgb(var(--ivory-cream-rgb) / 0.72);
     --text-tertiary: rgb(var(--ivory-cream-rgb) / 0.5);
@@ -716,6 +725,39 @@
     --indigo: var(--indigo-ink);
     --indigo-rgb: var(--indigo-ink-rgb);
     --teal-rgb: var(--teal-light-rgb);
+
+    /* ── INK tokens — for TEXT only ──────────────────────────────────────────
+     *
+     * The landing's pigments are single values, and a single value cannot serve
+     * both themes: the deep ones (indigo, peacock, kumkum) vanish on the navy
+     * dark surface, and the bright ones (saffron, gold) vanish on the cream
+     * light one. Measured as ink on a 10% tint of themselves, every pigment
+     * failed AA in one theme or the other — saffron 1.94 light, indigo 1.35
+     * dark, gold 1.32 light.
+     *
+     * These alias the APP's status-tone ink family (`styles/status-tones.css`),
+     * which already carries measured light/dark pairs, rather than inventing a
+     * second palette that would drift from it. Verified on this page's real
+     * surfaces: 4.98–10.96 in light, 6.26–11.57 in dark.
+     *
+     * They deliberately do NOT shadow the pigment tokens themselves. Those also
+     * drive gradients, plinth fills and SVG stops (hero mandala, CTA wash,
+     * ecosystem orbits); redefining them would darken the artwork, not just the
+     * type. Use `--ink-*` for `color:`, the pigment for everything else. */
+    --ink-saffron: var(--tone-saffron-fg);
+    --ink-gold: var(--tone-temple-fg);
+    --ink-clay: var(--tone-temple-fg);
+    --ink-lotus: var(--tone-lotus-fg);
+    --ink-teal: var(--tone-peacock-fg);
+    --ink-peacock: var(--tone-peacock-fg);
+    --ink-indigo: var(--tone-indigo-fg);
+    --ink-kumkum: var(--tone-red-fg);
+
+    /* Ink for text sitting ON a --brand fill. Light mode's kumkum is a deep
+     * pigment and takes white; dark mode's lifted accent is a BRIGHT fill and
+     * takes near-black, where white measured 3.30:1. Same inversion the app
+     * makes for --primary-foreground and every .solid-* tone. */
+    --on-brand: #ffffff;
 }
 
 .dark .landing-root {

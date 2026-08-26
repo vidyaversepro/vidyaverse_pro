@@ -9,7 +9,7 @@ const useCases = [
         title: 'Admission Season Rush',
         desc: '"We admit 500+ students in 2 weeks. ID cards used to take days. Now it\'s done in 30 minutes with bulk upload."',
         stat: '95% faster',
-        color: 'var(--peacock-teal)',
+        color: 'var(--ink-peacock)',
         rgbVar: '--peacock-teal-rgb',
     },
     {
@@ -17,7 +17,7 @@ const useCases = [
         title: 'Award Day Ceremonies',
         desc: '"Need 200 certificates for annual day? Choose template, select students, generate. Parents love how professional they look."',
         stat: '3-click generation',
-        color: 'var(--indigo-ink)',
+        color: 'var(--ink-indigo)',
         rgbVar: '--indigo-rgb',
     },
     {
@@ -25,7 +25,7 @@ const useCases = [
         title: 'Exam Time Chaos',
         desc: '"Hall tickets with seat numbers, marksheets with auto-calculated grades — all from one dashboard. Zero manual errors."',
         stat: 'Zero errors',
-        color: 'var(--clay-mid)',
+        color: 'var(--ink-clay)',
         rgbVar: '--deep-saffron-rgb',
     },
     {
@@ -33,7 +33,7 @@ const useCases = [
         title: 'Photo Day Workflow',
         desc: '"Upload one group photo, AI extracts individual faces, auto-assigns to student profiles. What took 3 days now takes 20 minutes."',
         stat: '10× faster',
-        color: 'var(--teal-light)',
+        color: 'var(--ink-teal)',
         rgbVar: '--teal-rgb',
     },
     {
@@ -41,7 +41,7 @@ const useCases = [
         title: 'Parent Communication',
         desc: '"Auto-generated portfolios with QR codes. Parents scan and see grades, certificates — all in one place. No more manual reports."',
         stat: '100% transparency',
-        color: 'var(--lotus-pink)',
+        color: 'var(--ink-lotus)',
         rgbVar: '--lotus-pink-rgb',
     },
     {
@@ -49,7 +49,7 @@ const useCases = [
         title: 'Transfer Season',
         desc: '"Transfer certificates with tamper-proof records and digital verification. No more lost paperwork."',
         stat: 'Fully digital',
-        color: 'var(--brand)',
+        color: 'var(--ink-kumkum)',
         rgbVar: '--brand-rgb',
     },
 ];

@@ -46,6 +46,10 @@ export default function Footer() {
 
                     {/* Quick links */}
                     <div>
+                        {/* --gold, not --ink-gold. The footer paints its own --night-ink
+                            background in BOTH themes, so the theme-aware ink is wrong here:
+                            in light it resolves to a dark amber and measured 2.99:1 on the
+                            navy. Same reasoning as the ComparisonSection eyebrow. */}
                         <h3 className="text-lg mb-6" style={{ color: 'var(--gold)' }}>On This Page</h3>
                         <ul className="space-y-3">
                             {quickLinks.map((link) => (
@@ -102,7 +106,7 @@ export default function Footer() {
                     {/* Legal identifiers + copyright — same block across the trio, only the brand name above changes */}
                     <div
                         className="mt-6 pt-6 flex flex-col items-center gap-1.5 text-center text-xs"
-                        style={{ borderTop: '1px solid rgb(var(--gold-rgb) / 0.1)', color: 'rgb(var(--ivory-cream-rgb) / 0.35)' }}
+                        style={{ borderTop: '1px solid rgb(var(--gold-rgb) / 0.1)', color: 'rgb(var(--ivory-cream-rgb) / 0.55)' }}
                     >
                         <p>PAN: AAMCV2938B &middot; GSTIN: 07AAMCV2938B1ZA &middot; ISO 9001:2015 Certified</p>
                         <p>

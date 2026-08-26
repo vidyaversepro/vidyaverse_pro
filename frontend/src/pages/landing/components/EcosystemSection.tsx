@@ -7,7 +7,7 @@ const ecoApps = [
     {
         name: 'Vidyaverse',
         tag: 'Identity Provider · Hub',
-        color: 'var(--gold)',
+        color: 'var(--ink-gold)',
         rgbVar: '--gold-rgb',
         desc: 'The institutional OS and single sign-on that powers the whole ecosystem.',
         feats: ['One login for every app', 'Roles & memberships flow out', 'Ed25519-signed OIDC tokens'],
@@ -15,7 +15,7 @@ const ecoApps = [
     {
         name: 'PDLMS',
         tag: 'Digital Library',
-        color: 'var(--saffron)',
+        color: 'var(--ink-saffron)',
         rgbVar: '--saffron-rgb',
         desc: 'EPUB, PDF and audiobooks with an AI study assistant, one tap away.',
         feats: ['EPUB, PDF, audiobooks', 'Varta AI study assistant', 'Citation-grounded answers'],
@@ -23,7 +23,7 @@ const ecoApps = [
     {
         name: 'DigiClassroom',
         tag: 'AI Tutor',
-        color: 'var(--deep-saffron)',
+        color: 'var(--ink-saffron)',
         rgbVar: '--deep-saffron-rgb',
         desc: 'Agentic RAG over NCERT with an adaptive practice-test engine.',
         feats: ['Agentic RAG over NCERT', 'Adaptive Practest engine', 'Full productivity suite'],
@@ -241,10 +241,10 @@ export default function EcosystemSection() {
                         <Link2 size={15} style={{ color: 'var(--brand)' }} /> Sign in with Vidyaverse (OIDC)
                     </span>
                     <span className="inline-flex items-center gap-2">
-                        <ShieldCheck size={15} style={{ color: 'var(--peacock-teal)' }} /> Ed25519-signed tokens
+                        <ShieldCheck size={15} style={{ color: 'var(--ink-peacock)' }} /> Ed25519-signed tokens
                     </span>
                     <span className="inline-flex items-center gap-2">
-                        <Building2 size={15} style={{ color: 'var(--deep-saffron)' }} /> Roles &amp; memberships flow automatically
+                        <Building2 size={15} style={{ color: 'var(--ink-saffron)' }} /> Roles &amp; memberships flow automatically
                     </span>
                 </motion.div>
             </div>

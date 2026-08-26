@@ -36,7 +36,7 @@ export default function CTASection() {
                 </div>
 
                 <div className="relative z-[2]">
-                    <p className="font-deva mb-3" style={{ color: 'var(--gold)', fontSize: 'clamp(18px,3vw,26px)' }}>
+                    <p className="font-deva mb-3" style={{ color: 'var(--ink-gold)', fontSize: 'clamp(18px,3vw,26px)' }}>
                         आइए, साथ मिलकर विद्या का प्रबंध करें
                     </p>
                     <h2
@@ -56,6 +56,9 @@ export default function CTASection() {
                         <a
                             href="/register"
                             className="inline-flex items-center gap-2 px-[34px] py-4 rounded-full font-extrabold text-base transition-all duration-300 hover:-translate-y-[3px]"
+                            /* --kumkum, not --ink-kumkum: this pill is WHITE in both themes, so it
+                               always needs the deep pigment. The theme-aware ink lightens for
+                               dark surfaces and measured 2.77:1 here. */
                             style={{ color: 'var(--kumkum)', background: '#fff' }}
                         >
                             Join the founding cohort

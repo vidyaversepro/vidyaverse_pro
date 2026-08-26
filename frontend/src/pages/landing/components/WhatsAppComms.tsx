@@ -50,7 +50,7 @@ function reply(input: string): string {
 }
 
 const initialMessages: ChatMsg[] = [
-    { dir: 'in', label: 'ATTENDANCE', labelColor: '#0B8A5A', text: 'Aarav was marked present today at 8:42 AM ✅', time: '8:43 AM' },
+    { dir: 'in', label: 'ATTENDANCE', labelColor: '#0A7A4F', text: 'Aarav was marked present today at 8:42 AM ✅', time: '8:43 AM' },
     { dir: 'in', label: 'FEE REMINDER', labelColor: '#B45309', text: 'Term-2 fee of ₹12,500 is due on 15 Jun.', time: '9:01 AM', pay: true },
 ];
 
@@ -69,12 +69,15 @@ function ChatBubble({ m }: { m: Exclude<ChatMsg, { typing: true }> }) {
                 <div className="text-[12.5px] leading-[1.5]" style={{ color: '#1a1a1a' }}>
                     {m.text}
                 </div>
+                {/* Dark ink on the green, not white. WhatsApp's own green (#25D366) is
+                    kept — recolouring it would stop the mock reading as WhatsApp — but
+                    white on it measures 1.98:1. Near-black on the same green is 7.49. */}
                 {m.pay && (
-                    <div className="mt-2 py-2 rounded-lg text-center text-xs font-bold" style={{ background: '#25D366', color: '#fff' }}>
+                    <div className="mt-2 py-2 rounded-lg text-center text-xs font-bold" style={{ background: '#25D366', color: '#0B2E13' }}>
                         💳 Pay now — secure link
                     </div>
                 )}
-                <div className="text-right text-[9px] mt-[3px]" style={{ color: '#999' }}>
+                <div className="text-right text-[9px] mt-[3px]" style={{ color: '#6e6e6e' }}>
                     {m.time}
                 </div>
             </div>
@@ -148,7 +151,7 @@ export default function WhatsAppComms() {
                     viewport={{ once: true, margin: '-60px' }}
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                 >
-                    <span className="text-xs font-bold tracking-[0.16em] uppercase" style={{ color: 'var(--teal-light)' }}>
+                    <span className="text-xs font-bold tracking-[0.16em] uppercase" style={{ color: 'var(--ink-teal)' }}>
                         The differentiator · try it live
                     </span>
                     <h2
@@ -166,7 +169,7 @@ export default function WhatsAppComms() {
                             <div key={c.title} className="flex gap-[11px] items-start">
                                 <span
                                     className="shrink-0 w-[34px] h-[34px] rounded-[10px] flex items-center justify-center"
-                                    style={{ background: 'rgb(var(--teal-rgb) / 0.14)', color: 'var(--teal-light)' }}
+                                    style={{ background: 'rgb(var(--teal-rgb) / 0.14)', color: 'var(--ink-teal)' }}
                                 >
                                     <c.icon size={17} strokeWidth={2} />
                                 </span>

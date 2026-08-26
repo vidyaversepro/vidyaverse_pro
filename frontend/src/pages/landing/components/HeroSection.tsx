@@ -7,22 +7,22 @@ const petals8 = Array.from({ length: 8 }, (_, i) => i * 45);
 
 const heroStats = [
     { value: '47', label: 'Integrated modules', color: 'var(--brand)' },
-    { value: 'WhatsApp', label: 'Parent channel', color: 'var(--peacock)' },
-    { value: 'SSO', label: 'One secure login', color: 'var(--indigo)' },
-    { value: '10 min', label: 'Setup time', color: 'var(--deep-saffron)' },
+    { value: 'WhatsApp', label: 'Parent channel', color: 'var(--ink-peacock)' },
+    { value: 'SSO', label: 'One secure login', color: 'var(--ink-indigo)' },
+    { value: '10 min', label: 'Setup time', color: 'var(--ink-saffron)' },
 ];
 
 const mockTiles = [
-    { label: 'Attendance', rgbVar: '--peacock-teal-rgb', fg: 'var(--peacock)', icon: Check },
-    { label: 'Fees', rgbVar: '--lotus-pink-rgb', fg: 'var(--lotus-pink)', rupee: true },
-    { label: 'Timetable', rgbVar: '--indigo-rgb', fg: 'var(--indigo)', icon: Calendar },
-    { label: 'WhatsApp', rgbVar: '--teal-rgb', fg: 'var(--teal-light)', icon: MessageCircle },
+    { label: 'Attendance', rgbVar: '--peacock-teal-rgb', fg: 'var(--ink-peacock)', icon: Check },
+    { label: 'Fees', rgbVar: '--lotus-pink-rgb', fg: 'var(--ink-lotus)', rupee: true },
+    { label: 'Timetable', rgbVar: '--indigo-rgb', fg: 'var(--ink-indigo)', icon: Calendar },
+    { label: 'WhatsApp', rgbVar: '--teal-rgb', fg: 'var(--ink-teal)', icon: MessageCircle },
 ];
 
 const mockBars = [
     { color: 'var(--brand)', width: '75%' },
-    { color: 'var(--lotus-pink)', width: '50%' },
-    { color: 'var(--peacock)', width: '90%' },
+    { color: 'var(--ink-lotus)', width: '50%' },
+    { color: 'var(--ink-peacock)', width: '90%' },
 ];
 
 export default function HeroSection() {

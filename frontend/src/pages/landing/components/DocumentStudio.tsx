@@ -144,14 +144,14 @@ function IDCardPreview() {
                         ['Valid till', 'Mar 2027'],
                     ].map(([k, v]) => (
                         <div key={k} className="flex justify-between" style={{ padding: '1px 0' }}>
-                            <span style={{ color: '#999' }}>{k}</span>
+                            <span style={{ color: '#6e6e6e' }}>{k}</span>
                             <span className="font-semibold">{v}</span>
                         </div>
                     ))}
                 </div>
             </div>
             <div className="flex items-center justify-between px-[18px] pb-4">
-                <div className="text-[9px]" style={{ color: '#aaa', fontFamily: 'monospace' }}>ID · VVP-2291-06A</div>
+                <div className="text-[9px]" style={{ color: '#6e6e6e', fontFamily: 'monospace' }}>ID · VVP-2291-06A</div>
                 <div
                     className="w-[52px] h-[52px] rounded-lg"
                     style={{ background: 'repeating-conic-gradient(#111 0 25%, #fff 0 50%) 50%/11px 11px' }}
@@ -201,7 +201,7 @@ function MarksheetPreview() {
                     ['Session', '2026–27 · Term 2'],
                 ].map(([k, v]) => (
                     <div key={k} className="flex justify-between" style={{ borderBottom: '1px dotted #ddd', padding: '2px 0' }}>
-                        <span style={{ color: '#999' }}>{k}</span>
+                        <span style={{ color: '#6e6e6e' }}>{k}</span>
                         <span className="font-bold" style={{ color: '#111' }}>{v}</span>
                     </div>
                 ))}
@@ -237,18 +237,18 @@ function MarksheetPreview() {
                 </div>
                 <div style={{ borderLeft: '1px solid rgb(var(--temple-stone-rgb) / 0.3)' }} />
                 <div>
-                    <div className="text-[18px]" style={{ fontFamily: 'var(--font-display)', color: 'var(--peacock)', lineHeight: 1 }}>9.2</div>
+                    <div className="text-[18px]" style={{ fontFamily: 'var(--font-display)', color: 'var(--ink-peacock)', lineHeight: 1 }}>9.2</div>
                     <div className="text-[9px] uppercase tracking-[0.05em]" style={{ color: '#888' }}>CGPA</div>
                 </div>
                 <div style={{ borderLeft: '1px solid rgb(var(--temple-stone-rgb) / 0.3)' }} />
                 <div>
-                    <div className="text-[18px]" style={{ fontFamily: 'var(--font-display)', color: 'var(--deep-saffron)', lineHeight: 1 }}>PASS</div>
+                    <div className="text-[18px]" style={{ fontFamily: 'var(--font-display)', color: 'var(--ink-saffron)', lineHeight: 1 }}>PASS</div>
                     <div className="text-[9px] uppercase tracking-[0.05em]" style={{ color: '#888' }}>Result · Rank 3</div>
                 </div>
             </div>
 
             <div className="relative flex justify-between items-end px-5 py-3.5">
-                <div className="text-center text-[9px]" style={{ color: '#999' }}>
+                <div className="text-center text-[9px]" style={{ color: '#6e6e6e' }}>
                     <div className="text-[15px] -rotate-3 mb-0.5" style={{ fontFamily: "'Yatra One', cursive", color: '#334' }}>S.Iyer</div>
                     <div className="pt-0.5 w-[90px]" style={{ borderTop: '1px solid #bbb' }}>Class Teacher</div>
                 </div>
@@ -258,7 +258,7 @@ function MarksheetPreview() {
                 >
                     SPS<br />VERIFIED
                 </div>
-                <div className="text-center text-[9px]" style={{ color: '#999' }}>
+                <div className="text-center text-[9px]" style={{ color: '#6e6e6e' }}>
                     <div className="text-[15px] -rotate-3 mb-0.5" style={{ fontFamily: "'Yatra One', cursive", color: '#334' }}>R.Menon</div>
                     <div className="pt-0.5 w-[90px]" style={{ borderTop: '1px solid #bbb' }}>Principal</div>
                 </div>
@@ -295,14 +295,14 @@ function HallTicketPreview() {
                         ['Centre', 'Main Block · R-204'],
                     ].map(([k, v]) => (
                         <div key={k} className="flex justify-between" style={{ borderBottom: '1px dotted #ddd', padding: '1px 0' }}>
-                            <span style={{ color: '#999' }}>{k}</span>
+                            <span style={{ color: '#6e6e6e' }}>{k}</span>
                             <span className="font-semibold">{v}</span>
                         </div>
                     ))}
                 </div>
             </div>
             <div className="px-[18px] pt-1.5 pb-3.5">
-                <div className="flex justify-between text-[10px] font-extrabold tracking-[0.06em] uppercase py-2" style={{ color: '#999', borderBottom: '1px solid #eee' }}>
+                <div className="flex justify-between text-[10px] font-extrabold tracking-[0.06em] uppercase py-2" style={{ color: '#6e6e6e', borderBottom: '1px solid #eee' }}>
                     <span>Date</span>
                     <span>Paper</span>
                     <span>Time</span>
@@ -316,10 +316,10 @@ function HallTicketPreview() {
                 ))}
             </div>
             <div className="flex justify-between items-end px-[18px] pb-4">
-                <div className="text-[9px] max-w-[210px] leading-[1.4]" style={{ color: '#aaa' }}>
+                <div className="text-[9px] max-w-[210px] leading-[1.4]" style={{ color: '#6e6e6e' }}>
                     Bring this admit card to every paper. Electronic devices are prohibited in the hall.
                 </div>
-                <div className="text-center text-[9px]" style={{ color: '#999' }}>
+                <div className="text-center text-[9px]" style={{ color: '#6e6e6e' }}>
                     <div className="text-sm -rotate-3" style={{ fontFamily: "'Yatra One', cursive", color: '#334' }}>R.Menon</div>
                     <div className="pt-0.5 w-[86px]" style={{ borderTop: '1px solid #bbb' }}>Controller</div>
                 </div>
@@ -341,7 +341,7 @@ export default function DocumentStudio() {
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                     className="text-center max-w-[680px] mx-auto mb-9"
                 >
-                    <span className="text-xs font-bold tracking-[0.16em] uppercase" style={{ color: 'var(--lotus-pink)' }}>
+                    <span className="text-xs font-bold tracking-[0.16em] uppercase" style={{ color: 'var(--ink-lotus)' }}>
                         Document Studio
                     </span>
                     <h2
@@ -371,7 +371,11 @@ export default function DocumentStudio() {
                             className="px-[22px] py-2.5 rounded-full font-bold text-[13.5px] cursor-pointer transition-all duration-200"
                             style={{
                                 background: docType === t ? 'var(--brand)' : 'var(--elevated)',
-                                color: docType === t ? '#fff' : 'var(--text2)',
+                                /* The selected pill sits on --brand, which in dark mode is the
+                                   lifted accent — a BRIGHT fill, where white measures 3.30:1.
+                                   --on-brand carries white in light and near-black in dark,
+                                   matching what the app's .solid-* tones already do. */
+                                color: docType === t ? 'var(--on-brand)' : 'var(--text2)',
                                 border: `1px solid ${docType === t ? 'var(--brand)' : 'var(--border)'}`,
                             }}
                         >
