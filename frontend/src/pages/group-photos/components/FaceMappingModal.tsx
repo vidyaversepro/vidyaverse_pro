@@ -129,7 +129,7 @@ export function FaceMappingModal({ isOpen, onClose, photo }: FaceMappingModalPro
                                                             onClick={() => handleAssignStudent(face.id, student.id)}
                                                         >
                                                             <div className="flex items-center gap-2 w-full overflow-hidden">
-                                                                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                                                                     {student.photoUrl ? (
                                                                         <img src={student.photoUrl} className="w-full h-full rounded-full object-cover" />
                                                                     ) : (

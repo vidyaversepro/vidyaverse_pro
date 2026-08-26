@@ -170,7 +170,7 @@ export default function LibraryCardsPage() {
                             onClick={() => toggleSelectCard(card.id)}
                         >
                             {/* Thumbnail */}
-                            <div className="aspect-[1.586] bg-gray-100 relative group-hover:scale-105 transition-transform duration-300">
+                            <div className="aspect-[1.586] bg-muted relative group-hover:scale-105 transition-transform duration-300">
                                 {card.pdfUrl && (
                                     <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground">
                                         <CreditCard className="w-12 h-12 mb-2 opacity-20" />
@@ -245,8 +245,8 @@ export default function LibraryCardsPage() {
                                         className={cn(
                                             'text-xs px-1.5 py-0.5 rounded capitalize font-medium',
                                             card.status === 'active'
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-amber-100 text-amber-700'
+                                                ? 'pill-green'
+                                                : 'pill-temple'
                                         )}
                                     >
                                         {card.status}

@@ -160,6 +160,43 @@ export default function UsersPage() {
             .substring(0, 2);
     };
 
+    // Shared by the desktop table row and the mobile card, so the two can never
+    // drift apart. Kept as a render function (not a component) so it closes over
+    // the page's dialog state without remounting on every keystroke.
+    const renderActions = (user: User) => (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="glass-panel w-48 shadow-xl">
+                <DropdownMenuLabel className="font-semibold">Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => { setSelectedUser(user as never); setIsDetailsOpen(true); }} className="cursor-pointer">
+                    <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+                    View Details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleEdit(user)} className="cursor-pointer">
+                    <Pencil className="mr-2 h-4 w-4 tone-text-peacock" />
+                    Edit User
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setSelectedUser(user as never); setIsAssignRoleOpen(true); }} className="cursor-pointer">
+                    <Shield className="mr-2 h-4 w-4 tone-text-indigo" />
+                    Assign Role
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setResetPasswordUser(user as never)} className="cursor-pointer tone-text-temple focus:tone-text-temple">
+                    <Lock className="mr-2 h-4 w-4" />
+                    Reset Password
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={() => setDeleteId(user.id)}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+
     return (
         <div className="p-6">
             <PageHeader
@@ -239,7 +276,7 @@ export default function UsersPage() {
                 }}
             />
 
-            <div className="rounded-xl border border-slate-200/60 bg-white/50 dark:bg-slate-900/50 dark:border-slate-800/80 backdrop-blur-xl shadow-sm overflow-hidden">
+            <div className="hidden lg:block rounded-xl border bg-card/50 backdrop-blur-xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
@@ -252,7 +289,7 @@ export default function UsersPage() {
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
-                        <TableBody className="divide-y divide-slate-100 dark:divide-slate-800">
+                        <TableBody className="divide-y">
                             {isLoading ? (
                                 Array.from({ length: 5 }).map((_, i) => (
                                     <TableRow key={i}>
@@ -277,7 +314,7 @@ export default function UsersPage() {
                                 </TableRow>
                             ) : (
                                 data?.data?.map((user) => (
-                                    <TableRow key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                                    <TableRow key={user.id} className="hover:bg-accent/40 transition-colors">
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar>
@@ -318,7 +355,7 @@ export default function UsersPage() {
                                         <TableCell>
                                             <Badge
                                                 variant={user.isActive ? 'default' : 'secondary'}
-                                                className={user.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200 border-green-200' : ''}
+                                                className={user.isActive ? 'pill-green border-transparent hover:opacity-90' : ''}
                                             >
                                                 {user.isActive ? 'Active' : 'Inactive'}
                                             </Badge>
@@ -327,40 +364,7 @@ export default function UsersPage() {
                                             {format(new Date(user.createdAt), 'MMM d, yyyy')}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800">
-                                                        <span className="sr-only">Open menu</span>
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="glass-panel w-48 border-slate-200/60 shadow-xl dark:border-slate-700">
-                                                    <DropdownMenuLabel className="font-semibold text-slate-700 dark:text-slate-300">Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => { setSelectedUser(user as never); setIsDetailsOpen(true); }} className="cursor-pointer">
-                                                        <Eye className="mr-2 h-4 w-4 text-slate-500" />
-                                                        View Details
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleEdit(user)} className="cursor-pointer">
-                                                        <Pencil className="mr-2 h-4 w-4 text-blue-500" />
-                                                        Edit User
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => { setSelectedUser(user as never); setIsAssignRoleOpen(true); }} className="cursor-pointer">
-                                                        <Shield className="mr-2 h-4 w-4 text-indigo-500" />
-                                                        Assign Role
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => setResetPasswordUser(user as never)} className="cursor-pointer text-amber-600 focus:text-amber-600">
-                                                        <Lock className="mr-2 h-4 w-4" />
-                                                        Reset Password
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        className="text-red-600 focus:text-red-600 cursor-pointer"
-                                                        onClick={() => setDeleteId(user.id)}
-                                                    >
-                                                        <Trash2 className="mr-2 h-4 w-4" />
-                                                        Delete
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
+                                            {renderActions(user)}
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -368,6 +372,53 @@ export default function UsersPage() {
                         </TableBody>
                     </Table>
                 </div>
+            </div>
+
+            {/* Mobile / tablet card list — the table is 6 columns and needs ~200px of
+                sideways scrolling at 375px, so below lg the same rows render as cards. */}
+            <div className="lg:hidden flex flex-col gap-2.5">
+                {isLoading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="rounded-2xl border bg-card p-3.5 animate-pulse">
+                            <div className="h-5 w-2/3 bg-muted rounded mb-2" />
+                            <div className="h-3 w-1/3 bg-muted rounded" />
+                        </div>
+                    ))
+                ) : data?.data?.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-8 text-center">No users found.</p>
+                ) : (
+                    data?.data?.map((user) => (
+                        <div key={user.id} className="rounded-2xl border bg-card p-3.5">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <Avatar className="h-9 w-9 shrink-0">
+                                        <AvatarImage src={`https://avatar.vercel.sh/${user.email}`} />
+                                        <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col min-w-0">
+                                        <span className="font-bold text-[14.5px] truncate">{user.name}</span>
+                                        <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+                                    </div>
+                                </div>
+                                <div className="shrink-0">{renderActions(user)}</div>
+                            </div>
+                            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                                <Badge
+                                    variant={user.isActive ? 'default' : 'secondary'}
+                                    className={user.isActive ? 'pill-green border-transparent hover:opacity-90' : ''}
+                                >
+                                    {user.isActive ? 'Active' : 'Inactive'}
+                                </Badge>
+                                {user.globalRole && (
+                                    <Badge variant="secondary" className="capitalize">{user.globalRole.replace('_', ' ')}</Badge>
+                                )}
+                                <span className="text-xs text-muted-foreground ml-auto">
+                                    {format(new Date(user.createdAt), 'MMM d, yyyy')}
+                                </span>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
 
             {data?.pagination && (

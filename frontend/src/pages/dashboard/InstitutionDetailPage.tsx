@@ -89,7 +89,7 @@ export default function InstitutionDetailPage() {
 
     if (!institution) {
         return (
-            <div className="p-6 text-center">
+            <div className="p-4 sm:p-6 text-center">
                 <p className="text-muted-foreground">Institution not found.</p>
                 <Button variant="link" onClick={() => navigate('/app/institutions')}>
                     ← Back to Institutions
@@ -99,7 +99,7 @@ export default function InstitutionDetailPage() {
     }
 
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <PageHeader
                 breadcrumb={[
                     { label: 'Dashboard', href: '/app/dashboard' },

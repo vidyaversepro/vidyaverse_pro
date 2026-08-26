@@ -330,9 +330,9 @@ export function BulkGenerateModal({
                             
                             {batchStatus?.data && (
                                 <div className="space-y-1">
-                                    <div className="w-full bg-slate-100 rounded-full h-2.5 mb-1 overflow-hidden">
+                                    <div className="w-full bg-muted rounded-full h-2.5 mb-1 overflow-hidden">
                                         <div 
-                                            className={`h-2.5 rounded-full transition-all duration-500 ${batchStatus.data.status === 'failed' ? 'bg-red-500' : 'bg-[#b7102a]'}`}
+                                            className={`h-2.5 rounded-full transition-all duration-500 ${batchStatus.data.status === 'failed' ? 'bg-destructive' : 'bg-primary'}`}
                                             style={{ width: `${Math.max(5, (((batchStatus.data.totalSucceeded || 0) + (batchStatus.data.totalFailed || 0)) / (batchStatus.data.totalRequested || 1)) * 100)}%` }}
                                         ></div>
                                     </div>

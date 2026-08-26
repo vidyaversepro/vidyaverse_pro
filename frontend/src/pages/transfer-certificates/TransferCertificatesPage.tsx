@@ -260,10 +260,10 @@ export default function TransferCertificatesPage() {
                                         className={cn(
                                             'text-xs px-1.5 py-0.5 rounded capitalize font-medium',
                                             tc.status === 'issued'
-                                                ? 'bg-green-100 text-green-700'
+                                                ? 'pill-green'
                                                 : tc.status === 'draft'
-                                                ? 'bg-yellow-100 text-yellow-700'
-                                                : 'bg-red-100 text-red-700'
+                                                ? 'pill-temple'
+                                                : 'pill-red'
                                         )}
                                     >
                                         {tc.status}

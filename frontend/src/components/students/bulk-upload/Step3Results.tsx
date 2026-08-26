@@ -69,7 +69,7 @@ export function Step3Results({
                             </thead>
                             <tbody className="divide-y">
                                 {parsedRows.slice(0, 100).map((r, i) => (
-                                    <tr key={i} className={r.state === 'error' ? 'bg-rose-50/50' : r.state === 'warning' ? 'bg-amber-50/50' : ''}>
+                                    <tr key={i} className={r.state === 'error' ? 'tone-bg-red' : r.state === 'warning' ? 'tone-bg-temple' : ''}>
                                         <td className="p-2 font-mono text-muted-foreground">{r.originalIndex}</td>
                                         <td className="p-2 font-medium">{r.validatedData?.name || r.data.name || '-'}</td>
                                         <td className="p-2">{r.validatedData?.sex || r.data.sex || '-'}</td>
@@ -188,13 +188,13 @@ export function Step3Results({
             <CardContent className="pt-6 space-y-6">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 flex flex-col items-center">
-                        <span className="text-emerald-600 font-semibold mb-1 text-sm uppercase tracking-wider">Created</span>
-                        <span className="text-4xl font-bold text-emerald-700">{uploadResult?.created || 0}</span>
+                    <div className="tone-bg-green border rounded-lg p-6 flex flex-col items-center">
+                        <span className="tone-text-green font-semibold mb-1 text-sm uppercase tracking-wider">Created</span>
+                        <span className="text-4xl font-bold tone-text-green">{uploadResult?.created || 0}</span>
                     </div>
-                    <div className="bg-rose-50 border border-rose-200 rounded-lg p-6 flex flex-col items-center">
-                        <span className="text-rose-600 font-semibold mb-1 text-sm uppercase tracking-wider">Skipped/Failed</span>
-                        <span className="text-4xl font-bold text-rose-700">{uploadResult?.skipped || 0}</span>
+                    <div className="tone-bg-red border rounded-lg p-6 flex flex-col items-center">
+                        <span className="tone-text-red font-semibold mb-1 text-sm uppercase tracking-wider">Skipped/Failed</span>
+                        <span className="text-4xl font-bold tone-text-red">{uploadResult?.skipped || 0}</span>
                     </div>
                 </div>
 
@@ -203,22 +203,22 @@ export function Step3Results({
                 </div>
 
                 {uploadResult?.errors && uploadResult.errors.length > 0 && (
-                    <div className="border border-rose-200 rounded-md overflow-hidden text-sm">
-                        <div className="bg-rose-50 px-4 py-3 border-b border-rose-200 flex items-center justify-between text-rose-800">
+                    <div className="border rounded-md overflow-hidden text-sm">
+                        <div className="tone-bg-red tone-text-red px-4 py-3 border-b flex items-center justify-between">
                             <span className="font-semibold flex items-center gap-2">
                                 <XCircle className="w-4 h-4" /> Server Rejection Details
                             </span>
                             <span className="text-xs">{uploadResult.errors.length} errors</span>
                         </div>
-                        <div className="max-h-64 overflow-y-auto divide-y divide-rose-100 bg-white">
+                        <div className="max-h-64 overflow-y-auto divide-y bg-card">
                             {uploadResult.errors.map((err, i) => (
                                 <div key={i} className="p-3 flex gap-3">
                                     <span className="text-muted-foreground font-mono w-16 flex-shrink-0">
                                         Row {err.row}
                                     </span>
                                     <div>
-                                        {err.field && <span className="inline-block px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-mono text-xs mb-1 mr-2">{err.field}</span>}
-                                        <span className="text-rose-900">{err.message}</span>
+                                        {err.field && <span className="inline-block px-1.5 py-0.5 rounded pill-red font-mono text-xs mb-1 mr-2">{err.field}</span>}
+                                        <span className="tone-text-red">{err.message}</span>
                                     </div>
                                 </div>
                             ))}

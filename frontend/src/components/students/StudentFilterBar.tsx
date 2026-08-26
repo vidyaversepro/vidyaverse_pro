@@ -104,7 +104,7 @@ export function StudentFilterBar({ filters, onChange }: StudentFilterBarProps) {
             {/* Stream — only if the selected class has streams */}
             {filters.classId && requiresStream && (
                 <Select value={filters.streamId || '_all'} onValueChange={(v) => set('streamId', v === '_all' ? undefined : v)}>
-                    <SelectTrigger className="w-[160px] border-emerald-200">
+                    <SelectTrigger className="w-[160px]">
                         <SelectValue placeholder="All Streams" />
                     </SelectTrigger>
                     <SelectContent>

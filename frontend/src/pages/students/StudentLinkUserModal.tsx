@@ -72,7 +72,7 @@ export function StudentLinkUserModal({ isOpen, onClose, student, institutionId }
                   User ID: {student.userId}
                 </div>
               </div>
-              <Badge className="bg-green-100 text-green-800 border-transparent">Linked</Badge>
+              <Badge className="pill-green border-transparent">Linked</Badge>
             </div>
             
             <Button 

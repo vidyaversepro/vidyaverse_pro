@@ -25,7 +25,7 @@ export default function ReviewStep({ institution }: { institution: any }) {
                         <div className="space-y-1 w-full">
                             <div className="flex justify-between items-center">
                                 <h4 className="font-medium text-foreground">Institution Classification</h4>
-                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border-emerald-200">
+                                <Badge variant="outline" className="pill-green border-transparent hover:opacity-90">
                                     <Check className="w-3 h-3 mr-1" /> Verified
                                 </Badge>
                             </div>

@@ -69,8 +69,8 @@ export default function VerifyEmailPage() {
         return (
             <AuthShell
                 statusIcon={<CheckCircle2 className="w-[30px] h-[30px]" />}
-                statusTone="#15803d"
-                statusBg="rgb(21 128 61 / .12)"
+                statusTone="var(--tone-green-fg)"
+                statusBg="var(--tone-green-bg)"
                 heading="Email confirmed"
                 sub={<>You're signed in as <span className="font-semibold text-foreground">{session.user.email}</span>.</>}
             >
@@ -85,8 +85,8 @@ export default function VerifyEmailPage() {
         return (
             <AuthShell
                 statusIcon={<AlertCircle className="w-[30px] h-[30px]" />}
-                statusTone="#B8860B"
-                statusBg="rgb(184 134 11 / .16)"
+                statusTone="var(--tone-temple-fg)"
+                statusBg="var(--tone-temple-bg)"
                 heading="That link didn't work"
                 sub="Confirmation links expire after an hour and can be used only once."
             >
@@ -110,8 +110,8 @@ export default function VerifyEmailPage() {
     return (
         <AuthShell
             statusIcon={<MailCheck className="w-[30px] h-[30px]" />}
-            statusTone="#1A237E"
-            statusBg="rgb(26 35 126 / .12)"
+            statusTone="var(--tone-indigo-fg)"
+            statusBg="var(--tone-indigo-bg)"
             heading="Check your inbox"
             sub={
                 sentTo ? (

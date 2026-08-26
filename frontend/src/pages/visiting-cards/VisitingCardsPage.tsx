@@ -245,8 +245,8 @@ export default function VisitingCardsPage() {
                                             className={cn(
                                                 'text-xs px-1.5 py-0.5 rounded',
                                                 card.status === 'completed' || card.status === 'generated'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-yellow-100 text-yellow-700'
+                                                    ? 'pill-green'
+                                                    : 'pill-temple'
                                             )}
                                         >
                                             {card.status}

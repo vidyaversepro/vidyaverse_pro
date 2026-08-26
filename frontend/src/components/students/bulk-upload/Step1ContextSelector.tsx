@@ -135,7 +135,7 @@ export function Step1ContextSelector({
                                 onValueChange={handleStreamChange}
                                 disabled={!classId || isSectionLocked || isStreamLocked || streamsLoading}
                             >
-                                <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
+                                <SelectTrigger>
                                     <SelectValue placeholder={streamsLoading ? "Loading..." : "Select Stream"} />
                                 </SelectTrigger>
                                 <SelectContent>

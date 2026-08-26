@@ -249,8 +249,8 @@ export default function IdCardsPage() {
                                         className={cn(
                                             'text-xs px-1.5 py-0.5 rounded',
                                             idCard.status === 'completed'
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-yellow-100 text-yellow-700'
+                                                ? 'pill-green'
+                                                : 'pill-temple'
                                         )}
                                     >
                                         {idCard.status}

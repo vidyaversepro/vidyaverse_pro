@@ -118,17 +118,17 @@ export default function AttendanceSessionDetailsPage() {
     }
   };
 
-  if (isLoading) return <div className="p-6">Loading...</div>;
-  if (!session) return <div className="p-6">Session not found</div>;
+  if (isLoading) return <div className="p-4 sm:p-6">Loading...</div>;
+  if (!session) return <div className="p-4 sm:p-6">Session not found</div>;
 
   return (
-    <div className="space-y-6 p-6 max-w-5xl mx-auto">
+    <div className="space-y-4 p-4 sm:p-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate("/app/attendance")}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Mark Attendance</h1>
+          <h1 className="arch-section-header text-2xl tracking-tight inline-block">Mark Attendance</h1>
           <p className="text-sm text-muted-foreground">
             {session.section?.class?.name} - {session.section?.name} | {new Date(session.date).toLocaleDateString()}
           </p>
@@ -140,7 +140,7 @@ export default function AttendanceSessionDetailsPage() {
               <Button variant="outline" onClick={handleShowQr}>
                 <QrCode className="mr-2 h-4 w-4" /> Show QR
               </Button>
-              <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={handleCloseSession}>
+              <Button variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={handleCloseSession}>
                 <Lock className="mr-2 h-4 w-4" /> Close Session
               </Button>
               <Button onClick={handleSave} disabled={markMutation.isPending}>
@@ -151,7 +151,7 @@ export default function AttendanceSessionDetailsPage() {
         </div>
       </div>
 
-      <Card className="overflow-hidden">
+      <Card className="hidden lg:block overflow-hidden rounded-2xl">
         <Table>
           <TableHeader>
             <TableRow>
@@ -179,11 +179,11 @@ export default function AttendanceSessionDetailsPage() {
                           className={cn(
                             "px-3 py-1 text-xs font-medium rounded-full border transition-colors",
                             rec.status === status
-                              ? status === "present" ? "bg-green-100 text-green-700 border-green-200"
-                              : status === "late" ? "bg-yellow-100 text-yellow-700 border-yellow-200"
-                              : status === "absent" ? "bg-red-100 text-red-700 border-red-200"
-                              : "bg-gray-100 text-gray-700 border-gray-200"
-                              : "bg-white text-gray-500 hover:bg-gray-50",
+                              ? status === "present" ? "pill-green border-transparent"
+                              : status === "late" ? "pill-temple border-transparent"
+                              : status === "absent" ? "pill-red border-transparent"
+                              : "bg-muted text-foreground border-transparent"
+                              : "bg-card text-muted-foreground hover:bg-accent",
                             isClosed && "opacity-50 cursor-not-allowed"
                           )}
                         >
@@ -207,6 +207,51 @@ export default function AttendanceSessionDetailsPage() {
           </TableBody>
         </Table>
       </Card>
+
+      {/* Mobile / tablet marking sheet. The table's 300px status + 300px remarks
+          columns are unusable at 375px, so each student becomes a card with the
+          chips wrapping and the remarks field full width. Same handlers. */}
+      <div className="lg:hidden flex flex-col gap-2.5">
+        {students.map((student) => {
+          const rec = localRecords[student.id] || { status: 'present', remarks: '' };
+          return (
+            <div key={student.id} className="rounded-2xl border bg-card p-3.5">
+              <div className="min-w-0">
+                <div className="font-bold text-[14.5px] truncate">{student.name}</div>
+                <div className="text-xs text-muted-foreground truncate">{student.admissionNumber}</div>
+              </div>
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {["present", "late", "absent", "excused"].map((status) => (
+                  <button
+                    key={status}
+                    disabled={isClosed}
+                    onClick={() => handleStatusChange(student.id, status)}
+                    className={cn(
+                      "px-3 py-1.5 text-xs font-medium rounded-full border transition-colors",
+                      rec.status === status
+                        ? status === "present" ? "pill-green border-transparent"
+                        : status === "late" ? "pill-temple border-transparent"
+                        : status === "absent" ? "pill-red border-transparent"
+                        : "bg-muted text-foreground border-transparent"
+                        : "bg-card text-muted-foreground hover:bg-accent",
+                      isClosed && "opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </button>
+                ))}
+              </div>
+              <Input
+                placeholder="Optional remarks"
+                value={rec.remarks}
+                onChange={(e) => handleRemarksChange(student.id, e.target.value)}
+                disabled={isClosed}
+                className="h-9 text-sm mt-2.5"
+              />
+            </div>
+          );
+        })}
+      </div>
 
       <Dialog open={isQrOpen} onOpenChange={setIsQrOpen}>
         <DialogContent className="sm:max-w-md text-center">

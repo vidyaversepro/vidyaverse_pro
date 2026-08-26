@@ -54,8 +54,8 @@ export default function ForgotPasswordPage() {
         return (
             <AuthShell
                 statusIcon={<MailCheck className="w-[30px] h-[30px]" />}
-                statusTone="#15803d"
-                statusBg="rgb(21 128 61 / .12)"
+                statusTone="var(--tone-green-fg)"
+                statusBg="var(--tone-green-bg)"
                 heading="Check your email"
                 sub="If an account exists for that address, a reset link is on its way."
             >

@@ -248,8 +248,8 @@ export default function HallTicketsPage() {
                                         className={cn(
                                             'text-xs px-1.5 py-0.5 rounded capitalize font-medium',
                                             tc.status === 'sent'
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-yellow-100 text-yellow-700'
+                                                ? 'pill-green'
+                                                : 'pill-temple'
                                         )}
                                     >
                                         {tc.status === 'sent' ? 'Issued' : 'Generated'}

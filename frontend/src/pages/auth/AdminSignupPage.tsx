@@ -58,8 +58,8 @@ export default function AdminSignupPage() {
         return (
             <AuthShell
                 statusIcon={<AlertCircle className="w-[30px] h-[30px]" />}
-                statusTone="#B8860B"
-                statusBg="rgb(184 134 11 / .16)"
+                statusTone="var(--tone-temple-fg)"
+                statusBg="var(--tone-temple-bg)"
                 heading="Invalid link"
                 sub="No setup token was provided in the URL. Please check your invitation email again."
             >
@@ -86,8 +86,8 @@ export default function AdminSignupPage() {
         return (
             <AuthShell
                 statusIcon={<AlertCircle className="w-[30px] h-[30px]" />}
-                statusTone="#B8860B"
-                statusBg="rgb(184 134 11 / .16)"
+                statusTone="var(--tone-temple-fg)"
+                statusBg="var(--tone-temple-bg)"
                 heading="Link expired or invalid"
                 sub={(validationError as { response?: { data?: { message?: string } } })?.response?.data?.message
                     || 'This invitation link has either expired or already been used. Please request a new invitation from your administrator.'}
@@ -104,8 +104,8 @@ export default function AdminSignupPage() {
         return (
             <AuthShell
                 statusIcon={<CheckCircle2 className="w-[30px] h-[30px]" />}
-                statusTone="#15803d"
-                statusBg="rgb(21 128 61 / .12)"
+                statusTone="var(--tone-green-fg)"
+                statusBg="var(--tone-green-bg)"
                 heading="All set!"
                 sub={<>Your administrator account for <strong className="text-foreground">{validationData.institutionName}</strong> has been successfully created.</>}
             >

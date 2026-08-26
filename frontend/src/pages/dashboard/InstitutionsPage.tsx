@@ -330,7 +330,7 @@ export default function InstitutionsPage() {
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                 {!inst.onboardingCompleted ? (
                                                     <DropdownMenuItem
-                                                        className="font-medium text-emerald-600 focus:text-emerald-700 bg-emerald-50/50 mb-1"
+                                                        className="font-medium tone-text-green bg-[var(--tone-green-bg)] mb-1"
                                                         onClick={() => navigate(`/app/institutions/${inst.id}/onboarding`)}
                                                     >
                                                         <Rocket className="mr-2 h-4 w-4" />

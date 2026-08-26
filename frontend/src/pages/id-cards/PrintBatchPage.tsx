@@ -25,9 +25,9 @@ export default function PrintBatchPage() {
         : idCardsData?.data.slice(0, 10) || [];
 
     return (
-        <div className="bg-gray-100 min-h-screen pb-10 print:bg-white print:p-0">
+        <div className="bg-muted min-h-screen pb-10 print:bg-white print:p-0">
             {/* Non-printable header */}
-            <div className="print:hidden bg-white border-b p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm mb-6 max-w-5xl mx-auto rounded-b-lg">
+            <div className="print:hidden bg-card border-b p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm mb-6 max-w-5xl mx-auto rounded-b-lg">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" onClick={() => navigate(-1)}>
                         <ArrowLeft className="h-4 w-4 mr-2" />

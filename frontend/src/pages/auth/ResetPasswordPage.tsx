@@ -85,8 +85,8 @@ export default function ResetPasswordPage() {
         return (
             <AuthShell
                 statusIcon={<CheckCircle className="w-[30px] h-[30px]" />}
-                statusTone="#15803d"
-                statusBg="rgb(21 128 61 / .12)"
+                statusTone="var(--tone-green-fg)"
+                statusBg="var(--tone-green-bg)"
                 heading="Password updated"
                 sub="You can now sign in with your new password."
             >
@@ -101,8 +101,8 @@ export default function ResetPasswordPage() {
         return (
             <AuthShell
                 statusIcon={<AlertTriangle className="w-[30px] h-[30px]" />}
-                statusTone="#B8860B"
-                statusBg="rgb(184 134 11 / .16)"
+                statusTone="var(--tone-temple-fg)"
+                statusBg="var(--tone-temple-bg)"
                 heading="Link expired"
                 sub="This reset link is invalid or has expired."
             >

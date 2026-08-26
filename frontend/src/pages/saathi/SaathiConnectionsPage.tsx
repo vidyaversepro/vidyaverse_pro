@@ -68,7 +68,7 @@ export default function SaathiConnectionsPage() {
                                 {req.message && <p className="text-xs text-muted-foreground mt-1">"{req.message}"</p>}
                             </div>
                             <div className="flex gap-2 w-full sm:w-auto flex-wrap">
-                                <Button size="sm" variant="outline" className="text-green-600 border-green-200 hover:bg-green-50" onClick={() => updateMutation.mutate({ id: req.id, status: 'accepted' })}>
+                                <Button size="sm" variant="outline" className="tone-text-green hover:bg-[var(--tone-green-bg)]" onClick={() => updateMutation.mutate({ id: req.id, status: 'accepted' })}>
                                     <UserCheck className="w-3.5 h-3.5 mr-1" /> Accept
                                 </Button>
                                 <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => updateMutation.mutate({ id: req.id, status: 'rejected' })}>
