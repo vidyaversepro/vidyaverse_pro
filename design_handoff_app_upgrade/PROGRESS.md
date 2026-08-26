@@ -1169,3 +1169,320 @@ None. As of 2026-08-26 `main` == `origin/main` == `design/indic` ==
 `5354155`; the branches are no longer divergent. `git status` should be
 clean apart from this file; if it isn't, something changed after this
 write-up — trust `git status` over this file.
+
+## The 15 never-audited pages — audited and fixed (2026-08-26, session 2)
+
+Item A of the remaining list: the ~15 routed pages that were "mechanically
+clean of the known defect classes but never exercised". They were **not**
+clean. Everything below is measured on the running app (real backend,
+`vv_gate` Postgres, super-admin) at **375 / 768 / 1280 x light / dark**, via
+`getComputedStyle` / `getBoundingClientRect` composited-alpha contrast maths —
+**not** by eye. Screenshots are still unavailable (see "What is still
+unverified").
+
+**Routes exercised (11, covering all 15 page areas):** `hall-tickets/exam-schedules`,
+`marksheets/entry`, `students/approval`, `saathi`, `saathi/connections`,
+`visionarium` (+ `MagazineTab`), `visionarium/test-series`,
+`visionarium/submissions`, `templates`, `templates/new`, `templates/:id/edit`.
+
+### The four that were actually broken
+
+**1. `MarksEntryPage` was built on a design system that does not exist —
+light mode was unreadable.** 13 classes from a `dark-*` / `brand-*` scale that
+is **not in `tailwind.config.js`**, so they compiled to nothing and the
+`text-white` / `text-gray-300` written for that phantom dark glass landed on
+the Indic light card. Measured, light: page title `Marks Entry` **1.05:1
+(invisible)**; all four field labels **1.41:1**; `Select Filters` heading
+1.41; description 2.43. Ported to tokens; 0 fails at every width, both themes.
+The same phantom scale was in `ErrorBoundary`'s "Try Again" button — meaning
+**every crashed route showed an invisible recovery button in light mode**.
+`grep -rn "bg-dark-\|text-brand-\|bg-brand-"` now returns nothing app-wide.
+
+**2. `VisionariumPage` scrolled the whole page sideways by 147px at 375.**
+The 4-tab strip is `flex space-x-1 ... w-max` — no wrap, no scroll container —
+and measured **506px inside a 343px column**. Now `flex-wrap gap-1 w-full
+sm:w-max`: page overflow **147 -> 0** in both themes. Clean at 768/1280 before
+and after.
+
+**3. The templates studio was three separate layout bugs at 375, and one
+functional bug at every width.**
+- The `fixed` header wraps to **151.8px** at 375 but `<main>` was pinned at
+  `mt-16`, so the header **covered the top 88px of the workspace** — the first
+  three tools in the rail were under it and untappable. Header and rail are now
+  in normal flow (`shrink-0` / `relative`), so any header height works:
+  `coversMainBy` **88 -> 0**. The floating context toolbar moved from
+  `fixed top-[72px]` (same 64px assumption) to `absolute top-3` inside the
+  already-`relative` canvas section.
+- Rail 64 + elements panel 280 + inspector 288 = **632px of chrome**. That left
+  the canvas **23px wide at 375** and 136px at 768. Both panels are now
+  slide-overs below `lg` and in-flow at `lg+`, with an inspector toggle in the
+  header. Canvas measured **23 -> 311px at 375**, **704px at 768**, 648px at
+  1280 with all three panels in flow.
+- **The left elements panel had never been visible, at any width, in any
+  build.** It was a `motion.aside` inside `AnimatePresence` whose enter
+  animation never ran: it sat at its `initial` of `width: 0; opacity: 0`.
+  Confirmed by stashing this session's edits and re-measuring HEAD, **and**
+  against a production `vite preview` of `dist/` — so it is not a StrictMode
+  dev artifact and it is live on prod today. Adding the missing
+  `AnimatePresence` `key` did not help. Replaced with plain markup, since a
+  layout-critical width should not depend on framer's presence machinery.
+  The whole element library (text styles, shapes, QR/barcode, dynamic fields,
+  backgrounds) and the layers panel now render — measured 280px, opacity 1,
+  "Add Heading" present in the DOM.
+
+**4. `ApprovalQueuePage` had the `UsersPage` table defect.** A 5-column table
+measured **496px inside a 343px window** at 375 — 153px of sideways scrolling
+per row. Converted to cards below `lg` with `renderStatus` / `renderMissing`
+extracted so table and cards cannot drift. Measured at 375: table hidden, 40
+cards, 0 overflow. The tinted stat cards then failed at 3.86/3.84 (a
+`muted-foreground` description on a tone tint) — fixed to `text-foreground/80`.
+
+### Status colours: the hand-rolled pill family was still alive here
+
+The previous sweep converted the doc-studio badges; these five files were not
+in its scope and carried the same `bg-*-50 text-*-600` / `bg-*-100 text-*-700`
+pattern. All measured failing before, all now on `.pill-*` / `.tone-text-*` /
+`.tone-bg-*` / `.solid-*`:
+
+| where | before (light unless noted) |
+|---|---|
+| `SubmissionsPage` `accepted` + `-> Published` | **3.15** |
+| `SubmissionsPage` `rejected` | 4.41 |
+| `SaathiConnectionsPage` `Saathi` chip | **3.15** |
+| `ExamSchedulesPage` `text-gray-500` academic year | **3.90 dark** |
+| `ApprovalQueuePage` `text-red-500` / `text-green-500` | 3.76 / **2.28** |
+| `ElementsLibrary` `text-amber-600 bg-amber-500/10` | **2.95** |
+
+Also in the same pass: `ExamSchedulesPage`'s two off-brand `bg-indigo-600`
+buttons dropped to the shared primary (every other "New X" button in the app),
+`TemplatesPage`'s raw-hex status dot moved to `var(--tone-*-solid)`, and the
+two exam-schedule modals were converted whole.
+
+### App-wide chrome, fixed here because it lands on all 15 pages
+
+`DashboardLayout`'s `text-gray-400 dark:text-gray-500` — sidebar section
+headers, the header greeting, and the bottom tab bar's inactive labels — failed
+AA in **both** themes and on **every page in the app**. Previous sweeps missed
+it because it *has* a `dark:` sibling; the bug is that both values are too
+light. One stop darker (`text-gray-600 dark:text-gray-400`): greeting
+**2.51 -> 7.50 light**, **3.84 -> 7.31 dark**; tab labels 2.52 -> same.
+Sidebar `Logout` (`text-red-600`, 4.17 dark) moved to `tone-text-red`.
+
+### Systemic issues found app-wide
+
+> **Status correction (session 3).** This section was written as "deliberately
+> NOT fixed — owner call", but items **1, 2 and 3 are now fixed and in the
+> tree**. 1 and 2 were applied later in session 2 without this heading being
+> updated; 3 was fixed in session 3. The per-item notes below now carry their
+> real status. Items 4 and 5 remain genuinely open. See "Session 3" at the end
+> of this file for the verification and for the three regressions that fixing
+> item 1 exposed.
+
+1. **FIXED. The primary button fails AA in dark mode, app-wide: 3.30:1.**
+   `--primary` dark = `rgb(226,104,90)` (the "lifted accent"),
+   `--primary-foreground` = white. Measured on every primary button, every
+   `bg-primary` avatar, and the chat bubbles. Note this got *more* visible
+   here: `ExamSchedulesPage`'s "New Schedule" went from off-brand indigo
+   (6.36, passing) to primary (3.30) when it was brought onto the design
+   system — the right move, but it makes the token issue urgent.
+   The codebase already has the answer: every `--tone-*-on-solid` in dark is
+   `#0b111e` on a bright fill. The symmetric one-liner in
+   `styles/indic-bridge.css`'s `.dark` block is
+   `--primary-foreground: 216 47% 8%;` -> **5.72:1**. It flips every primary
+   button label in dark from white to near-black.
+2. **FIXED. `text-destructive` is unreadable as text in both themes** — 3.76 light,
+   **2.01 dark** (`--destructive` dark = `rgb(127,29,29)`, a *fill*). **44
+   uses across 20+ files**, including the public auth pages. `bg-destructive`
+   buttons are fine (9.59). One rule fixes all of them without touching
+   `--destructive`: `:root .text-destructive { color: var(--tone-red-fg); }`
+   (specificity (0,2,0), and it does not collide with `hover:text-destructive`,
+   which compiles to a different class). The four in-scope sites were
+   converted individually.
+3. **FIXED in session 3. `--accent` is never overridden for dark.**
+   `indic-bridge.css`'s `:root { --accent: var(--accent-soft-hsl) }` loads
+   *after* `index.css`'s `.dark { --accent: 215 27.9% 16.9% }` at equal
+   specificity, so source order wins: `--accent` measures **cream
+   `rgb(253,236,234)` in dark mode**. Every `bg-accent` / `hover:bg-accent`
+   (dropdown, select, command items) paints a cream chip on a near-black
+   surface. Session 2 called this "inferred from the token, not measured";
+   session 3 **measured it on the running app** and it is worse than inferred —
+   see Session 3 below for the two primitives where it produced 1.09:1.
+4. **`muted-foreground` on `bg-muted` = 4.39:1**, 0.11 short. Only fails on the
+   `bg-muted` surface (7.43 on card, 7.93 on background), but that is shadcn's
+   default `TabsTrigger` pairing, so it recurs. Left alone: darkening
+   `--muted-foreground` changes the whole app's secondary text.
+5. **The PROGRESS.md guard grep now has two hits it says it should not have** —
+   `student-dashboard/StudentDashboardPage.tsx:420` and
+   `transport/TransportPage.tsx:116` still use a tone hex as an icon colour on
+   its own 12% tint. Non-text (3:1 floor), outside these 15 pages.
+
+### Pre-existing backend behaviour worth a decision
+
+`MagazineTab` can never show institution-authored articles: `findAllArticles`
+defaults to `institutionId: null` (platform-only) when the caller omits it, and
+the frontend never sends one. Proved by seeding — articles with an
+`institution_id` returned `total: 0`; nulling it made them render.
+
+### What is still unverified
+
+- **Screenshots are still down** ("the Browser pane is not displayed", every
+  attempt, including after fronting the tab). Sixth session running. Every
+  claim above is geometry or colour maths; none of it catches "technically
+  correct, looks wrong". A human eyeball pass on prod remains the highest-value
+  thing left, especially on the templates studio, whose panel layout changed
+  materially.
+- **Pointer clicks are blocked for the same reason**, so anything behind an
+  interaction was not exercised: `SaathiChatPanel` (the Saathi **Chat** tab —
+  Radix would not switch via synthetic events), the new inspector toggle in the
+  studio header, the studio's slide-over open/close, and both exam-schedule
+  modals. Those are verified by source, tsc, build and static measurement only.
+- **`SaathiCallPage` was never rendered** — it needs a live LiveKit token and a
+  real `conversationId`. Its `h-screen`/`100vh` -> `100dvh` change is a
+  source-level fix for the mobile dynamic-toolbar trap and is **unverified by
+  measurement** (an emulated viewport has `innerHeight == visualViewport`, so
+  the bug cannot reproduce there). Same for the studio's `h-screen`.
+- **Real-device mobile** (notch, dynamic toolbar, touch targets) — emulation
+  only.
+
+### Test data seeded into the local dev DB
+
+`vv_gate` had **zero** rows in `social_posts`, `social_saathi_links`,
+`visionarium_articles` and `visionarium_submissions`, so five of these pages
+only ever rendered their empty state. Seeded 3 articles (platform-level),
+4 submissions (one per status), 2 posts, 2 saathi links — all id-prefixed
+`aud-` so they are easy to spot. Local dev only; prod untouched. To remove:
+
+```sql
+DELETE FROM visionarium_submissions WHERE id LIKE 'aud-%';
+DELETE FROM visionarium_articles    WHERE id LIKE 'aud-%';
+DELETE FROM social_posts            WHERE id LIKE 'aud-%';
+DELETE FROM social_saathi_links     WHERE id LIKE 'aud-%';
+```
+
+### Gates
+
+`npx tsc --noEmit` **0**. `npm run build` **0**. `npx eslint src/` — **0 errors
+in all 16 touched files**; the one remaining error
+(`lib/photoProcessor.worker.ts`, `no-var`) and all 15 warnings are pre-existing
+and outside the diff. Final sweep: **11 routes x 3 widths x 2 themes**, all at
+**0 page overflow, 0 invisible text, 0 contrast failures** apart from the two
+systemic token issues above and the 4.39 marginal.
+
+### Two corrections to earlier write-ups
+
+- **`.claude/launch.json` does exist** in this repo (`vidyaverse-backend`,
+  `vidyaverse-frontend`); the Phase-5 note saying it does not is wrong. A
+  `vidyaverse-prod-preview` entry was added — running the built `dist/` is what
+  proved the studio panel bug is not a dev-only artifact.
+- **`.env` is gitignored and untracked**, so fixing `FRONTEND_URL` there (done,
+  along with the equally dead `API_BASE_URL=api.vgraphics.in`) only stops the
+  next local session chasing the wrong host. **The value prod actually uses
+  comes from Coolify's env vars** — if prod is wrong, that is where to fix it,
+  and this file will never tell you.
+
+## Session 3 — independent re-verification, plus the `--accent` fix (2026-08-26)
+
+Session 2 left its work **uncommitted** in the tree with the write-up already
+written. This session re-derived the claims from the running app rather than
+trusting them, fixed what was still open, and shipped the lot.
+
+### Session 2's claims: checked, and they hold
+
+Re-measured independently, same method (getComputedStyle / getBoundingClientRect
+/ composited-alpha contrast maths), not by re-reading the doc:
+
+- **`MarksEntryPage`'s phantom design system is real.** `tailwind.config.js`
+  defines no `brand` or `dark` colour scale, and `git show HEAD:` on the file
+  shows **14** `bg-dark-*` / `text-brand-*` / `bg-brand-*` uses. `grep -rn` for
+  that family now returns **0** app-wide.
+- **The templates studio geometry is exactly as claimed.** At 375 the header
+  wraps to **152px** and `coversMainBy` is **0**; canvas is **311px**. At 1280
+  the four in-flow children measure 64 + 280 + 648 + 288 = **1280**, and the
+  elements panel renders at 280px / opacity 1 with "Add Heading" in the DOM, so
+  the never-visible `AnimatePresence` panel is genuinely fixed.
+- **Full sweep, 11 routes x 375/768/1280 x light/dark = 66 page-renders:**
+  0 page overflow, 0 invisible text, 0 contrast failures, except the documented
+  4.39 `muted-foreground`-on-`bg-muted` marginal (item 4, light only).
+
+One correction to session 2's numbers: nothing material was wrong, but note the
+canvas figure is the **direct child** `<section>`. A `main.querySelector`
+matches a nested 226px section first and looks like a regression; it is not.
+
+### `--accent` in dark mode was worse than "inferred" (item 3) — fixed
+
+Measured on the running app with `dark` on `<html>`: `--accent` is
+**`rgb(253,236,234)`**, the light kumkum tint. The cascade reason is as session 2
+described, and it is confirmed in the **built** CSS, not just dev — in
+`dist/assets/index-*.css` the `:root` declaration sits at byte 137,182 and the
+new `.dark` one at 137,383, so the fix wins on source order in production too.
+
+Session 2 assumed the damage was aesthetic, because shadcn pairs `bg-accent`
+with `text-accent-foreground` (that pairing measured 9.99:1). **Two primitives
+set the background without the foreground:**
+
+| site | inherits | measured |
+|---|---|---|
+| `ui/dropdown-menu.tsx:28` `focus:bg-accent` (SubTrigger) | `--popover-foreground` | **1.09:1** |
+| `ui/dialog.tsx:45` `data-[state=open]:bg-accent` | `--muted-foreground` | **2.22:1** |
+
+Fixed in `indic-bridge.css`'s `.dark` block with a dark kumkum-tinted chip
+(`--accent: 6 30% 20%; --accent-foreground: 6 60% 92%;`) rather than by
+restoring shadcn's neutral gray, so dark mode keeps the brand hover the bridge
+exists to provide. A **dark** chip is the point: it is robust to the unpaired
+case that actually broke. Measured after: paired ink **10.84**, unpaired
+popover ink **12.99**, unpaired muted ink **5.35**. The chip is also slightly
+more perceptible against the card than shadcn's stock neutral would have been
+(1.39 vs 1.29). Light mode is untouched — verified.
+
+### Fixing item 1 exposed three alpha-on-gradient failures — fixed
+
+Flipping `--primary-foreground` to near-black in dark is right for solid
+`bg-primary`, but three sites put **alpha ink on an alpha gradient**, where the
+gradient's far stop composites over a dark surface and lands darker than
+`--primary`. Two alphas stacking is what breaks them. White ink was **worse** at
+every one of these, so none of them is a regression the flip introduced — the
+flip improved all three and this pass finishes them:
+
+| site | floor | before (dark) | after (dark / light) |
+|---|---|---|---|
+| `TemplateNewPage` desc, 14px | 4.5 | 3.32 | **4.79 / 4.63** |
+| `TemplatesPage` card icon | 3.0 | 2.48 | **3.37 / 4.66** |
+| `SaathiChatPanel` timestamp, 10px | 4.5 | 3.74 | **5.12 / 4.69** |
+
+Fix in each case is to drop the ink alpha and raise the gradient's far stop
+(`to-primary/80` -> `/90`, `to-primary/70` -> `/80`), chosen by sweeping the
+alpha in both themes and taking the first value that clears the floor in
+**both**. `grep -rn "from-primary"` and `text-primary-foreground/` confirm these
+were the only three sites; the class is now closed.
+
+### Still open, unchanged
+
+Items **4** (the 4.39 marginal) and **5** (two non-text guard-grep hits in
+`StudentDashboardPage:420` and `TransportPage:116`) are untouched and still
+owner calls. Guard grep 2 (`background: TONE\.`) returns nothing, as it should.
+
+### Gates
+
+`npx tsc --noEmit` **0**. `npx eslint` on the three newly touched files **0**.
+`npm run build` **0**, and all three token fixes verified present in the emitted
+`dist/assets/index-*.css` (`--accent: 6 30% 20%`, `--primary-foreground: 216 47%
+8%`, `:root .text-destructive{color:var(--tone-red-fg)}`).
+
+### What this session could NOT verify
+
+- **Screenshots are still dead** — "the Browser pane is not displayed", every
+  attempt, fronted or not. Seventh session. Everything above is geometry or
+  colour arithmetic; none of it catches "technically correct, looks wrong".
+- **Menus and dialogs could not be opened.** A `left_click` on the user-menu
+  trigger did nothing (Radix listens on `pointerdown`); a synthetic pointer
+  sequence did nothing; keyboard `Enter` flipped `aria-expanded` to `true` but
+  **no `[role="menu"]` ever mounted**. So the `--accent` fix is proven at the
+  token level and in the built CSS, but **was never seen in an open dropdown**.
+  Same for both exam-schedule modals, the studio inspector toggle and slide-over,
+  and the `TemplateNewPage` dialog's own open/close.
+- **`SaathiChatPanel` was never rendered** — it is behind the Saathi Chat tab,
+  which needs the interaction above. Its timestamp fix is arithmetic on the
+  real token values, not an observed render.
+- **`SaathiCallPage` still never rendered** (needs a LiveKit token), and the
+  `100dvh` fixes remain unverifiable under emulation.
+- **Real-device mobile** — emulation only.

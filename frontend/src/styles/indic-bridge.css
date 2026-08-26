@@ -32,6 +32,42 @@
 .dark {
   --primary: var(--accent-primary-dark-hsl);
   --ring: var(--accent-primary-dark-hsl);
+
+  /* The lifted accent is a BRIGHT fill, so it takes dark ink, not white.
+     Measured: white on the dark --primary is 3.30:1 — every primary Button,
+     every bg-primary avatar and every chat bubble in the app failed AA in dark
+     mode. This is the same inversion status-tones.css already makes for every
+     .solid-* tone (each --tone-*-on-solid is #0b111e on dark), so the two
+     families now agree instead of contradicting each other. 3.30 -> 5.72:1.
+     Light mode is untouched: there --primary is the deep kumkum and its
+     foreground stays white. */
+  --primary-foreground: 216 47% 8%;
+
+  /* --accent had NO effective dark value, and the omission was invisible in the
+     source because index.css does define one. Why it never took effect:
+     index.css's `.dark { --accent: 215 27.9% 16.9% }` and this file's
+     `:root { --accent: var(--accent-soft-hsl) }` are BOTH specificity (0,1,0),
+     and in dark mode both match the SAME element — <html class="dark"> is also
+     :root — so source order decides, and this file is imported after index.css.
+     The `:root` rule therefore won, and --accent measured rgb(253,236,234), the
+     LIGHT kumkum tint, in dark mode.
+
+     Consequence, measured on the running app in dark mode: shadcn pairs
+     bg-accent with text-accent-foreground in most places (that pairing measured
+     9.99:1 — passing, though a near-white chip on the rgb(11,17,30) surface),
+     but two primitives set the background WITHOUT the foreground —
+     dropdown-menu.tsx:28 (`focus:bg-accent` on SubTrigger) and dialog.tsx:45
+     (`data-[state=open]:bg-accent`). Those inherit --popover-foreground, which
+     measured 1.09:1 on the cream chip: the focused submenu row was unreadable.
+
+     Fixed with a dark kumkum-tinted chip rather than by restoring shadcn's
+     neutral gray, so dark mode keeps the brand hover this bridge exists to
+     provide. A dark chip is also robust to the unpaired case, which is what
+     actually broke: the light ink below and the inherited near-white popover ink
+     both pass on it, so a primitive that forgets text-accent-foreground can no
+     longer produce invisible text. */
+  --accent: 6 30% 20%;
+  --accent-foreground: 6 60% 92%;
 }
 
 /* Note on the landing scope: `.landing-root` used to declare its own

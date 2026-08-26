@@ -145,3 +145,24 @@
 .solid-indigo, .solid-indigo:hover { color: var(--tone-indigo-on-solid); background: var(--tone-indigo-solid); }
 .solid-lotus, .solid-lotus:hover { color: var(--tone-lotus-on-solid); background: var(--tone-lotus-solid); }
 .solid-saffron, .solid-saffron:hover { color: var(--tone-saffron-on-solid); background: var(--tone-saffron-solid); }
+
+
+/* ── shadcn's `text-destructive`, repaired ────────────────────────────────────
+ *
+ * `--destructive` is a FILL: shadcn pairs it with `--destructive-foreground`
+ * for the destructive Button, and in that role it is fine (9.59:1). Used as
+ * TEXT it fails in both themes — measured 3.76:1 light, and 2.01:1 dark, where
+ * `--destructive` is rgb(127,29,29), a near-black maroon on a near-black page.
+ * There were 44 `text-destructive` sites across 20+ files, including the public
+ * auth pages, so this is fixed once here rather than at every call site.
+ *
+ * Specificity is (0,2,0) so it beats Tailwind's own `.text-destructive` (0,1,0)
+ * regardless of load order. It deliberately does NOT touch `bg-destructive`,
+ * `border-destructive` or `--destructive-foreground`, so destructive buttons
+ * keep their fill. It also cannot collide with `hover:text-destructive`, which
+ * Tailwind compiles to a different class name (`.hover\:text-destructive`) —
+ * those hover affordances still work.
+ *
+ * Result: 3.76 -> 6.28 light, 2.01 -> 6.81 dark.
+ */
+:root .text-destructive { color: var(--tone-red-fg); }
