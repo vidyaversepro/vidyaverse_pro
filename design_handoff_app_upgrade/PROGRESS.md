@@ -1486,3 +1486,119 @@ owner calls. Guard grep 2 (`background: TONE\.`) returns nothing, as it should.
 - **`SaathiCallPage` still never rendered** (needs a LiveKit token), and the
   `100dvh` fixes remain unverifiable under emulation.
 - **Real-device mobile** — emulation only.
+
+## Items B and C — the two backend defects and the missing foreign key (2026-08-26)
+
+### C. `student_transport.stop_id` had no foreign key — FIXED
+
+Confirmed in **both** databases: `student_transport` carried only
+`student_transport_route_id_fkey`, while `schema.prisma` has declared
+`stop TransportStop? @relation(...)` since `0_init`. Prisma modelled a relation
+the database did not enforce.
+
+`prisma migrate diff` against the live schema reported this as the **only** drift
+in the entire database — one statement, nothing else. It is now
+`20260826130000_add_student_transport_stop_fk`, containing exactly what
+`migrate diff --script` emits, so it will not re-appear as drift.
+
+**The data was vetted first, as the handoff asked.** `student_transport` holds
+**0 rows in production** and 1 row (NULL `stop_id`) in dev, with **0 orphaned
+`stop_id` values** in either, so the constraint cannot fail on existing data.
+That mattered more than usual: `backend/Dockerfile` runs
+`prisma migrate deploy && tsx src/index.ts`, so a failing migration does not
+merely skip — it stops the API booting.
+
+Proven, not assumed: the SQL was applied to the dev database and re-diffed.
+The constraint is present and `migrate diff` now returns "empty migration".
+
+**Do not run `prisma migrate dev` here.** Prod has a proper `_prisma_migrations`
+table (`0_init` + one more, both applied) and will take this file via
+`migrate deploy`, but the **dev** database has no `_prisma_migrations` table at
+all — it was built with `db push` — so `migrate dev` would try to baseline or
+reset it. That is why this migration was hand-written.
+
+### B2. `/entitlements/me` 403 for students — FIXED, but it was not the bug it looked like
+
+Reproduced properly, with a real signed-in student rather than by reading code.
+The endpoint returns **200** for a correctly configured student. It 403s in
+exactly two situations, both measured:
+
+| condition | response |
+|---|---|
+| `student_access_enabled = false` — **the column default** | 403 `Student access not enabled` |
+| no `user_institution_roles` row to resolve | 403 `Institution context required` |
+
+Both are **correct RBAC behaviour**, not defects: student portal access is a
+deliberate per-pupil gate with an expiry (`rbac.plugin.ts`). The real defect was
+on the client — `DashboardLayout` called this admin-side endpoint on **every**
+student page, while `enabledSet` is hard-coded to `null` on student routes, so
+the answer was fetched and then thrown away. Every student page load fired a
+request that was expected to fail and never read.
+
+Fixed by giving `useMyEntitlements` an `enabled` flag and passing
+`!isStudentRoute`. Verified live: **0** calls to `/api/v1/entitlements/me` on
+`/student/feed`, **1** on `/app/dashboard`, admin nav unchanged. The other two
+consumers (`SectionPicker`, `StudentPicker`) appear only on admin pages —
+checked, all nine call sites.
+
+### B1. Group photos — the API mismatch was hiding two hard backend bugs
+
+The client called `/group-photo` (singular); the backend mounts
+`/api/v1/group-photos` (plural). **Every one of the seven calls 404'd** — proven
+live, `/group-photo` → 404 and `/group-photos` → 200 — and four of them also
+named paths that have never existed. Repointed all of them, and:
+
+- `useGroupPhotoFaces` now adapts `GET /:id`. There is no `/faces` collection;
+  extractions come back nested, under different field names, with
+  `confidenceScore` arriving as a **string** (Prisma `Decimal` over JSON).
+- `useUpdateFaceMapping` → `PATCH /group-photos/extractions/:id`.
+- `useExtractFaces` → `POST /:id/extract-faces`.
+- `useUpdateGroupPhoto` was **deleted**, not repointed: the backend exposes no
+  update route for a photo. It had zero callers.
+- The upload was an explicit mock — it posted JSON with
+  `photoUrl: URL.createObjectURL(file)` (a `blob:` URL, meaningless outside the
+  tab that made it) and a literal `institutionId: 'inst-123'`. It is now a real
+  multipart POST; the tenant comes from the session.
+
+**Two backend bugs surfaced the moment a request actually arrived:**
+
+1. **Every upload failed with Prisma P2000, always, for any image.**
+   `generatePerceptualHash` resized to 32x32 = 1024 px = **256 hex chars**, into
+   `perceptual_hash VarChar(64)`. The grid alone fixes the string length, so
+   16x16 = 256 px = 256 bits = **64 hex chars** now fits the column exactly —
+   which is also the width of `group_photo_extractions.face_hash`, so both agree.
+   Safe to change: 0 rows in dev and 0 in production, so no stored hash exists to
+   invalidate — and `hammingDistance` throws outright on a length mismatch.
+2. **Photos were pinned at `status: 'processing'` forever.** The service sets
+   `processing` before queueing, and the only code that writes a terminal status
+   is `matchStudents`, which cannot run before extraction produces rows. The
+   worker's `extract_faces` branch is a `// TODO` that returned success and wrote
+   nothing, so the spinner never resolved. It now writes a terminal `failed` and
+   logs why.
+
+Upload is verified end-to-end: the row lands with the real `institution_id`, a
+real storage URL and `length(perceptual_hash) = 64`, and the page renders it.
+
+**The feature is a shell, and that is the owner call.** There is **no
+face-detection dependency anywhere in the backend**, and `extract_faces`,
+`match_students` and `generate_outputs` are all unimplemented stubs. Upload,
+list, get and delete now work; extraction and face-matching provably cannot. The
+choice is to build face detection, or hide the extraction affordances until it
+exists. The UI at least no longer lies — it said "Face extraction completed —
+faces have been detected and extracted" the instant a 202 came back.
+
+### Found in passing, NOT chased
+
+**The group-photo BullMQ worker does not consume jobs in dev.** After queueing,
+the job moves to `active`, acquires **no lock**, the handler never logs, and the
+stalled counter climbs (`stc` 1 -> 3) without the job ever running or failing.
+Redis is up, `startAllWorkers()` reports "Worker created: group-photo-processing"
+and the old process is dead, so it is not a stale consumer. Consequence for this
+work: **the worker fix above is unverified at runtime** — it is correct by
+inspection and type-checks, but no job ever executed it. Worth a look before
+anyone relies on any BullMQ queue in this app.
+
+### Gates
+
+Frontend `tsc` **0**, `eslint` on all five touched files **0**, `npm run build`
+**0**. Backend `tsc` **0**.

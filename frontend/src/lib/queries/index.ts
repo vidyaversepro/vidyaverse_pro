@@ -109,7 +109,6 @@ export type { User, UserFilters, UserStats } from './auth/user-queries';
 export {
     useGroupPhotos,
     useCreateGroupPhoto,
-    useUpdateGroupPhoto,
     useDeleteGroupPhoto,
     useGroupPhotoFaces,
     useUpdateFaceMapping,

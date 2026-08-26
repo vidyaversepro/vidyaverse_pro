@@ -172,8 +172,28 @@ export function startGroupPhotoWorker() {
 
             switch (action) {
                 case 'extract_faces':
-                    // TODO: Implement face extraction
-                    return { success: true, action, facesExtracted: 0 };
+                    // TODO: Implement face extraction.
+                    //
+                    // Until it exists, this MUST clear the photo's status. The
+                    // service sets `status: 'processing'` before queueing, and
+                    // the only code that ever writes a terminal status is
+                    // `matchStudents`, which cannot run before extraction has
+                    // produced rows — so returning success here left every photo
+                    // a user clicked "Extract Faces" on pinned at 'processing'
+                    // forever, with a spinner that never resolved.
+                    //
+                    // 'failed' is the honest terminal state: no faces were
+                    // extracted. Whoever implements extraction should replace
+                    // this whole branch, including this write.
+                    await prisma.groupPhoto.update({
+                        where: { id: groupPhotoId },
+                        data: { status: 'failed' },
+                    });
+                    logger.warn('Face extraction is not implemented; marking photo failed', {
+                        groupPhotoId,
+                        jobId: job.id,
+                    });
+                    return { success: false, action, facesExtracted: 0, reason: 'not_implemented' };
 
                 case 'match_students':
                     // TODO: Implement student matching using perceptual hashing

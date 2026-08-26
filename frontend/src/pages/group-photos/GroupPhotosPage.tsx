@@ -52,29 +52,33 @@ export default function GroupPhotosPage() {
         if (!file) return;
 
         setIsUploading(true);
-        // Mock upload - in real app would upload to S3/Cloudinary first
-        // Then create record
+        // The file itself is posted, as multipart, to POST /group-photos, which
+        // stores it and derives the tenant from the session. This used to send
+        // JSON carrying `URL.createObjectURL(file)` as the photo URL and a
+        // literal `institutionId: 'inst-123'`; the blob URL is meaningless
+        // outside the tab that created it, so nothing uploaded here survived a
+        // refresh even once the endpoint was reachable.
         try {
             await createMutation.mutateAsync({
-                name: file.name.split('.')[0],
-                photoUrl: URL.createObjectURL(file), // Temporary mock URL
-                institutionId: 'inst-123', // TODO: Get from context
-                status: 'pending',
-                processingStatus: 'uploaded',
+                file,
+                name: file.name.replace(/\.[^.]+$/, ''),
             });
 
             toast({
                 title: 'Photo uploaded',
-                description: 'Group photo has been uploaded and queued for processing.',
+                description: 'Group photo has been uploaded.',
             });
         } catch (error) {
             toast({
                 title: 'Upload failed',
-                description: 'Could not save photo info.',
+                description: 'Could not upload the photo.',
                 variant: 'destructive',
             });
         } finally {
             setIsUploading(false);
+            // Let the same file be chosen again after a failure — without this the
+            // input keeps its value and re-picking it fires no change event.
+            event.target.value = '';
         }
     };
 
@@ -82,19 +86,20 @@ export default function GroupPhotosPage() {
 
     const handleExtractFaces = async (photoId: string) => {
         try {
-            toast({
-                title: 'Face extraction started',
-                description: 'This may take a few seconds...',
-            });
             await extractMutation.mutateAsync(photoId);
+            // The endpoint returns 202 with a job id; it does not run the work
+            // inline. The previous version claimed "Face extraction completed —
+            // faces have been detected and extracted" the moment the request
+            // resolved, which was never true, and is especially misleading while
+            // the worker is still a stub that extracts nothing.
             toast({
-                title: 'Face extraction completed',
-                description: 'Faces have been detected and extracted.',
+                title: 'Face extraction queued',
+                description: 'The photo will update when processing finishes.',
             });
         } catch (error) {
             toast({
                 title: 'Extraction failed',
-                description: 'Could not extract faces.',
+                description: 'Could not queue face extraction.',
                 variant: 'destructive',
             });
         }

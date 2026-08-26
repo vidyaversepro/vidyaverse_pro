@@ -3,11 +3,25 @@ import sharp from 'sharp';
 /**
  * Generate perceptual hash (pHash) for image similarity detection
  * This is a simplified implementation - production would use a dedicated library
+ *
+ * The grid MUST stay 16x16. The output is one hex character per four pixels, so
+ * the grid alone fixes the string length: 16x16 = 256 px = 256 bits = 64 hex
+ * chars, which is exactly the width of every column this is stored in
+ * (`group_photos.perceptual_hash` and `group_photo_extractions.face_hash`, both
+ * VarChar(64)).
+ *
+ * It was 32x32, i.e. 1024 px -> 256 hex chars, four times what the column can
+ * hold, so `POST /group-photos` failed with Prisma P2000 ("value too long")
+ * on EVERY upload, for any image, from the day it shipped. Nothing had ever
+ * caught it because the frontend was calling `/group-photo` (singular) and
+ * never reached this code. Verified safe to change: `group_photos` held 0 rows
+ * in dev and 0 in production, so no stored hash exists to invalidate — which
+ * matters because `hammingDistance` throws outright on a length mismatch.
  */
 export async function generatePerceptualHash(buffer: Buffer): Promise<string> {
-    // 1. Reduce size to 32x32 for DCT
+    // 1. Reduce size to 16x16 — see the note above before changing this
     const resized = await sharp(buffer)
-        .resize(32, 32, { fit: 'fill' })
+        .resize(16, 16, { fit: 'fill' })
         .grayscale()
         .raw()
         .toBuffer();
