@@ -180,7 +180,7 @@ function ProfileSettings() {
                 </div>
                 <div>
                     <h3 className="font-medium text-foreground">{user?.name}</h3>
-                    <p className="text-sm text-gray-500">{user?.email}</p>
+                    <p className="text-sm text-muted-foreground">{user?.email}</p>
                     <div className="mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
                         {(user as {globalRole?: string})?.globalRole === 'super_admin' ? 'Super Admin' : (user as {globalRole?: string})?.globalRole || 'User'}
                     </div>
@@ -227,7 +227,7 @@ function ProfileSettings() {
                         disabled
                         className="bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                     />
-                    <p className="text-[11px] text-gray-500">
+                    <p className="text-[11px] text-muted-foreground">
                         Email addresses cannot be changed directly. Contact support if you need to update your email.
                     </p>
                 </div>
@@ -404,7 +404,7 @@ function AppearanceSettings() {
                     <div className="flex items-center justify-between w-full mt-1">
                         <div className="flex flex-col">
                             <span className="font-medium text-foreground">Light Mode</span>
-                            <span className="text-xs text-gray-500">Bright and clean</span>
+                            <span className="text-xs text-muted-foreground">Bright and clean</span>
                         </div>
                         <div
                             className={cn(
@@ -440,7 +440,7 @@ function AppearanceSettings() {
                     <div className="flex items-center justify-between w-full mt-1">
                         <div className="flex flex-col">
                             <span className="font-medium text-foreground">Dark Mode</span>
-                            <span className="text-xs text-gray-500">Easy on the eyes</span>
+                            <span className="text-xs text-muted-foreground">Easy on the eyes</span>
                         </div>
                         <div
                             className={cn(
@@ -480,7 +480,7 @@ function AppearanceSettings() {
                                 <div className="flex-1 flex items-center justify-between">
                                     <div className="flex flex-col">
                                         <span className="font-medium text-foreground">{opt.label}</span>
-                                        <span className="text-xs text-gray-500">{opt.description}</span>
+                                        <span className="text-xs text-muted-foreground">{opt.description}</span>
                                     </div>
                                     <div
                                         className={cn(

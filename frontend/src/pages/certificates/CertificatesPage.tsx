@@ -136,7 +136,7 @@ export default function CertificatesPage() {
 
                             <div className="p-4">
                                 {/* Type badge */}
-                                <span className="inline-block text-xs px-2 py-0.5 rounded-full font-medium mb-2 bg-primary/10 text-primary border border-primary/20 capitalize">
+                                <span className="inline-block text-xs px-2 py-0.5 rounded-full font-medium mb-2 bg-accent text-accent-foreground border border-primary/20 capitalize">
                                     {certificate.certificateType}
                                 </span>
 

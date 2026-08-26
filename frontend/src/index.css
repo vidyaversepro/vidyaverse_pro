@@ -15,7 +15,16 @@
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 220.9 39.3% 11%;
     --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
+    /* 45%, not shadcn's stock 46.1%. --muted-foreground on --muted is shadcn's
+       own default TabsTrigger pairing, and at 46.1% it measured 4.393:1 in light
+       mode — under AA, and it recurred on nine routes (tabs, filter chips,
+       segmented controls) rather than being one page's mistake. 45% takes that
+       to 4.575 and lifts it on card/background from 4.834 to 5.035.
+       Darkening the INK rather than lightening --muted on purpose: --muted is a
+       surface, and raising it to 97% would have cleared the text by only 0.007
+       while flattening the chip against the card (1.101 -> 1.073). Dark mode is
+       untouched: it already measures 5.782 on muted and 7.431 on card. */
+    --muted-foreground: 220 8.9% 45%;
     --accent: 220 14.3% 95.9%;
     --accent-foreground: 220.9 39.3% 11%;
     --destructive: 0 84.2% 60.2%;

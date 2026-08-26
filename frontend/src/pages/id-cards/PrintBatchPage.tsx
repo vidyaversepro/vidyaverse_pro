@@ -44,8 +44,20 @@ export default function PrintBatchPage() {
                 </Button>
             </div>
 
-            {/* Printable A4 Sheet Container */}
-            <div className="print:m-0 print:shadow-none bg-white shadow-lg mx-auto w-[210mm] min-h-[297mm] p-[10mm] box-border">
+            {/* Printable A4 Sheet Container.
+                Scrolls INSIDE this wrapper rather than dragging the whole page
+                sideways: the sheet is a fixed 210mm (794px), so at 375 it pushed
+                the document 435px wide and every screen below ~830px scrolled
+                horizontally. `print:overflow-visible` keeps the printed output
+                untouched — the wrapper only exists on screen. */}
+            <div className="overflow-x-auto print:overflow-visible">
+            {/* `text-gray-900` is load-bearing, not decoration. This sheet is
+                hard-coded `bg-white` because it represents paper, but its text had
+                no colour of its own and inherited `--foreground` — which in dark
+                mode is near-white. The student names measured 1.03:1 on the white
+                sheet, i.e. the entire print preview was invisible in dark mode.
+                Paper takes print ink in both themes. */}
+            <div className="print:m-0 print:shadow-none bg-white text-gray-900 shadow-lg mx-auto w-[210mm] min-h-[297mm] p-[10mm] box-border">
                 {/* CSS Grid for ID Cards (assuming 54x86mm standard size, 3x3 grid on A4 margin) */}
                 <div className="grid grid-cols-3 gap-[5mm] auto-rows-max">
                     {cardsToPrint.map((card, index) => (
@@ -55,7 +67,7 @@ export default function PrintBatchPage() {
                                 {card.student?.photoUrl ? (
                                     <img src={card.student.photoUrl} alt="Student" className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">Photo</div>
+                                    <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs">Photo</div>
                                 )}
                             </div>
                             <h3 className="font-bold text-[10px] uppercase">{card.student?.name || 'Student Name'}</h3>
@@ -68,11 +80,12 @@ export default function PrintBatchPage() {
                     ))}
 
                     {cardsToPrint.length === 0 && (
-                        <div className="col-span-3 text-center py-20 text-gray-400">
+                        <div className="col-span-3 text-center py-20 text-gray-600">
                             No cards selected for printing.
                         </div>
                     )}
                 </div>
+            </div>
             </div>
 
             <style>{`

@@ -429,7 +429,7 @@ export default function InstitutionsPage() {
                                     <GraduationCap className="h-3.5 w-3.5" />
                                     {inst._count?.students || 0} students
                                 </span>
-                                <span className="ml-auto text-muted-foreground/70">
+                                <span className="ml-auto text-muted-foreground">
                                     {format(new Date(inst.createdAt), 'MMM d, yyyy')}
                                 </span>
                             </div>

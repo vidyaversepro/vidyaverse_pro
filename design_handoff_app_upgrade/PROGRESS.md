@@ -1602,3 +1602,69 @@ anyone relies on any BullMQ queue in this app.
 
 Frontend `tsc` **0**, `eslint` on all five touched files **0**, `npm run build`
 **0**. Backend `tsc` **0**.
+
+## The first whole-app sweep — 342 renders, 62 defects, all fixed (2026-08-26)
+
+Every previous phase measured a *subset* and inferred the rest was clean from
+greps. This is the first pass that rendered **every routed page** and measured
+it. The inference was wrong.
+
+**Matrix: 57 routes (50 `/app` + 7 `/student`) x 375/768/1280 x light/dark =
+342 renders.** Before: **62 findings**. After: **0**.
+
+Light mode was worse than dark (14 findings vs 7 at 375), which is the opposite
+of what the earlier phases assumed — they were hunting dark-mode regressions.
+
+### What it found, by root cause
+
+| root cause | worst | where |
+|---|---|---|
+| raw `TONE` hex as TEXT (the forbidden pattern) | **1.42** | `CommunicationsPage` KPI values — `TONE.indigo` on the dark card |
+| theme foreground inherited onto hard-coded white paper | **1.03** | `PrintBatchPage` — the whole A4 preview was invisible in dark mode |
+| fixed 210mm sheet, no scroll container | **435px** | `PrintBatchPage` at 375 — and it dragged the page, not itself |
+| `text-gray-400` / `text-gray-500` with no `dark:` sibling | 2.54 | `InstitutionsOverviewTable`, `SettingsPage` |
+| alpha stacked on already-muted ink | 2.74 | `InstitutionsPage` `text-muted-foreground/70` |
+| muted ink on a tone tint | 3.84 | `BiometricPage` `SummaryCell` |
+| shadcn's own `muted-foreground`-on-`muted` default | 4.393 | 9 routes — tabs, filter chips, segmented controls |
+| `text-primary` on `bg-primary/10` at 12px | 4.4947 | `MarksheetsPage`, `CertificatesPage` |
+
+### The two that were systemic, not per-page
+
+**`--muted-foreground` 46.1% -> 45%** in light (`index.css`). This is shadcn's
+stock TabsTrigger pairing, so it recurred on nine routes rather than being one
+page's mistake: 4.393 -> 4.575 on muted, and 4.834 -> 5.035 on card. The **ink**
+was darkened rather than the surface lightened on purpose — raising `--muted` to
+97% would have cleared the text by 0.007 while flattening the chip against the
+card (1.101 -> 1.073). Dark was already fine (5.782) and is untouched.
+
+**The accent chip.** `bg-primary/10 text-primary` measured **4.4947** against its
+real page background — genuinely under 4.5, not a rounding artifact; confirmed at
+four decimal places. Only the two 12px instances actually failed, so only those
+two moved, onto the design system's own accent chip (`bg-accent` +
+`text-accent-foreground`, what `indic-design-system.css` already pairs as
+`--accent-soft` / `--accent-contrast`): **9.99 light / 10.84 dark**.
+
+### Public pages
+
+`/login`, `/register`, `/forgot-password`, `/reset-password`: **clean**.
+
+**`/` (the landing) is NOT clean and is deliberately left for a decision** —
+**47 failures in light, 32 in dark**. It follows the theme (cream
+`rgb(255,252,247)` light, navy `rgb(22,33,68)` dark) and fails in both, with the
+same root cause as CommunicationsPage: raw `TONE` hexes as text.
+`TONE.indigo` on the dark hero measures **1.18**; saffron `#FF9933` on the light
+cream measures **1.98** on 30px stat numbers.
+
+It is held back because a large share of the failures sit **inside deliberate
+product mockups** — a fake ID card, a fake WhatsApp thread, a fake dashboard.
+White on WhatsApp green (`#25D366`, 1.98) is *WhatsApp's own* treatment; the
+9px `rgb(153,153,153)` labels are imitating a printed ID card. "Fixing" those
+would make the illustrations stop looking like the thing they illustrate. That
+is a design call, not a defect fix. The non-mockup failures — eyebrow labels,
+section headings, stat figures, the 0.35-alpha footer — are ordinary bugs and
+should be fixed.
+
+### Gates
+
+`tsc` **0** (frontend and backend), `eslint` on all eight touched files **0**,
+`npm run build` **0**.

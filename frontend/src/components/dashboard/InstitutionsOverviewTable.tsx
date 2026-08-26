@@ -101,7 +101,7 @@ export function InstitutionsOverviewTable() {
                                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                                             {institution.name}
                                         </p>
-                                        <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-500 truncate">
+                                        <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground truncate">
                                             <span>{institution.code}</span>
                                             <span>•</span>
                                             <span>{institution._count?.students || 0} students</span>
@@ -113,7 +113,7 @@ export function InstitutionsOverviewTable() {
                                         <Badge variant="outline" className={`border-0 uppercase tracking-wider text-[10px] space-x-0 ${getStatusColor(institution.subscriptionStatus, institution.isActive)}`}>
                                             {!institution.isActive ? 'INACTIVE' : institution.subscriptionStatus}
                                         </Badge>
-                                        <p className="text-[10px] text-gray-400 mt-1">
+                                        <p className="text-[10px] text-muted-foreground mt-1">
                                             Joined {format(new Date(institution.createdAt), 'MMM yyyy')}
                                         </p>
                                     </div>

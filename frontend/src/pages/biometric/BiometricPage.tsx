@@ -21,7 +21,10 @@ function SummaryCell({ label, value, tone }: { label: string; value: number; ton
   return (
     <div className={`rounded-xl p-2 text-center tone-bg-${tone}`}>
       <p className={`font-bold text-lg leading-tight tone-text-${tone}`}>{value}</p>
-      <p className="text-[10px] text-muted-foreground">{label}</p>
+      {/* text-foreground/80, not muted-foreground: this label sits on a
+          `tone-bg-*` tint, not on the card, and muted ink measured 3.84 there.
+          Same fix as the ApprovalQueue stat cards. */}
+      <p className="text-[10px] text-foreground/80">{label}</p>
     </div>
   );
 }

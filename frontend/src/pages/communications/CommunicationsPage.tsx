@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { NeutralPill, Pill, StatusPill, TONE } from '@/components/shared/Pill';
+import { NeutralPill, Pill, StatusPill, TONE, TONE_VAR, type ToneName } from '@/components/shared/Pill';
 import {
   useFeeSummary,
   usePaymentClaims,
@@ -23,17 +23,25 @@ import {
 
 const inr = (v: number) => '₹' + Number(v ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
 
-/** Local tile — these KPI values carry their own semantic colour, which StatCard has no slot for. */
-function Kpi({ label, value, icon: Icon, tone, loading }: { label: string; value: string; icon: typeof IndianRupee; tone: string; loading?: boolean }) {
+/** Local tile — these KPI values carry their own semantic colour, which StatCard has no slot for.
+ *
+ *  The VALUE is text, so it takes the theme-aware `TONE_VAR`, never the raw
+ *  `TONE` hex. Painting the raw pigment onto the dark card is exactly what
+ *  Pill.tsx warns against, and it showed: `TONE.indigo` (#1A237E) measured
+ *  **1.42:1** on the dark surface — the figure was effectively invisible — with
+ *  temple 3.25, red 3.47 and green 3.76 also under the 4.5 floor.
+ *  The ICON keeps the raw hex: non-text, so it answers to the 3:1 floor and one
+ *  value serves both themes. */
+function Kpi({ label, value, icon: Icon, tone, loading }: { label: string; value: string; icon: typeof IndianRupee; tone: ToneName; loading?: boolean }) {
   return (
     <Card className="rounded-2xl">
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="text-lg sm:text-xl font-bold mt-1 truncate" style={{ color: tone }}>{loading ? '…' : value}</p>
+            <p className="text-lg sm:text-xl font-bold mt-1 truncate" style={{ color: TONE_VAR[tone] }}>{loading ? '…' : value}</p>
           </div>
-          <Icon className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" style={{ color: tone }} />
+          <Icon className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" style={{ color: TONE[tone] }} />
         </div>
       </CardContent>
     </Card>
@@ -69,10 +77,10 @@ export default function CommunicationsPage() {
 
       {/* Fee KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Kpi label="Total Billed" value={summary ? inr(summary.totalBilled) : '—'} icon={ReceiptText} tone={TONE.indigo} loading={summaryLoading} />
-        <Kpi label="Collected" value={summary ? inr(summary.totalCollected) : '—'} icon={TrendingUp} tone={TONE.green} loading={summaryLoading} />
-        <Kpi label="Outstanding" value={summary ? inr(summary.totalOutstanding) : '—'} icon={IndianRupee} tone={TONE.temple} loading={summaryLoading} />
-        <Kpi label="Pending Invoices" value={summary ? String(summary.pendingInvoices) : '—'} icon={AlertCircle} tone={TONE.red} loading={summaryLoading} />
+        <Kpi label="Total Billed" value={summary ? inr(summary.totalBilled) : '—'} icon={ReceiptText} tone="indigo" loading={summaryLoading} />
+        <Kpi label="Collected" value={summary ? inr(summary.totalCollected) : '—'} icon={TrendingUp} tone="green" loading={summaryLoading} />
+        <Kpi label="Outstanding" value={summary ? inr(summary.totalOutstanding) : '—'} icon={IndianRupee} tone="temple" loading={summaryLoading} />
+        <Kpi label="Pending Invoices" value={summary ? String(summary.pendingInvoices) : '—'} icon={AlertCircle} tone="red" loading={summaryLoading} />
       </div>
 
       {/* Pending payment claims */}

@@ -80,7 +80,7 @@ export default function MarksheetsPage() {
                                     </p>
                                 </div>
                                 {m.grade && (
-                                    <span className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                                    <span className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-accent text-accent-foreground border border-primary/20">
                                         <Award className="w-3 h-3" /> {m.grade}
                                     </span>
                                 )}
