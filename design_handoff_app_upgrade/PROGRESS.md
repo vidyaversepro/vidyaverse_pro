@@ -948,6 +948,62 @@ grep -rn 'background: `${.*}1f`' --include=*.tsx frontend/src/
 grep -rn 'background: TONE\.' --include=*.tsx frontend/src/
 ```
 
+## Remaining-defect sweep (DONE, 2026-08-26)
+
+Answering "is every UI/UX bug fixed?" honestly required scanning for the defect
+CLASSES rather than trusting the rollout's scope. It was not all fixed. This
+pass closes what the scan found. Shipped as `9bb85e9`, 23 files.
+
+**Light-only Tailwind colour utilities: 63 -> 9.** Every one had no `dark:`
+sibling, so it painted a pale chip or surface straight onto the dark theme.
+54 fixed across 20 files. **The 9 that remain are deliberate** — do not
+"fix" them:
+
+| where | why it stays |
+|---|---|
+| `SettingsPage` (6) | these grays DRAW the Light Mode preview thumbnail. It is a picture of light mode. |
+| `PrintBatchPage` (2) | inside the A4 sheet mockup — printed output; paper is white in either theme. The surrounding chrome IS themed now. |
+| `toast.tsx` (1) | close button inside a destructive (red-filled) toast. |
+
+Notable conversions: the **five doc-studio status badges** (IdCards, HallTickets,
+LibraryCards, VisitingCards, TransferCertificates) each hand-rolled
+`bg-green-100 text-green-700` / `bg-yellow-100 ...` and now use `.pill-*`; the
+attendance present/late/absent/excused toggle chips likewise; the bulk-upload
+results panel; and `BulkGenerateModal`'s progress bar, still on the foreign
+Material-Design red `#b7102a`.
+
+**AuthShell status plinths — these were failing on PUBLIC prod pages.** Measured
+against the 3:1 non-text floor: `temple` **2.76 in LIGHT** on three pages,
+`indigo` **1.48 in DARK** on VerifyEmail. All moved to the tone tokens.
+`ForgotPasswordPage` held a fourth instance the deployed-bundle grep had missed
+— **grepping the built bundle finds what shipped, not what exists; grep source
+too.** Re-measured on the deployed site after release: indigo dark **1.48 ->
+6.81**.
+
+**Two tables converted to mobile cards.** `UsersPage` measured a 6-column,
+492px-wide table inside a 294px window at 375px — **198px of sideways scrolling
+to read one row**. Its row action menu is extracted to one `renderActions` so
+table and card can never drift, and the menu's off-brand blue/indigo/amber/red
+accents moved to tones. `AttendanceSessionDetailsPage` is a marking sheet with
+300px status + 300px remarks columns; below `lg` each student is now a card with
+wrapping chips and a full-width remarks field, same handlers.
+
+**`InstitutionDetailPage`'s table is deliberately NOT converted** — 3 narrow
+columns inside an already-scrollable dialog, not a data table. Only its root
+padding was made responsive.
+
+**Verified:** tsc 0, eslint 0 errors (5 warnings, each confirmed OUTSIDE the
+changed line ranges via `git diff -U0` hunk headers), build 0. Live
+authenticated pass at 375 and desktop: 10 routes at zero horizontal overflow, no
+desktop table leaking below `lg`, tables back with rows at desktop, and a **real
+populated UsersPage card** rendering at 295px. Real id-cards status badges
+measure **5.36 light / 8.61 dark**, having been light-only before.
+
+**Data-gating note:** `GET /api/v1/user` is institution-scoped and returned 0
+rows until an institution with members was made active (`vv_gate` has 15 users
+but only `Virat Gurukul 2` has any `user_institution_roles`). If a list looks
+empty locally, check the active institution before hunting a bug.
+
 ## Known debt introduced/uncovered by this pass
 
 - `student_transport.stop_id` now has a Prisma `@relation` (from the
@@ -1097,6 +1153,15 @@ left is small and listed under "Not in scope" / "Known debt":
    verification is measurement-based. Contrast is now measured rather than
    eyeballed, which closes the specific hole that bit in the mandala
    incident, but a human eyeball pass on prod is still worth doing.
+5. **~15 routed pages have still never been checked at 375/768/1280 or in
+   dark mode** — ExamSchedules, MarksEntry, ApprovalQueue, the three Saathi
+   pages, the three Visionarium pages, the templates studio, SaathiCall.
+   Some are deliberately full-bleed (the Konva editor, the call screen) and
+   should NOT get page padding. Mechanically they are now clean of the two
+   defect classes above; they have not been exercised by eye or by hand.
+6. **`.env` still has `FRONTEND_URL=vgraphics.in`** — a dead Cloudflare
+   tunnel (error 1033). Prod is `vidyaverse.vinstitution.com`. Fix it so the
+   next person does not chase the wrong host.
 
 ## Uncommitted files
 
