@@ -71,7 +71,7 @@ export default function SaathiConnectionsPage() {
                                 <Button size="sm" variant="outline" className="tone-text-green hover:bg-[var(--tone-green-bg)]" onClick={() => updateMutation.mutate({ id: req.id, status: 'accepted' })}>
                                     <UserCheck className="w-3.5 h-3.5 mr-1" /> Accept
                                 </Button>
-                                <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => updateMutation.mutate({ id: req.id, status: 'rejected' })}>
+                                <Button size="sm" variant="outline" className="tone-text-red hover:bg-[var(--tone-red-bg)]" onClick={() => updateMutation.mutate({ id: req.id, status: 'rejected' })}>
                                     <UserX className="w-3.5 h-3.5 mr-1" /> Decline
                                 </Button>
                             </div>
@@ -104,7 +104,7 @@ export default function SaathiConnectionsPage() {
                                     <p className="text-sm font-semibold text-foreground">{s.saathi.name}</p>
                                     <p className="text-xs text-muted-foreground">{s.context} • since {new Date(s.since).toLocaleDateString('en-IN')}</p>
                                 </div>
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400 font-medium">Saathi ✓</span>
+                                <span className="text-xs px-2 py-0.5 rounded-full pill-green font-medium">Saathi ✓</span>
                             </div>
                         ))}
                     </div>

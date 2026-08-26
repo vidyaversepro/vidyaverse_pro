@@ -131,7 +131,7 @@ export default function ElementsLibrary() {
                                 <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                             </div>
                         ) : !serviceType ? (
-                            <p className="text-xs text-amber-600 bg-amber-500/10 p-2 rounded">Template type not set</p>
+                            <p className="text-xs pill-temple p-2 rounded">Template type not set</p>
                         ) : (
                             <div className="flex flex-wrap gap-2">
                                 {Object.entries(variablesResp || {}).map(([categoryName, fields]) => (

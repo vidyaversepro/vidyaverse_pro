@@ -4,14 +4,32 @@
     {
       "name": "vidyaverse-backend",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["run", "dev:backend"],
+      "runtimeArgs": [
+        "run",
+        "dev:backend"
+      ],
       "port": 3002
     },
     {
       "name": "vidyaverse-frontend",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["run", "dev:frontend"],
+      "runtimeArgs": [
+        "run",
+        "dev:frontend"
+      ],
       "port": 5173
+    },
+    {
+      "name": "vidyaverse-prod-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "preview",
+        "--port",
+        "4173",
+        "--strictPort"
+      ],
+      "port": 4173
     }
   ]
 }

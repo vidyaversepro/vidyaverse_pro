@@ -166,7 +166,7 @@ export default function DashboardLayout() {
                         {navGroups.map((group) => (
                             <div key={group.title || 'ungrouped'}>
                                 {group.title && sidebarOpen && (
-                                    <div className="px-3 pt-4 pb-1.5 text-[10.5px] font-bold tracking-wider uppercase text-gray-400 dark:text-gray-500">
+                                    <div className="px-3 pt-4 pb-1.5 text-[10.5px] font-bold tracking-wider uppercase text-gray-600 dark:text-gray-400">
                                         {group.title}
                                     </div>
                                 )}
@@ -185,8 +185,8 @@ export default function DashboardLayout() {
                     <button
                         onClick={handleLogout}
                         className={cn(
-                            "flex items-center px-3 py-2 rounded-xl text-[13px] font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors w-full group outline-none",
-                            sidebarOpen ? 'justify-start gap-3' : 'justify-center lg:px-0 lg:bg-transparent lg:hover:bg-red-50 dark:lg:hover:bg-red-950/30'
+                            "flex items-center px-3 py-2 rounded-xl text-[13px] font-medium tone-text-red hover:bg-[var(--tone-red-bg)] transition-colors w-full group outline-none",
+                            sidebarOpen ? 'justify-start gap-3' : 'justify-center lg:px-0 lg:bg-transparent lg:hover:bg-[var(--tone-red-bg)]'
                         )}
                         aria-label="Logout"
                     >
@@ -238,7 +238,7 @@ export default function DashboardLayout() {
                 >
                     <UserProfileDropdown />
                     <div className="min-w-0 flex-1">
-                        <div className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 leading-none">{greeting()}</div>
+                        <div className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 leading-none">{greeting()}</div>
                         <h1 className="text-base font-semibold text-gray-900 dark:text-white leading-tight truncate">{currentPage}</h1>
                     </div>
                     <NotificationBell />
@@ -262,7 +262,7 @@ export default function DashboardLayout() {
                                 onClick={() => (tab.key === 'more' ? setMobileSidebar(true) : tab.href && navigate(tab.href))}
                                 className={cn(
                                     'flex-1 flex flex-col items-center gap-1 py-1.5 rounded-xl text-[10.5px] font-bold transition-colors',
-                                    isActive ? 'text-primary bg-primary/10' : 'text-gray-400 dark:text-gray-500'
+                                    isActive ? 'text-primary bg-primary/10' : 'text-gray-600 dark:text-gray-400'
                                 )}
                             >
                                 <tab.icon className="w-[22px] h-[22px]" />
@@ -299,7 +299,7 @@ export default function DashboardLayout() {
                                 {navGroups.map((group) => (
                                     <div key={group.title || 'ungrouped'}>
                                         {group.title && (
-                                            <div className="pt-3.5 pb-2 text-[10.5px] font-bold tracking-wider uppercase text-gray-400 dark:text-gray-500">
+                                            <div className="pt-3.5 pb-2 text-[10.5px] font-bold tracking-wider uppercase text-gray-600 dark:text-gray-400">
                                                 {group.title}
                                             </div>
                                         )}

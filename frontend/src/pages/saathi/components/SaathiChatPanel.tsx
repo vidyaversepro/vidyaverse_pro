@@ -66,7 +66,7 @@ export function SaathiChatPanel({ joinConversation, sendMessage, setTypingStatus
     <div className="grid grid-cols-1 md:grid-cols-3 bg-card rounded-xl border border-border overflow-hidden" style={{ minHeight: '600px' }}>
       
       {/* Sidebar: Conversations List */}
-      <div className="border-r border-border flex flex-col">
+      <div className="border-b md:border-b-0 md:border-r border-border flex flex-col">
         <div className="p-4 border-b border-border font-semibold text-foreground">
           Messages
         </div>
@@ -145,7 +145,11 @@ export function SaathiChatPanel({ joinConversation, sendMessage, setTypingStatus
                       ) : (
                         <p className="whitespace-pre-wrap">{msg.content}</p>
                       )}
-                      <span className={`text-[10px] mt-1 block ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                      {/* /90, not /70: this timestamp sits on the solid bg-primary
+                          bubble, where /70 ink measured 3.74 dark / 3.41 light
+                          against a 4.5 floor. /90 keeps it visibly secondary at
+                          5.12 dark / 4.69 light. */}
+                      <span className={`text-[10px] mt-1 block ${isMe ? 'text-primary-foreground/90' : 'text-muted-foreground'}`}>
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>

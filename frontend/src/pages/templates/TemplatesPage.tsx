@@ -214,11 +214,17 @@ export default function TemplatesPage() {
                                 whileHover={{ y: -4 }}
                                 className="group indic-card overflow-hidden rounded-2xl"
                             >
-                                {/* Header — icon on the accent gradient */}
-                                <div className="h-24 relative bg-gradient-to-br from-primary to-primary/70">
+                                {/* Header — icon on the accent gradient.
+                                    `/80` not `/70`, and full-opacity ink: three
+                                    alphas stack here (the gradient's far stop
+                                    over the card, the bg-black/10 overlay, then
+                                    the ink), and the icon landed at 2.48 in dark
+                                    against its 3.0 non-text floor. Measured now:
+                                    3.37 dark, 4.66 light. */}
+                                <div className="h-24 relative bg-gradient-to-br from-primary to-primary/80">
                                     <div className="absolute inset-0 bg-black/10" />
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <Icon className="w-10 h-10 text-primary-foreground/80" />
+                                        <Icon className="w-10 h-10 text-primary-foreground" />
                                     </div>
 
                                     {template.isDefault && (
@@ -229,7 +235,7 @@ export default function TemplatesPage() {
 
                                     <div
                                         className="absolute top-2 right-2 w-2 h-2 rounded-full"
-                                        style={{ background: template.isActive ? '#15803d' : '#C0392B' }}
+                                        style={{ background: template.isActive ? 'var(--tone-green-solid)' : 'var(--tone-red-solid)' }}
                                     />
                                 </div>
 
@@ -262,7 +268,7 @@ export default function TemplatesPage() {
                                         <Button size="sm" variant="ghost" title="Duplicate" onClick={() => handleDuplicate(template.id)} disabled={duplicateMutation.isPending}>
                                             <Copy className="w-4 h-4" />
                                         </Button>
-                                        <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive/80" onClick={() => handleDelete(template.id)} disabled={deleteMutation.isPending}>
+                                        <Button size="sm" variant="ghost" className="tone-text-red hover:opacity-80" onClick={() => handleDelete(template.id)} disabled={deleteMutation.isPending}>
                                             <Trash2 className="w-4 h-4" />
                                         </Button>
                                     </div>

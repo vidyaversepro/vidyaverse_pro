@@ -94,13 +94,13 @@ export function CreateExamScheduleModal({ isOpen, onClose }: Props) {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
                     <div className="space-y-2">
-                        <Label htmlFor="examName">Exam Name <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="examName">Exam Name <span className="tone-text-red">*</span></Label>
                         <Input
                             id="examName"
                             placeholder="e.g. Mid-Term Examination 2024"
                             {...register('examName', { required: 'Exam Name is required' })}
                         />
-                        {errors.examName && <p className="text-xs text-red-500">{errors.examName.message}</p>}
+                        {errors.examName && <p className="text-xs tone-text-red">{errors.examName.message}</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -136,23 +136,23 @@ export function CreateExamScheduleModal({ isOpen, onClose }: Props) {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="startDate">Start Date <span className="text-red-500">*</span></Label>
+                            <Label htmlFor="startDate">Start Date <span className="tone-text-red">*</span></Label>
                             <Input
                                 id="startDate"
                                 type="date"
                                 {...register('startDate', { required: 'Start Date is required' })}
                             />
-                            {errors.startDate && <p className="text-xs text-red-500">{errors.startDate.message}</p>}
+                            {errors.startDate && <p className="text-xs tone-text-red">{errors.startDate.message}</p>}
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="endDate">End Date <span className="text-red-500">*</span></Label>
+                            <Label htmlFor="endDate">End Date <span className="tone-text-red">*</span></Label>
                             <Input
                                 id="endDate"
                                 type="date"
                                 {...register('endDate', { required: 'End Date is required' })}
                             />
-                            {errors.endDate && <p className="text-xs text-red-500">{errors.endDate.message}</p>}
+                            {errors.endDate && <p className="text-xs tone-text-red">{errors.endDate.message}</p>}
                         </div>
                     </div>
 
@@ -163,7 +163,7 @@ export function CreateExamScheduleModal({ isOpen, onClose }: Props) {
                             type="time"
                             {...register('reportingTime')}
                         />
-                        <p className="text-xs text-gray-500">Default time students should report to venue.</p>
+                        <p className="text-xs text-muted-foreground">Default time students should report to venue.</p>
                     </div>
 
                     <div className="space-y-2">
@@ -185,7 +185,7 @@ export function CreateExamScheduleModal({ isOpen, onClose }: Props) {
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={createMutation.isPending} className="bg-indigo-600 hover:bg-indigo-700">
+                        <Button type="submit" disabled={createMutation.isPending} >
                             {createMutation.isPending ? (
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             ) : (

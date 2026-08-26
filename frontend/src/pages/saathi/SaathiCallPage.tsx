@@ -36,14 +36,14 @@ export default function SaathiCallPage() {
 
   if (!token || !wsUrl) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
+      <div className="flex h-[100dvh] items-center justify-center bg-gray-900 text-white">
         <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div style={{ height: '100vh' }}>
+    <div style={{ height: '100dvh' }}>
       <LiveKitRoom
         token={token}
         serverUrl={wsUrl}

@@ -44,7 +44,7 @@ export default function VisionariumPage() {
             </div>
 
             {/* Tabs */}
-            <div className="flex space-x-1 bg-muted/50 p-1 rounded-xl w-max border border-border/50 backdrop-blur-sm">
+            <div className="flex flex-wrap gap-1 bg-muted/50 p-1 rounded-xl w-full sm:w-max border border-border/50 backdrop-blur-sm">
                 <button
                     onClick={() => handleTabChange('magazine')}
                     className={cn(

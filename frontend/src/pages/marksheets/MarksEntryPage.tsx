@@ -120,9 +120,9 @@ export default function MarksEntryPage() {
     if (!institutionId) {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-                <AlertCircle className="w-12 h-12 text-yellow-500 mb-4" />
-                <h2 className="text-2xl font-semibold text-white mb-2">No Institution Selected</h2>
-                <p className="text-gray-400 max-w-md">
+                <AlertCircle className="w-12 h-12 tone-text-temple mb-4" />
+                <h2 className="text-2xl font-semibold text-foreground mb-2">No Institution Selected</h2>
+                <p className="text-muted-foreground max-w-md">
                     Please select or create an institution from the dashboard to manage marks.
                 </p>
             </div>
@@ -137,19 +137,19 @@ export default function MarksEntryPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <FileSpreadsheet className="w-6 h-6 text-brand-400" />
+                    <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                        <FileSpreadsheet className="w-6 h-6 text-primary" />
                         Marks Entry
                     </h1>
-                    <p className="text-gray-400 mt-1">Bulk enter marks for students by subject</p>
+                    <p className="text-muted-foreground mt-1">Bulk enter marks for students by subject</p>
                 </div>
                 {isReadyToFetch && gridData && gridData.length > 0 && (
                     <Button 
                         onClick={handleSaveMarks} 
                         disabled={subittingMarks || isFetching}
-                        className="bg-brand-500 hover:bg-brand-600 font-semibold"
+                        className="font-semibold"
                     >
                         {subittingMarks ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                         Save All Marks
@@ -158,13 +158,13 @@ export default function MarksEntryPage() {
             </div>
 
             {/* Filters Section */}
-            <Card className="bg-dark-800/50 backdrop-blur-xl border-white/10">
+            <Card className="border-border">
                 <CardContent className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">Exam Schedule</label>
+                            <label className="text-sm font-medium text-foreground">Exam Schedule</label>
                             <select
-                                className="w-full bg-dark-900 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
+                                className="w-full bg-background border border-input rounded-lg px-4 py-2.5 text-foreground focus:ring-2 focus:ring-ring outline-none transition-all"
                                 value={selectedExamId}
                                 onChange={(e) => setSelectedExamId(e.target.value)}
                                 disabled={loadingExams}
@@ -179,9 +179,9 @@ export default function MarksEntryPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">Class</label>
+                            <label className="text-sm font-medium text-foreground">Class</label>
                             <select
-                                className="w-full bg-dark-900 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
+                                className="w-full bg-background border border-input rounded-lg px-4 py-2.5 text-foreground focus:ring-2 focus:ring-ring outline-none transition-all"
                                 value={selectedClassId}
                                 onChange={(e) => {
                                     setSelectedClassId(e.target.value);
@@ -200,9 +200,9 @@ export default function MarksEntryPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">Section</label>
+                            <label className="text-sm font-medium text-foreground">Section</label>
                             <select
-                                className="w-full bg-dark-900 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
+                                className="w-full bg-background border border-input rounded-lg px-4 py-2.5 text-foreground focus:ring-2 focus:ring-ring outline-none transition-all"
                                 value={selectedSectionId}
                                 onChange={(e) => setSelectedSectionId(e.target.value)}
                                 disabled={!selectedClassId || loadingSections}
@@ -217,9 +217,9 @@ export default function MarksEntryPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300">Subject</label>
+                            <label className="text-sm font-medium text-foreground">Subject</label>
                             <select
-                                className="w-full bg-dark-900 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-brand-500/50 outline-none transition-all"
+                                className="w-full bg-background border border-input rounded-lg px-4 py-2.5 text-foreground focus:ring-2 focus:ring-ring outline-none transition-all"
                                 value={selectedSubjectId}
                                 onChange={(e) => setSelectedSubjectId(e.target.value)}
                                 disabled={!selectedClassId || loadingSubjects}
@@ -238,37 +238,37 @@ export default function MarksEntryPage() {
 
             {/* Data Grid Section */}
             {isReadyToFetch ? (
-                <Card className="bg-dark-800/50 backdrop-blur-xl border-white/10">
+                <Card className="border-border">
                     <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4">
                         <div>
                             <CardTitle>Students List</CardTitle>
                             <CardDescription>Enter marks for each student in the grid below</CardDescription>
                         </div>
                         <div className="relative w-full sm:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder="Search students..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 bg-dark-900/50 border-white/10"
+                                className="pl-9"
                             />
                         </div>
                     </CardHeader>
                     <CardContent>
                         {loadingGrid ? (
                             <div className="flex flex-col items-center justify-center py-12">
-                                <Loader2 className="w-8 h-8 text-brand-500 animate-spin mb-4" />
-                                <p className="text-gray-400">Loading student marks...</p>
+                                <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
+                                <p className="text-muted-foreground">Loading student marks...</p>
                             </div>
                         ) : !gridData || gridData.length === 0 ? (
-                            <div className="text-center py-12 text-gray-400">
+                            <div className="text-center py-12 text-muted-foreground">
                                 No students found in the selected section.
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full min-w-[500px] text-left border-collapse">
                                     <thead>
-                                        <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-gray-400 font-medium">
+                                        <tr className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground font-medium">
                                             <th className="px-4 py-3 w-16 text-center">Roll No</th>
                                             <th className="px-4 py-3">Student Name</th>
                                             <th className="px-4 py-3 w-32">Theory Marks</th>
@@ -276,7 +276,7 @@ export default function MarksEntryPage() {
                                             <th className="px-4 py-3 w-32">Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/10">
+                                    <tbody className="divide-y divide-border">
                                         {filteredGridData?.map((row) => {
                                             const localData = marksData[row.studentId] || { theory: '', practical: '' };
                                             const theoryNum = parseFloat(localData.theory) || 0;
@@ -284,20 +284,20 @@ export default function MarksEntryPage() {
                                             const hasUnsavedChanges = (row.theoryMarks !== theoryNum && localData.theory !== '') || (row.practicalMarks !== practicalNum && localData.practical !== '');
 
                                             return (
-                                                <tr key={row.studentId} className="hover:bg-white/5 transition-colors">
-                                                    <td className="px-4 py-3 text-center text-gray-400">
+                                                <tr key={row.studentId} className="hover:bg-muted/50 transition-colors">
+                                                    <td className="px-4 py-3 text-center text-muted-foreground">
                                                         {row.rollNumber || '-'}
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        <div className="font-medium text-white">{row.studentName}</div>
-                                                        <div className="text-xs text-gray-500">{row.enrollmentNumber}</div>
+                                                        <div className="font-medium text-foreground">{row.studentName}</div>
+                                                        <div className="text-xs text-muted-foreground">{row.enrollmentNumber}</div>
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <Input
                                                             type="text"
                                                             value={localData.theory}
                                                             onChange={(e) => handleMarkChange(row.studentId, 'theory', e.target.value)}
-                                                            className={`w-full bg-dark-900/50 h-9 text-center border-white/10 ${hasUnsavedChanges ? 'border-brand-500/50' : ''}`}
+                                                            className={`w-full h-9 text-center ${hasUnsavedChanges ? 'border-primary' : ''}`}
                                                             placeholder="-"
                                                         />
                                                     </td>
@@ -306,11 +306,11 @@ export default function MarksEntryPage() {
                                                             type="text"
                                                             value={localData.practical}
                                                             onChange={(e) => handleMarkChange(row.studentId, 'practical', e.target.value)}
-                                                            className={`w-full bg-dark-900/50 h-9 text-center border-white/10 ${hasUnsavedChanges ? 'border-brand-500/50' : ''}`}
+                                                            className={`w-full h-9 text-center ${hasUnsavedChanges ? 'border-primary' : ''}`}
                                                             placeholder="-"
                                                         />
                                                     </td>
-                                                    <td className="px-4 py-3 text-center font-medium text-white">
+                                                    <td className="px-4 py-3 text-center font-medium text-foreground">
                                                         {theoryNum + practicalNum}
                                                     </td>
                                                 </tr>
@@ -323,14 +323,14 @@ export default function MarksEntryPage() {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-white/10 rounded-xl bg-dark-800/30">
-                    <FileSpreadsheet className="w-12 h-12 text-gray-500 mb-4" />
-                    <h3 className="text-xl font-medium text-gray-300 mb-2">Select Filters</h3>
-                    <p className="text-gray-500 max-w-sm">
+                <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-border rounded-xl bg-muted/30">
+                    <FileSpreadsheet className="w-12 h-12 text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-medium text-foreground mb-2">Select Filters</h3>
+                    <p className="text-muted-foreground max-w-sm">
                         Please select an exam schedule, class, section, and subject to begin entering marks.
                     </p>
                 </div>
             )}
         </div>
     );
-};
+}

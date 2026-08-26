@@ -253,10 +253,19 @@ export default function TemplateNewPage() {
 
       <Dialog open={true} onOpenChange={onOpenChange}>
         <DialogContent className="w-[calc(100vw-2rem)] max-w-[600px] p-0 overflow-y-auto max-h-[90vh] border-0 shadow-2xl rounded-2xl">
-          <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-6">
+          {/* `to-primary/90`, not /80, and full-opacity ink on the description.
+              The gradient's far stop is an ALPHA, so it composites over the
+              dialog surface and lands darker than --primary; stacking a second
+              alpha on the ink on top of that is what broke it. Measured on the
+              far stop, 14px description (needs 4.5): /80 end with /80 ink was
+              3.32 dark / 3.15 light. Full ink over a /90 end is 4.79 dark and
+              4.63 light. The 24px title clears its 3.0 large-text floor either
+              way. White ink is not the answer here — it measured 2.65 on the
+              near stop in dark. */}
+          <div className="bg-gradient-to-br from-primary to-primary/90 text-primary-foreground p-6">
             <DialogHeader>
               <DialogTitle className="text-2xl tracking-tight text-primary-foreground m-0">Create New Template</DialogTitle>
-              <DialogDescription className="text-primary-foreground/80 mt-1 font-medium">
+              <DialogDescription className="text-primary-foreground mt-1 font-medium">
                 Step {step} of 3 — {step === 1 ? 'Template Details' : step === 2 ? 'Canvas Size' : 'Pages & Print'}
               </DialogDescription>
             </DialogHeader>
@@ -288,7 +297,7 @@ export default function TemplateNewPage() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Template Name <span className="text-destructive">*</span></FormLabel>
+                        <FormLabel>Template Name <span className="tone-text-red">*</span></FormLabel>
                         <FormControl>
                           <Input placeholder="e.g. Student ID Card 2026" className="rounded-xl bg-muted/40 border-border" {...field} />
                         </FormControl>
@@ -303,7 +312,7 @@ export default function TemplateNewPage() {
                       name="serviceType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Type <span className="text-destructive">*</span></FormLabel>
+                          <FormLabel>Product Type <span className="tone-text-red">*</span></FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger className="rounded-xl bg-muted/40 border-border">
@@ -331,7 +340,7 @@ export default function TemplateNewPage() {
                       name="targetAudience"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Target Audience <span className="text-destructive">*</span></FormLabel>
+                          <FormLabel>Target Audience <span className="tone-text-red">*</span></FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger className="rounded-xl bg-muted/40 border-border">
@@ -575,7 +584,7 @@ export default function TemplateNewPage() {
                     name="dpi"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Print Resolution <span className="text-destructive">*</span></FormLabel>
+                        <FormLabel>Print Resolution <span className="tone-text-red">*</span></FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={(val: string) => field.onChange(Number(val))}
@@ -606,7 +615,7 @@ export default function TemplateNewPage() {
                     name="colorMode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Color Mode <span className="text-destructive">*</span></FormLabel>
+                        <FormLabel>Color Mode <span className="tone-text-red">*</span></FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}

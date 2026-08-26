@@ -23,6 +23,29 @@ export default function ApprovalQueuePage() {
         // In a real app, this would call a bulk generate mutation
     };
 
+    // One status badge, so the table and the mobile cards can never drift apart.
+    const renderStatus = (student: any) =>
+        student.isReady ? (
+            <Badge variant="outline" className="pill-green border-transparent">
+                <CheckCircle2 className="w-3 h-3 mr-1" />
+                Ready
+            </Badge>
+        ) : (
+            <Badge variant="outline" className="pill-red border-transparent">
+                <XCircle className="w-3 h-3 mr-1" />
+                Incomplete
+            </Badge>
+        );
+
+    const renderMissing = (student: any) =>
+        student.missingFields?.length > 0 ? (
+            <span className="tone-text-red font-medium text-xs">
+                {student.missingFields.join(', ')}
+            </span>
+        ) : (
+            <span className="tone-text-green text-xs">-</span>
+        );
+
     return (
         <div className="space-y-6 h-full pb-10">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -66,18 +89,18 @@ export default function ApprovalQueuePage() {
                         <CardDescription>Total Records</CardDescription>
                     </CardHeader>
                 </Card>
-                <Card className="bg-green-50/50 dark:bg-green-950/20 border-green-200 dark:border-green-900">
+                <Card className="tone-bg-green border-transparent">
                     <CardHeader className="py-4">
-                        <CardTitle className="text-2xl text-green-600 dark:text-green-400">{queueData?.readyCount || 0}</CardTitle>
-                        <CardDescription>Ready for Print (Green)</CardDescription>
+                        <CardTitle className="text-2xl tone-text-green">{queueData?.readyCount || 0}</CardTitle>
+                        <CardDescription className="text-foreground/80">Ready for Print (Green)</CardDescription>
                     </CardHeader>
                 </Card>
-                <Card className="bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900">
+                <Card className="tone-bg-red border-transparent">
                     <CardHeader className="py-4">
-                        <CardTitle className="text-2xl text-red-600 dark:text-red-400">
+                        <CardTitle className="text-2xl tone-text-red">
                             {(queueData?.totalStudents || 0) - (queueData?.readyCount || 0)}
                         </CardTitle>
-                        <CardDescription>Missing Fields (Red)</CardDescription>
+                        <CardDescription className="text-foreground/80">Missing Fields (Red)</CardDescription>
                     </CardHeader>
                 </Card>
             </div>
@@ -91,61 +114,69 @@ export default function ApprovalQueuePage() {
                             <div className="h-10 w-full bg-muted animate-pulse rounded-md" />
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left">
-                                <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
-                                    <tr>
-                                        <th className="px-4 py-3 font-medium">Student Name</th>
-                                        <th className="px-4 py-3 font-medium">Roll No</th>
-                                        <th className="px-4 py-3 font-medium">Class / Section</th>
-                                        <th className="px-4 py-3 font-medium">Status Limit</th>
-                                        <th className="px-4 py-3 font-medium">Missing Fields</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {queueData?.students?.length === 0 && (
+                        <>
+                            {/* Desktop: full table. Below lg a 5-column table measured 496px
+                                inside a 343px window — 153px of sideways scrolling per row. */}
+                            <div className="hidden lg:block overflow-x-auto">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
                                         <tr>
-                                            <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                                                No students found in the system. Make sure you map or import students.
-                                            </td>
+                                            <th className="px-4 py-3 font-medium">Student Name</th>
+                                            <th className="px-4 py-3 font-medium">Roll No</th>
+                                            <th className="px-4 py-3 font-medium">Class / Section</th>
+                                            <th className="px-4 py-3 font-medium">Status Limit</th>
+                                            <th className="px-4 py-3 font-medium">Missing Fields</th>
                                         </tr>
-                                    )}
-                                    {queueData?.students?.map((student: any) => (
-                                        <tr key={student.id} className="border-b last:border-0 hover:bg-muted/30">
-                                            <td className="px-4 py-3 font-medium text-foreground">
-                                                {student.name}
-                                            </td>
-                                            <td className="px-4 py-3">{student.rollNo}</td>
-                                            <td className="px-4 py-3">
-                                                {student.section?.class?.name} - {student.section?.name}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                {student.isReady ? (
-                                                    <Badge variant="outline" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800">
-                                                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                                                        Ready
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="outline" className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800">
-                                                        <XCircle className="w-3 h-3 mr-1" />
-                                                        Incomplete
-                                                    </Badge>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                {student.missingFields?.length > 0 ? (
-                                                    <span className="text-red-500 font-medium text-xs">
-                                                        {student.missingFields.join(', ')}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-green-500 text-xs">-</span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {queueData?.students?.length === 0 && (
+                                            <tr>
+                                                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                                                    No students found in the system. Make sure you map or import students.
+                                                </td>
+                                            </tr>
+                                        )}
+                                        {queueData?.students?.map((student: any) => (
+                                            <tr key={student.id} className="border-b last:border-0 hover:bg-muted/30">
+                                                <td className="px-4 py-3 font-medium text-foreground">{student.name}</td>
+                                                <td className="px-4 py-3">{student.rollNo}</td>
+                                                <td className="px-4 py-3">
+                                                    {student.section?.class?.name} - {student.section?.name}
+                                                </td>
+                                                <td className="px-4 py-3">{renderStatus(student)}</td>
+                                                <td className="px-4 py-3">{renderMissing(student)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Phone / tablet: one card per student, same handlers and renderers. */}
+                            <div className="lg:hidden divide-y divide-border">
+                                {queueData?.students?.length === 0 && (
+                                    <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+                                        No students found in the system. Make sure you map or import students.
+                                    </p>
+                                )}
+                                {queueData?.students?.map((student: any) => (
+                                    <div key={student.id} className="p-4 space-y-2">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <p className="font-medium text-foreground min-w-0 break-words">{student.name}</p>
+                                            <div className="shrink-0">{renderStatus(student)}</div>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">
+                                            Roll {student.rollNo || '-'} &middot; {student.section?.class?.name} - {student.section?.name}
+                                        </p>
+                                        {student.missingFields?.length > 0 && (
+                                            <div className="min-w-0 break-words">
+                                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground mr-1.5">Missing</span>
+                                                {renderMissing(student)}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </CardContent>
             </Card>

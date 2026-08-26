@@ -6,7 +6,7 @@ import {
     Grid3X3, ChevronDown, ZoomIn, ZoomOut, Maximize2,
     Bold, Italic, AlignLeft, AlignCenter, AlignRight,
     Trash2, ChevronUp, Copy, ArrowUpToLine, ArrowDownToLine, ChevronLeft, ChevronRight,
-    Magnet, Layers
+    Magnet, Layers, SlidersHorizontal
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -85,7 +85,12 @@ export default function TemplateEditorPage() {
     });
 
     const [activeTool, setActiveTool] = useState<Tool>('select');
-    const [leftPanelOpen, setLeftPanelOpen] = useState(true);
+    // Open by default on tablet/desktop only. At 375 the 64px rail + this 280px panel
+    // left the canvas 22px wide, i.e. the design surface was invisible on a phone.
+    const [leftPanelOpen, setLeftPanelOpen] = useState(() => window.innerWidth >= 1024);
+    // Same reason as the left panel: the right inspector is a fixed 288px, which left
+    // the canvas 23px wide at 375. Below md it becomes a slide-over, closed by default.
+    const [rightPanelOpen, setRightPanelOpen] = useState(() => window.innerWidth >= 1024);
     const [canvasSettingsOpen, setCanvasSettingsOpen] = useState(true);
     const [zoom, setZoom] = useState(85);
     const [templateName, setTemplateName] = useState('Untitled Template');
@@ -154,9 +159,9 @@ export default function TemplateEditorPage() {
     const canvasLabel = `${canvasLabelW} × ${canvasLabelH} mm`;
 
     return (
-        <div className="bg-background text-foreground h-screen flex flex-col overflow-hidden">
+        <div className="bg-background text-foreground h-[100dvh] flex flex-col overflow-hidden">
             {/* ── TOP NAVBAR ─────────────────────────────────────────────────── */}
-            <header className="fixed top-0 w-full z-50 flex flex-wrap justify-between items-center px-4 sm:px-6 bg-card/70 backdrop-blur-md min-h-16 py-2 sm:py-0 border-b border-border/50 gap-2 shadow-sm">
+            <header className="relative z-50 w-full shrink-0 flex flex-wrap justify-between items-center px-4 sm:px-6 bg-card/70 backdrop-blur-md min-h-16 py-2 sm:py-0 border-b border-border/50 gap-2 shadow-sm">
                 {/* Left: Back + Title */}
                 <div className="flex items-center gap-2 sm:gap-4 min-w-0">
                     <button
@@ -181,7 +186,7 @@ export default function TemplateEditorPage() {
 
                 {/* Center: Canvas size badge */}
                 <div className="hidden sm:block absolute left-1/2 -translate-x-1/2">
-                    <span className="px-3 py-1 bg-muted border-b-2 border-primary text-primary font-bold text-sm tracking-tight">
+                    <span className="px-3 py-1 bg-muted border-b-2 border-primary text-foreground font-bold text-sm tracking-tight">
                         {canvasLabel}
                     </span>
                 </div>
@@ -227,6 +232,18 @@ export default function TemplateEditorPage() {
                             <TooltipContent>Snap to Grid</TooltipContent>
                         </Tooltip>
                     </div>
+                    <button
+                        onClick={() => setRightPanelOpen((v) => !v)}
+                        className={cn(
+                            'lg:hidden p-2 rounded-lg transition-colors',
+                            rightPanelOpen ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50 text-muted-foreground'
+                        )}
+                        title="Toggle properties"
+                        aria-label="Toggle properties panel"
+                        aria-pressed={rightPanelOpen}
+                    >
+                        <SlidersHorizontal className="w-4 h-4" />
+                    </button>
                     <button className="px-4 py-2 text-primary font-medium text-sm hover:bg-muted/50 rounded-lg transition-colors flex items-center gap-1.5">
                         <Eye className="w-4 h-4" />
                         Preview
@@ -234,7 +251,18 @@ export default function TemplateEditorPage() {
                     <button
                         onClick={handleSave}
                         disabled={updateMutation.isPending}
-                        className="px-6 py-2 text-primary-foreground font-bold text-sm rounded-xl shadow-lg active:scale-95 transition-all disabled:opacity-60 flex items-center gap-2"
+                        /* Explicit text-white, NOT text-primary-foreground. This button sits on
+                           ACCENT_GRADIENT, and no single ink passes AA across its whole run in
+                           dark mode: white measures 3.30:1 on the lifted --primary end and
+                           5.44:1 on the --accent-strong end, while the new dark
+                           --primary-foreground measures 5.68 and 3.46. White is the status quo
+                           and matches indic-app.css's rule that --accent-strong is the one
+                           accent permitted under white text, so it stays. The real fix is to
+                           stop putting a label on a two-stop gradient — a solid --accent-strong
+                           fill would be a clean 5.44 — but that is a visual-identity call.
+                           Pre-existing; the --primary-foreground change neither caused nor
+                           worsened it. */
+                        className="px-6 py-2 text-white font-bold text-sm rounded-xl shadow-lg active:scale-95 transition-all disabled:opacity-60 flex items-center gap-2"
                         style={{ background: ACCENT_GRADIENT }}
                     >
                         <Save className="w-4 h-4" />
@@ -244,10 +272,10 @@ export default function TemplateEditorPage() {
             </header>
 
             {/* ── MAIN 3-PANEL LAYOUT ────────────────────────────────────────── */}
-            <main className="flex flex-1 mt-16 overflow-hidden">
+            <main className="relative flex flex-1 min-h-0 overflow-hidden">
 
                 {/* LEFT ICON RAIL */}
-                <nav className="fixed left-0 top-16 h-[calc(100vh-64px)] w-16 flex flex-col items-center py-4 bg-muted/40 border-r border-border/60"
+                <nav className="relative w-16 shrink-0 overflow-y-auto flex flex-col items-center py-4 bg-muted/40 border-r border-border/60"
                     style={{ zIndex: Z_INDEX.STUDIO_LEFT_PANEL }}>
                     <div className="flex flex-col gap-1 w-full px-2">
                         {TOOLS.map(({ id: toolId, icon: Icon, label }) => (
@@ -272,26 +300,26 @@ export default function TemplateEditorPage() {
                     </div>
                 </nav>
 
-                {/* LEFT SLIDING ELEMENTS PANEL */}
-                <AnimatePresence>
-                    {leftPanelOpen && (
-                        <motion.aside
-                            initial={{ width: 0, opacity: 0 }}
-                            animate={{ width: 280, opacity: 1 }}
-                            exit={{ width: 0, opacity: 0 }}
-                            transition={{ duration: 0.2, ease: 'easeInOut' }}
-                            className="ml-16 bg-card border-r border-border overflow-y-auto shrink-0 overflow-hidden"
-                            style={{ zIndex: Z_INDEX.STUDIO_LEFT_PANEL }}
-                        >
-                            <div style={{ width: 280 }}>
-                                {activeTool === 'layers' ? <LayersPanel /> : <ElementsLibrary />}
-                            </div>
-                        </motion.aside>
-                    )}
-                </AnimatePresence>
+                {/* LEFT ELEMENTS PANEL
+                    Deliberately NOT a framer `motion.aside` inside `AnimatePresence`.
+                    It used to be, and the enter animation never ran: the element stayed
+                    at its `initial` of `width: 0; opacity: 0` — measured in dev AND in a
+                    production `vite preview` build — so the whole element library (text
+                    styles, shapes, QR/barcode, dynamic fields, backgrounds) and the
+                    layers panel have never been visible. Plain markup + a CSS transition
+                    is deterministic and does not depend on framer's presence machinery.
+                    Below lg it overlays the canvas instead of pushing it: rail 64 + this
+                    280 + the 288 inspector is 632px of chrome, which leaves 136px of canvas
+                    at 768 and none at 375. lg (1024) is the first width all three fit. */}
+                {leftPanelOpen && (
+                    <aside
+                        className="absolute left-16 top-0 bottom-0 lg:static lg:left-auto lg:top-auto lg:bottom-auto w-[280px] bg-card border-r border-border overflow-y-auto shrink-0"
+                        style={{ zIndex: Z_INDEX.STUDIO_LEFT_PANEL }}
+                    >
+                        {activeTool === 'layers' ? <LayersPanel /> : <ElementsLibrary />}
+                    </aside>
+                )}
 
-                {/* Without AnimatePresence, reserve rail space */}
-                {!leftPanelOpen && <div className="ml-16" />}
 
                 {/* CENTER CANVAS WORKSPACE */}
                 <section className="flex-1 relative overflow-auto flex items-center justify-center"
@@ -384,7 +412,7 @@ export default function TemplateEditorPage() {
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 8 }}
-                                className="fixed top-[72px] left-1/2 -translate-x-1/2 flex items-center gap-1 flex-wrap justify-center p-1.5 rounded-xl shadow-xl border border-border/50"
+                                className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 flex-wrap justify-center p-1.5 rounded-xl shadow-xl border border-border/50"
                                 style={{ zIndex: Z_INDEX.STUDIO_FLOATING_TOOLS, background: GLASS_PANEL_BG, backdropFilter: 'blur(20px)' }}
                             >
                                 {selectedElement.type === 'text' && (
@@ -445,7 +473,11 @@ export default function TemplateEditorPage() {
                 </section>
 
                 {/* RIGHT PROPERTIES PANEL */}
-                <aside className="w-72 bg-card border-l border-border flex flex-col z-30 shrink-0"
+                <aside className={cn(
+                        'w-72 bg-card border-l border-border flex-col z-30 shrink-0',
+                        'absolute right-0 top-0 bottom-0 lg:static lg:right-auto lg:top-auto lg:bottom-auto',
+                        rightPanelOpen ? 'flex' : 'hidden lg:flex'
+                    )}
                     style={{ zIndex: Z_INDEX.STUDIO_RIGHT_PANEL }}>
 
                     {/* Main properties */}

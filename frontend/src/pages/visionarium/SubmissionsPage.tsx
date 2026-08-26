@@ -17,10 +17,10 @@ export default function SubmissionsPage() {
     const submissions = data?.data || [];
 
     const statusColors: Record<string, string> = {
-        submitted: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
-        accepted: 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400',
-        rejected: 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400',
-        published: 'bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400',
+        submitted: 'pill-peacock',
+        accepted: 'pill-green',
+        rejected: 'pill-red',
+        published: 'pill-lotus',
     };
 
     return (
@@ -73,7 +73,7 @@ export default function SubmissionsPage() {
                                 </p>
                             </div>
                             {sub.linkedArticle && (
-                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400 whitespace-nowrap">
+                                <span className="text-[10px] px-2 py-0.5 rounded-full pill-green whitespace-nowrap">
                                     → Published
                                 </span>
                             )}
