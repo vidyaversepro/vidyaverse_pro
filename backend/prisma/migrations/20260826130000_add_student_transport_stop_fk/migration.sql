@@ -1,0 +1,19 @@
+-- `StudentTransport.stop` has been declared in schema.prisma since 0_init:
+--   stop TransportStop? @relation(fields: [stopId], references: [id])
+-- but the constraint was never created in the database, so Prisma modelled a
+-- relation the DB did not enforce. `prisma migrate diff` against the schema
+-- reported this as the ONLY drift in the entire database, and it would have
+-- been generated automatically — and unreviewed — by the next `migrate dev`.
+--
+-- Referential actions are Prisma's defaults for an OPTIONAL relation
+-- (SET NULL / CASCADE), which is what the schema implies; they are spelled out
+-- here so this file matches `migrate diff --script` byte for byte and does not
+-- re-appear as drift on the next diff.
+--
+-- Safety: verified empty before writing. `student_transport` held 0 rows in
+-- production and 1 row (with a NULL stop_id) in dev, and 0 orphaned stop_id
+-- values in both, so this cannot fail on existing data. That mattered because
+-- the backend container runs `prisma migrate deploy && tsx src/index.ts` — a
+-- failing migration would stop the API booting, not just skip the change.
+-- AddForeignKey
+ALTER TABLE "student_transport" ADD CONSTRAINT "student_transport_stop_id_fkey" FOREIGN KEY ("stop_id") REFERENCES "transport_stops"("id") ON DELETE SET NULL ON UPDATE CASCADE;
