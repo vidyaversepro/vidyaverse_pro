@@ -1344,7 +1344,14 @@ the frontend never sends one. Proved by seeding — articles with an
 - **Real-device mobile** (notch, dynamic toolbar, touch targets) — emulation
   only.
 
-### Test data seeded into the local dev DB
+### Test data seeded into the local dev DB — SINCE REMOVED (2026-08-27)
+
+> **All 11 `aud-` rows below were deleted on the owner's instruction.** The four
+> tables are back to zero, exactly as this section found them. Consequence for
+> the next audit: `saathi`, `saathi/connections`, `visionarium`,
+> `visionarium/submissions` and the `MagazineTab` now render their **empty
+> state** again, so measuring them exercises only that. Re-seed before auditing
+> their populated state — there is no seed script, the rows were written by hand.
 
 `vv_gate` had **zero** rows in `social_posts`, `social_saathi_links`,
 `visionarium_articles` and `visionarium_submissions`, so five of these pages
