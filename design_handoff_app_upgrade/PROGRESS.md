@@ -1739,3 +1739,24 @@ gradient or fill was touched.
 `tsc` **0**, `eslint` on `src/pages/landing/` **0**, `npm run build` **0**.
 Spot-checked eight app routes afterwards for regressions from the shared
 `--tone-*` reuse: **0** — the new tokens are `.landing-root`-scoped.
+
+## Hazard found while cleaning up: dev writes to PRODUCTION object storage
+
+`backend/.env` (the **dev** env) sets `R2_PUBLIC_URL=https://storage.vgraphics.in`
+and `R2_BUCKET_NAME=vidyaverse` — the live bucket. A single group-photo upload
+run locally therefore wrote real objects into production storage. There is no
+separate dev bucket.
+
+Worse, the write is **not transactional with the database**. The upload service
+puts both files into R2 and only then inserts the row, so the P2000 failure
+described above left two objects orphaned in the live bucket with nothing in any
+table pointing at them. Any upload error after the put does the same.
+
+All four objects created during this session were removed and the prefix verified
+empty via `ListObjectsV2` (the public URL is a poor check — Cloudflare kept
+serving a deleted object from cache after the origin returned 404). Notably the
+entire `group-photos/` prefix held **only** those four, which independently
+confirms the feature has never been used in production.
+
+Worth doing: give dev its own bucket, and make the upload clean up its own
+objects when the insert fails.
