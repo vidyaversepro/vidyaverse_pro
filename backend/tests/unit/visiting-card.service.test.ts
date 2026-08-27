@@ -57,6 +57,11 @@ vi.mock('../../src/config/database', () => ({
         template: {
             findFirst: vi.fn(),
         },
+        // buildBrandingContext() reads this for every printable, to resolve the
+        // signing authority. Omitting it made create() throw on undefined.findMany.
+        institutionAuthority: {
+            findMany: vi.fn(),
+        },
     },
 }));
 
@@ -93,6 +98,9 @@ const mockPrisma = prisma as unknown as {
     template: {
         findFirst: ReturnType<typeof vi.fn>;
     };
+    institutionAuthority: {
+        findMany: ReturnType<typeof vi.fn>;
+    };
 };
 
 describe('VisitingCardService', () => {
@@ -101,6 +109,9 @@ describe('VisitingCardService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        // No signing authorities configured is the common real case; the branding
+        // builder falls back to the institution signature and title.
+        mockPrisma.institutionAuthority.findMany.mockResolvedValue([]);
         service = createVisitingCardService(prisma as any);
     });
 
@@ -162,8 +173,7 @@ describe('VisitingCardService', () => {
             mockPrisma.visitingCard.update.mockResolvedValue({ ...mockCreatedCard, frontSideUrl: 'http://url' });
 
             const result = await service.create(mockInstitutionId, data);
-            console.log('RESULT 2:', result);
-
+    
             expect(result.visitingCard).toHaveProperty('id');
             expect(templateResolver.resolveById).toHaveBeenCalledWith('custom-tpl', mockInstitutionId);
             expect(mockPrisma.visitingCard.create).toHaveBeenCalledWith({

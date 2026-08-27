@@ -101,31 +101,27 @@ export const controller = {
 
     async createAuthority(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         const institutionId = request.params.id;
-        try {
-            // First check if it's a multipart upload for the signature
-            if ((request as any).isMultipart()) {
-                const parts = (request as any).parts();
-                let signatureUrl: string | undefined;
-                const bodyData: any = {};
+        // First check if it's a multipart upload for the signature
+        if ((request as any).isMultipart()) {
+            const parts = (request as any).parts();
+            let signatureUrl: string | undefined;
+            const bodyData: any = {};
 
-                for await (const part of parts) {
-                    if (part.type === 'file' && part.fieldname === 'signature') {
-                        const buffer = await part.toBuffer();
-                        const objectName = storage.generateObjectName(institutionId, 'signatures', part.filename);
-                        signatureUrl = await storage.uploadFile(objectName, buffer, part.mimetype);
-                    } else if (part.type === 'field') {
-                        bodyData[part.fieldname] = part.value;
-                    }
+            for await (const part of parts) {
+                if (part.type === 'file' && part.fieldname === 'signature') {
+                    const buffer = await part.toBuffer();
+                    const objectName = storage.generateObjectName(institutionId, 'signatures', part.filename);
+                    signatureUrl = await storage.uploadFile(objectName, buffer, part.mimetype);
+                } else if (part.type === 'field') {
+                    bodyData[part.fieldname] = part.value;
                 }
-                const data = await service.createAuthority(institutionId, { ...bodyData, signatureUrl });
-                return reply.status(201).send({ data });
-            } else {
-                // If standard JSON
-                const data = await service.createAuthority(institutionId, request.body as never);
-                return reply.status(201).send({ data });
             }
-        } catch (error) {
-            throw error;
+            const data = await service.createAuthority(institutionId, { ...bodyData, signatureUrl });
+            return reply.status(201).send({ data });
+        } else {
+            // If standard JSON
+            const data = await service.createAuthority(institutionId, request.body as never);
+            return reply.status(201).send({ data });
         }
     },
 

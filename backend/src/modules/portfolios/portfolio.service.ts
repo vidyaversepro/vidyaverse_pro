@@ -479,7 +479,7 @@ export const createPortfolioService = (tx: any = prisma) => ({
             <p>${content.bio || 'No bio added yet.'}</p>
           </section>`;
 
-      case 'education':
+      case 'education': {
         const eduEntries = content.entries || [];
         return `
           <section class="portfolio-section education-section" id="education">
@@ -493,8 +493,9 @@ export const createPortfolioService = (tx: any = prisma) => ({
               `).join('')}
             </div>
           </section>`;
+      }
 
-      case 'skills':
+      case 'skills': {
         const skills = content.skills || [];
         return `
           <section class="portfolio-section skills-section" id="skills">
@@ -508,8 +509,9 @@ export const createPortfolioService = (tx: any = prisma) => ({
               `).join('')}
             </div>
           </section>`;
+      }
 
-      case 'achievements':
+      case 'achievements': {
         const achievements = content.achievements || [];
         return `
           <section class="portfolio-section achievements-section" id="achievements">
@@ -524,8 +526,9 @@ export const createPortfolioService = (tx: any = prisma) => ({
               `).join('')}
             </div>
           </section>`;
+      }
 
-      case 'projects':
+      case 'projects': {
         const projects = content.projects || [];
         return `
           <section class="portfolio-section projects-section" id="projects">
@@ -541,8 +544,9 @@ export const createPortfolioService = (tx: any = prisma) => ({
               `).join('')}
             </div>
           </section>`;
+      }
 
-      case 'gallery':
+      case 'gallery': {
         const items = content.items || [];
         return `
           <section class="portfolio-section gallery-section" id="gallery">
@@ -556,6 +560,7 @@ export const createPortfolioService = (tx: any = prisma) => ({
               `).join('')}
             </div>
           </section>`;
+      }
 
       case 'contact':
         return `

@@ -7,6 +7,7 @@ vi.mock('../../src/config/database', () => ({
     prisma: {
         template: {
             findFirst: vi.fn(),
+            create: vi.fn(),
         },
     },
 }));
@@ -25,6 +26,7 @@ import { prisma } from '../../src/config/database';
 const mockPrisma = prisma as unknown as {
     template: {
         findFirst: ReturnType<typeof vi.fn>;
+        create: ReturnType<typeof vi.fn>;
     };
 };
 
@@ -109,12 +111,44 @@ describe('TemplateResolverService', () => {
             expect(mockPrisma.template.findFirst).toHaveBeenCalledTimes(3);
         });
 
-        it('should throw NotFoundError when all strategies fail', async () => {
-            // All 3 strategies fail
+        it('should seed the curated default (Strategy 4) when all lookups fail', async () => {
+            // All three lookup strategies miss.
+            mockPrisma.template.findFirst.mockResolvedValue(null);
+            const seeded = { id: 'tpl-seeded', name: 'Visiting Card — Standard' };
+            mockPrisma.template.create.mockResolvedValue(seeded);
+
+            const result = await resolver.resolveTemplate(ctx);
+
+            expect(result).toEqual(seeded);
+            expect(mockPrisma.template.findFirst).toHaveBeenCalledTimes(3);
+            expect(mockPrisma.template.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    data: expect.objectContaining({
+                        institutionId: mockInstitutionId,
+                        serviceType: 'visiting_card',
+                        templateType: 'html',
+                        targetAudience: ctx.audience,
+                        isDefault: true,
+                        isActive: true,
+                    }),
+                }),
+            );
+        });
+
+        it('should throw NotFoundError when the product type has no curated default', async () => {
+            // portfolio and group_photo are the two ServiceTypes with no entry in
+            // DEFAULT_TEMPLATES, so Strategy 4 has nothing to seed and the resolver
+            // is expected to give up.
+            const noDefaultCtx = {
+                institutionId: mockInstitutionId,
+                productType: 'portfolio' as const,
+                audience: 'STUDENT' as const,
+            };
             mockPrisma.template.findFirst.mockResolvedValue(null);
 
-            await expect(resolver.resolveTemplate(ctx)).rejects.toThrow(NotFoundError);
+            await expect(resolver.resolveTemplate(noDefaultCtx)).rejects.toThrow(NotFoundError);
             expect(mockPrisma.template.findFirst).toHaveBeenCalledTimes(3);
+            expect(mockPrisma.template.create).not.toHaveBeenCalled();
         });
     });
 

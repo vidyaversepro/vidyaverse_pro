@@ -22,10 +22,16 @@ name: CI
 # as this file but without generating the Prisma clients or building
 # shared-validation first, so it always failed where this one passes.
 #
-# Backend lint and backend unit tests are deliberately NOT gated here: they
-# carry 119 and 9 pre-existing failures respectively. Adding them would just
-# recreate the permanently-red workflow this consolidation removed. Fix them
-# first, then add the steps.
+# 2026-08-27 (later): backend lint and backend unit tests are now gated too.
+# The 10 lint errors and 9 failing tests they carried are fixed. Backend lint
+# still reports ~109 WARNINGS (ban-ts-comment, no-unused-vars); eslint does not
+# fail on warnings, and clearing them is a separate cleanup - do not gate on
+# warning count without doing that work first.
+#
+# The unit suite pins its own env in vitest.config.unit.ts. It has to:
+# src/config/env.ts validates on import and calls process.exit(1) on a missing
+# variable, which would kill the runner outright on a checkout with no .env.
+# Backend INTEGRATION tests still are not gated - they need a live Postgres.
 on:
   push:
     branches: [main]
@@ -80,8 +86,14 @@ jobs:
       - name: Check Indic layout clobbers (frontend)
         run: pnpm --filter @vidyaverse/frontend run check:layout-clobbers
 
+      - name: Lint backend
+        run: pnpm --filter @vidyaverse/backend run lint
+
       - name: Lint frontend
         run: pnpm --filter @vidyaverse/frontend run lint
+
+      - name: Test backend (unit)
+        run: pnpm --filter @vidyaverse/backend run test:unit
 
       - name: Test frontend
         run: pnpm --filter @vidyaverse/frontend run test

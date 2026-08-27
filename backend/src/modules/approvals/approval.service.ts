@@ -184,7 +184,7 @@ export const approvalService = {
         const { type, status, priority, requesterId, assignedToMe, page, limit } = query;
         const skip = (page - 1) * limit;
 
-        let where: any = { institutionId };
+        const where: any = { institutionId };
 
         if (type) where.type = type;
         if (status) where.status = status;

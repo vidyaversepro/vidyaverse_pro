@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { prisma } from '../../src/config/database';
-import '../setup';
+// Named imports, matching every other integration suite. tests/setup.ts exports
+// these helpers; it never assigned them to globalThis, so the global.* calls this
+// file used to make were always undefined.
+import { createTestInstitution, createTestClass, createTestSection, createTestStudent, cleanupTestData } from '../setup';
 
 describe('Student Service', () => {
     let institutionId: string;
@@ -9,18 +12,18 @@ describe('Student Service', () => {
 
     beforeAll(async () => {
         // Create test data
-        const institution = await global.createTestInstitution();
+        const institution = await createTestInstitution();
         institutionId = institution.id;
 
-        const cls = await global.createTestClass(institutionId);
+        const cls = await createTestClass(institutionId);
         classId = cls.id;
 
-        const section = await global.createTestSection(classId);
+        const section = await createTestSection(classId);
         sectionId = section.id;
     });
 
     afterAll(async () => {
-        await global.cleanupTestData(institutionId);
+        await cleanupTestData(institutionId);
     });
 
     describe('create', () => {
@@ -100,8 +103,8 @@ describe('Student Service', () => {
         it('should find students by section', async () => {
             // Create multiple students
             await Promise.all([
-                global.createTestStudent(institutionId, sectionId),
-                global.createTestStudent(institutionId, sectionId),
+                createTestStudent(institutionId, sectionId),
+                createTestStudent(institutionId, sectionId),
             ]);
 
             const students = await prisma.student.findMany({
