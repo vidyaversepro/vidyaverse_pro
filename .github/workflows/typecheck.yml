@@ -1,4 +1,4 @@
-name: Typecheck
+name: CI
 
 # The backend runs under `tsx`, which strips types without checking them, and the
 # frontend ships through Vite. So nothing in the normal build or deploy path ever
@@ -12,6 +12,20 @@ name: Typecheck
 # taxonomy/routes.ts. Both were invisible precisely because nothing type-checked.
 #
 # This job is the gate. Keep it green.
+#
+# 2026-08-27: absorbed the parts of ci.yml worth keeping, and both it and
+# ci-cd.yml were deleted. They had been red on every push for months for
+# reasons unrelated to the code: ci-cd.yml pinned pnpm 8 (unreadable v10
+# lockfile), provisioned MySQL for a postgresql schema, and pushed ghcr images
+# plus a staging deploy that no longer describe how this app ships (Coolify
+# builds from the repo). ci.yml pinned pnpm 9 and re-ran the same typechecks
+# as this file but without generating the Prisma clients or building
+# shared-validation first, so it always failed where this one passes.
+#
+# Backend lint and backend unit tests are deliberately NOT gated here: they
+# carry 119 and 9 pre-existing failures respectively. Adding them would just
+# recreate the permanently-red workflow this consolidation removed. Fix them
+# first, then add the steps.
 on:
   push:
     branches: [main]
@@ -65,3 +79,9 @@ jobs:
       # step keeps a future design-system sync from reintroducing the bug.
       - name: Check Indic layout clobbers (frontend)
         run: pnpm --filter @vidyaverse/frontend run check:layout-clobbers
+
+      - name: Lint frontend
+        run: pnpm --filter @vidyaverse/frontend run lint
+
+      - name: Test frontend
+        run: pnpm --filter @vidyaverse/frontend run test

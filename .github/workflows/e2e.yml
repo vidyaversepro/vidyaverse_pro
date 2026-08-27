@@ -1,12 +1,31 @@
 name: E2E Tests
 
+# TRIGGERS DISABLED 2026-08-27 - manual dispatch only.
+#
+# The four specs under frontend/tests/e2e are real and worth keeping, but this
+# workflow has been red on every push for months and never reached them. It
+# dies at `pnpm install`: it pins pnpm 8 via action-setup@v2, while the repo is
+# on pnpm@10.30.3, whose lockfile pnpm 8 cannot read (ERR_PNPM_NO_LOCKFILE).
+# Rather than leave a permanently failing check on every commit, it is parked
+# here until someone owns the repair.
+#
+# Restoring it needs all four of these - bumping pnpm alone only moves the
+# failure further down:
+#   1. pnpm/action-setup@v4 with version 10.30.3 and node 22, matching
+#      typecheck.yml.
+#   2. Swap the mysql:8.0 service for postgres. backend/prisma/schema.prisma is
+#      provider = "postgresql"; the trio left MySQL in July 2026, so the
+#      mysql:// DATABASE_URL below cannot migrate.
+#   3. Provide test data. `pnpm run db:seed` runs prisma/seed.ts, but the dev
+#      seed rows were removed by hand (see d37de54) and no working seed path is
+#      guaranteed.
+#   4. Replace the `pnpm run dev &` + wait-on pair with Playwright's own
+#      `webServer` config, which owns server lifecycle across steps properly.
+#
+# Also generate the three Prisma clients and build @vidyaverse/shared-validation
+# before any backend step, exactly as typecheck.yml does.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  schedule:
-    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:
 
 jobs:
   e2e:

@@ -8,6 +8,10 @@ const OPENCV_URL = 'https://docs.opencv.org/4.8.0/opencv.js';
 let cvReady = false;
 
 // Mock definition for CV so TypeScript knows about it if typings aren't perfectly injected.
+// `declare var` is the correct form for an ambient global; let/const do not
+// model a script-injected global the same way. importScripts(OPENCV_URL) below
+// is what actually defines it at runtime.
+// eslint-disable-next-line no-var
 declare var cv: any;
 
 self.onmessage = async (e: MessageEvent) => {
