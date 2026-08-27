@@ -56,3 +56,12 @@ jobs:
 
       - name: Typecheck frontend
         run: pnpm --filter @vidyaverse/frontend exec tsc --noEmit
+
+      # The Indic design system is vendored from PDLMS and loads after
+      # @tailwind utilities, so any class of its that sets `position` beats the
+      # Tailwind utility on the same element at equal specificity. That silently
+      # unpinned the app shell sidebar and double-offset every page content
+      # column by 512px. src/styles/indic-layout-repairs.css repairs it; this
+      # step keeps a future design-system sync from reintroducing the bug.
+      - name: Check Indic layout clobbers (frontend)
+        run: pnpm --filter @vidyaverse/frontend run check:layout-clobbers

@@ -12,6 +12,10 @@ import './index.css';
 import './design/indic/indic-tokens.css';
 import './design/indic/indic-app.css';
 import './design/indic/indic-design-system.css';
+// Repairs design-system rules that clobber Tailwind layout utilities on the same
+// element — the same cascade trap the bridge below documents for --accent, on the
+// layout side. Must stay immediately after the file it repairs.
+import './styles/indic-layout-repairs.css';
 import './styles/indic-bridge.css';
 // Semantic status pigments (light/dark pairs). Outside the accent switch on purpose.
 import './styles/status-tones.css';
