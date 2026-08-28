@@ -42,14 +42,29 @@ describe('PII Masking Utils', () => {
     });
 
     describe('maskEmail', () => {
-        it('masks standard email correctly', () => {
-            expect(maskEmail('john.doe@example.com')).toBe('john.doe@***.com');
-            expect(maskEmail('jane@school.edu.in')).toBe('jane@***.in');
+        it('masks the local part and keeps the domain', () => {
+            expect(maskEmail('john.doe@example.com')).toBe('jo***@example.com');
+            expect(maskEmail('jane@school.edu.in')).toBe('ja***@school.edu.in');
+            expect(maskEmail('test@test.com')).toBe('te***@test.com');
         });
 
-        it('handles invalid or short emails gracefully', () => {
+        it('uses a fixed-width mask, so the address length does not leak', () => {
+            expect(maskEmail('alexandra.hamilton@example.com')).toBe('al***@example.com');
+            expect(maskEmail('abc@example.com')).toBe('ab***@example.com');
+        });
+
+        it('hides the domain instead when the local part is too short to mask', () => {
+            // Revealing the first two characters of a two-character local part
+            // would reveal all of it, so there is nothing to gain by masking it.
+            expect(maskEmail('ab@example.com')).toBe('ab@***.com');
+            expect(maskEmail('a@example.com')).toBe('a@***.com');
+        });
+
+        it('handles invalid or empty input gracefully', () => {
             expect(maskEmail('notanemail')).toBe('notanemail');
             expect(maskEmail(null)).toBe('');
+            expect(maskEmail(undefined)).toBe('');
+            expect(maskEmail('')).toBe('');
         });
     });
 
@@ -71,7 +86,7 @@ describe('PII Masking Utils', () => {
 
             expect(masked.student.aadharNumber).toBe('XXXX XXXX 1098');
             expect(masked.student.phone).toBe('******3210');
-            expect(masked.student.email).toBe('parent@***.com');
+            expect(masked.student.email).toBe('pa***@example.com');
             expect(masked.student.photoUrl).toBe('/placeholder-photo.png');
             expect(masked.student.name).toBe('John Doe'); // Unchanged
             expect(masked.academicYear).toBe('2025'); // Unchanged

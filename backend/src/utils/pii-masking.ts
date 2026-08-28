@@ -26,9 +26,35 @@ export function maskPhone(phone: string | null | undefined): string {
     return '*'.repeat(clean.length - 4) + clean.slice(-4);
 }
 
+/**
+ * Masks the LOCAL part of an address and keeps the domain.
+ *
+ * This is the reverse of what this function used to do. It previously returned
+ * `john.doe@***.com` — hiding the domain while printing the local part in full.
+ * The local part is usually the person's own name, so that masked the half that
+ * rarely identifies anyone and published the half that does.
+ *
+ * The asterisk run is a fixed width rather than padded to the original length,
+ * for two reasons: padding leaks how long the address is, and these values print
+ * into fixed-size fields on ID and visiting cards, where a long address would
+ * overflow the box.
+ *
+ * A local part of one or two characters cannot be masked meaningfully — showing
+ * its first two characters would show all of it — so those fall back to hiding
+ * the domain, which is what this function used to do for every address.
+ */
 export function maskEmail(email: string | null | undefined): string {
     if (!email || !email.includes('@')) return email || '';
-    const [local, domain] = email.split('@');
+
+    // lastIndexOf, not split: a quoted local part may legally contain '@', and
+    // split('@') silently drops everything after the second one.
+    const at = email.lastIndexOf('@');
+    const local = email.slice(0, at);
+    const domain = email.slice(at + 1);
+    if (!local || !domain) return email;
+
+    if (local.length > 2) return `${local.slice(0, 2)}***@${domain}`;
+
     const domainParts = domain.split('.');
     const tld = domainParts.length > 1 ? domainParts.pop() : '';
     return `${local}@***${tld ? '.' + tld : ''}`;
@@ -116,7 +142,7 @@ export const TEMPLATE_VARIABLE_REGISTRY: Record<string, TemplateVariable[]> = {
             handlebarsExpression: '{{student.email}}',
             isMasked: true,
             maskFn: maskEmail,
-            sampleValue: 'parent@***.com',
+            sampleValue: 'pa***@example.com',
         },
         {
             key: 'student.address',
@@ -305,7 +331,7 @@ export const TEMPLATE_VARIABLE_REGISTRY: Record<string, TemplateVariable[]> = {
         { key: 'name', label: 'Name', category: 'Person', handlebarsExpression: '{{name}}', isMasked: false, sampleValue: 'John Doe' },
         { key: 'designation', label: 'Designation', category: 'Person', handlebarsExpression: '{{designation}}', isMasked: false, sampleValue: 'Principal' },
         { key: 'phone', label: 'Phone Number', category: 'Contact', handlebarsExpression: '{{phone}}', isMasked: true, maskFn: maskPhone, sampleValue: '******3210' },
-        { key: 'email', label: 'Email', category: 'Contact', handlebarsExpression: '{{email}}', isMasked: true, maskFn: maskEmail, sampleValue: 'admin@***.edu' },
+        { key: 'email', label: 'Email', category: 'Contact', handlebarsExpression: '{{email}}', isMasked: true, maskFn: maskEmail, sampleValue: 'ad***@school.edu' },
         { key: 'website', label: 'Website', category: 'Contact', handlebarsExpression: '{{website}}', isMasked: false, sampleValue: 'www.vidyaverse.app' },
     ]
 };
