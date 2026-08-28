@@ -327,7 +327,6 @@ export async function buildApp() {
         const webReq = new Request(url, {
             method: request.method,
             headers: request.headers as HeadersInit,
-            // @ts-ignore
             body: forwardedBody,
         });
 
@@ -336,9 +335,8 @@ export async function buildApp() {
         const headers: Record<string, string | string[]> = {};
         for (const [key, value] of response.headers as unknown as Iterable<[string, string]>) {
             if (key.toLowerCase() === 'set-cookie') {
-                // @ts-ignore Fastify can handle array set-cookies
+                // Fastify can handle array set-cookies
                 const existing = headers['set-cookie'] || [];
-                // @ts-ignore
                 headers['set-cookie'] = [...(Array.isArray(existing) ? existing : [existing]), value];
             } else {
                 headers[key] = value;

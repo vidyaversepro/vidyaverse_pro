@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { FastifyPluginAsync } from 'fastify';
-// @ts-nocheck
 import { attendanceService } from './attendance.service.js';
 import { attendanceSessionCreateSchema, markAttendanceSchema, qrCheckInSchema, attendanceRecordUpdateSchema, attendanceQuerySchema, attendanceReportSchema, } from '@vidyaverse/shared-validation';
 const attendanceRoutes: FastifyPluginAsync = async (fastify) => {

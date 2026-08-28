@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { FastifyPluginAsync } from 'fastify';
-// @ts-nocheck
 import { prisma } from '../../config/database.js';
 import { analyticsService } from './analytics.service.js';
 const analyticsRoutes: FastifyPluginAsync = async (fastify) => {

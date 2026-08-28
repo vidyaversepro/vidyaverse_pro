@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { FastifyPluginAsync } from 'fastify';
-// @ts-nocheck
 import { createLibraryCardService } from './library-card.service.js';
 import { getTenantPrisma } from '../../lib/prisma-tenant.js';
 function getService(request) {

@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { FastifyPluginAsync } from 'fastify';
-// @ts-nocheck
 import { createVisitingCardService } from './service.js';
 import { getTenantPrisma } from '../../lib/prisma-tenant.js';
 import { visitingCardQuerySchema } from '@vidyaverse/shared-validation';

@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { FastifyPluginAsync } from 'fastify';
-// @ts-nocheck
 import { notificationService } from './notification.service.js';
 import { sendEmailSchema, sendBulkEmailSchema, sendSmsSchema, sendBulkSmsSchema, sendNotificationSchema, notificationTemplateSchema, notificationQuerySchema, } from '@vidyaverse/shared-validation';
 const notificationRoutes: FastifyPluginAsync = async (fastify) => {

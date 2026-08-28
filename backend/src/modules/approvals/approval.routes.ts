@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { FastifyPluginAsync } from 'fastify';
-// @ts-nocheck
 import { approvalService } from './approval.service.js';
 import { approvalRequestCreateSchema, approvalRequestUpdateSchema, processApprovalSchema, approvalWorkflowCreateSchema, approvalQuerySchema, } from '@vidyaverse/shared-validation';
 const approvalRoutes: FastifyPluginAsync = async (fastify) => {
