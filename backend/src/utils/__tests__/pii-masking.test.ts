@@ -115,5 +115,43 @@ describe('PII Masking Utils', () => {
                 expect(variable).toHaveProperty('sampleValue');
             });
         });
+
+        it('never claims isMasked for a field applyMasking does not actually mask', () => {
+            // A registry entry that advertises isMasked but that applyMasking never
+            // reaches is metadata that lies — to the template editor, which is served
+            // this via GET /templates/variables, and to preview-generator.ts, which
+            // builds preview data from sampleValue. visiting_card's phone and email
+            // did exactly that until 2026-08-28: they were declared masked, but
+            // applyMasking only walks data.student.* and the visiting-card service
+            // supplies those two as flat top-level keys.
+            const probeFor = (key: string): string => {
+                if (key.includes('aadhar')) return '123456789012';
+                if (key.includes('phone')) return '9876543210';
+                if (key.includes('email')) return 'someone@example.com';
+                if (key.includes('photo')) return '';
+                return 'UNMASKED-PROBE';
+            };
+
+            const lying: string[] = [];
+
+            for (const [serviceType, vars] of Object.entries(TEMPLATE_VARIABLE_REGISTRY)) {
+                for (const v of vars) {
+                    if (!v.isMasked) continue;
+
+                    const parts = v.key.split('.');
+                    const probe = probeFor(v.key);
+                    const data: Record<string, any> = parts.length === 2
+                        ? { [parts[0]]: { [parts[1]]: probe } }
+                        : { [parts[0]]: probe };
+
+                    const masked = applyMasking(data);
+                    const got = parts.length === 2 ? masked[parts[0]][parts[1]] : masked[parts[0]];
+
+                    if (got === probe) lying.push(`${serviceType}.${v.key}`);
+                }
+            }
+
+            expect(lying).toEqual([]);
+        });
     });
 });

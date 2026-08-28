@@ -330,8 +330,20 @@ export const TEMPLATE_VARIABLE_REGISTRY: Record<string, TemplateVariable[]> = {
     'visiting_card': [
         { key: 'name', label: 'Name', category: 'Person', handlebarsExpression: '{{name}}', isMasked: false, sampleValue: 'John Doe' },
         { key: 'designation', label: 'Designation', category: 'Person', handlebarsExpression: '{{designation}}', isMasked: false, sampleValue: 'Principal' },
-        { key: 'phone', label: 'Phone Number', category: 'Contact', handlebarsExpression: '{{phone}}', isMasked: true, maskFn: maskPhone, sampleValue: '******3210' },
-        { key: 'email', label: 'Email', category: 'Contact', handlebarsExpression: '{{email}}', isMasked: true, maskFn: maskEmail, sampleValue: 'ad***@school.edu' },
+        // NOT masked, deliberately — and they never were. A visiting card exists to
+        // publish its holder's contact details; masking them would defeat the
+        // document. These two carried isMasked: true until 2026-08-28, but that only
+        // ever described an intention: applyMasking() walks data.student.*, while the
+        // visiting-card service supplies phone/email as flat top-level keys (and under
+        // card.*/person.* for legacy templates), so nothing was reached. Corrected the
+        // metadata rather than the behaviour, because the behaviour is right.
+        //
+        // This flag drives nothing on its own — it is served to the template editor
+        // via GET /templates/variables, and sampleValue feeds preview-generator.ts. If
+        // these ever should be masked, change applyMasking() as well; flipping the
+        // flag back alone would just restore the lie.
+        { key: 'phone', label: 'Phone Number', category: 'Contact', handlebarsExpression: '{{phone}}', isMasked: false, sampleValue: '+91 98765 43210' },
+        { key: 'email', label: 'Email', category: 'Contact', handlebarsExpression: '{{email}}', isMasked: false, sampleValue: 'principal@vidyaverse.app' },
         { key: 'website', label: 'Website', category: 'Contact', handlebarsExpression: '{{website}}', isMasked: false, sampleValue: 'www.vidyaverse.app' },
     ]
 };
